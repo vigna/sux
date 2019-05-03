@@ -270,7 +270,6 @@ inline uint64_t bitread(const void *const word, int from, int length) {
 inline void bitwrite(void *word, int from, int length, uint64_t val) {
   uint64_t old;
   memcpy(&old, word, sizeof(uint64_t));
-  assert(length == 64 || val < (1ULL << length));
 
   if (likely((from + length) <= 64)) {
     const uint64_t mask = (-1ULL >> (64 - length)) << from;
@@ -290,14 +289,22 @@ inline void bitwrite(void *word, int from, int length, uint64_t val) {
 }
 
 inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
-  if (likely((from + length) <= 64)) {
-    uint64_t value;
-    memcpy(&value, word, sizeof(uint64_t));
+  uint64_t value;
+  memcpy(&value, word, sizeof(uint64_t));
+  const uint64_t sum = (value >> from) + inc;
+  const uint64_t carry = sum >> (64 - from);
+
+  if (likely((from + length) <= 64 || carry == 0)) {
     value += inc << from;
     memcpy(word, &value, sizeof(uint64_t));
   } else {
-    uint64_t value = bitread(word, from, length);
-    bitwrite(word, from, length, value + inc);
+    value = (value & (-1ULL >> (64 - from))) | (sum << from);
+    memcpy(word, &value, sizeof(uint64_t));
+
+    uint64_t next;
+    memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
+    next += carry;
+    memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
   }
 }
 
