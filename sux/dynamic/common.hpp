@@ -5,8 +5,8 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
-#include <memory>
 #include <inttypes.h>
+#include <memory>
 #include <x86intrin.h>
 
 // Macro stringification
