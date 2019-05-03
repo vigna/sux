@@ -3,7 +3,7 @@
 
 #include "fenwick_tree.hpp"
 
-namespace sux::fenwick {
+namespace hft::fenwick {
 
 /**
  * class BitL - bit compression and level ordered node layout.
@@ -27,32 +27,23 @@ public:
       : Size(size), Levels(size != 0 ? lambda(size) + 2 : 1), Level(make_unique<size_t[]>(Levels)) {
     Level[0] = 0;
     for (size_t i = 1; i < Levels; i++)
-      Level[i] = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i) + Level[i - 1];
+      Level[i] = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE + i - 1) + Level[i - 1];
 
-    Tree = DArray<uint8_t>((Level[Levels - 1] >> 3) + 8); // +8 for safety
+    Tree = DArray<uint8_t>((Level[Levels - 1] / 8) + 7); // +7 for safety
 
     for (size_t l = 0; l < Levels - 1; l++) {
       for (size_t node = 1ULL << l; node <= size; node += 1ULL << (l + 1)) {
-        const size_t highpos = Level[l] + (BOUNDSIZE + l) * (node >> (l + 1));
-        const size_t highshift = highpos & 0b111;
-        const uint64_t highmask = compact_bitmask(BOUNDSIZE + l, highshift);
-        auint64_t &high = reinterpret_cast<auint64_t &>(Tree[highpos >> 3]);
-
         size_t sequence_idx = node - 1;
         uint64_t value = sequence[sequence_idx];
 
         for (size_t j = 0; j < l; j++) {
           sequence_idx >>= 1;
           const size_t lowpos = Level[j] + (BOUNDSIZE + j) * sequence_idx;
-          const size_t lowshift = lowpos & 0b111;
-          const uint64_t lowmask = compact_bitmask(BOUNDSIZE + j, lowshift);
-          const uint64_t low = *reinterpret_cast<auint64_t *>(&Tree[lowpos >> 3]);
-
-          value += (low & lowmask) >> lowshift;
+          value += bitread(&Tree[lowpos / 8], lowpos % 8, BOUNDSIZE + j);
         }
 
-        high &= ~highmask;
-        high |= (value << highshift) & highmask;
+        const size_t highpos = Level[l] + (BOUNDSIZE + l) * (node >> (l + 1));
+        bitwrite(&Tree[highpos / 8], highpos % 8, BOUNDSIZE + l, value);
       }
     }
   }
@@ -63,9 +54,8 @@ public:
     while (idx != 0) {
       const int height = rho(idx);
       const size_t pos = Level[height] + (idx >> (1 + height)) * (BOUNDSIZE + height);
-      const auint64_t *element = reinterpret_cast<auint64_t *>(&Tree[pos >> 3]);
+      sum += bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
 
-      sum += bitextract(element, pos & 0b111, BOUNDSIZE + height);
       idx = clear_rho(idx);
     }
 
@@ -76,9 +66,9 @@ public:
     while (idx <= Size) {
       const int height = rho(idx);
       const size_t pos = Level[height] + (idx >> (1 + height)) * (BOUNDSIZE + height);
-      auint64_t &element = reinterpret_cast<auint64_t &>(Tree[pos >> 3]);
+      //printf("node = %zu\n", idx);
+      bitwrite_inc(&Tree[pos / 8], pos % 8, BOUNDSIZE + height, inc);
 
-      element += inc << (pos & 0b111);
       idx += mask_rho(idx);
     }
   }
@@ -95,8 +85,7 @@ public:
       if (pos >= Level[height + 1])
         continue;
 
-      const uint64_t *element = reinterpret_cast<auint64_t *>(&Tree[pos >> 3]);
-      const uint64_t value = bitextract(element, pos & 0b111, BOUNDSIZE + height);
+      const uint64_t value = bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
 
       if (*val >= value) {
         idx++;
@@ -120,9 +109,8 @@ public:
       if (pos >= Level[height + 1])
         continue;
 
-      const uint64_t *element = reinterpret_cast<auint64_t *>(&Tree[pos >> 3]);
       const uint64_t value =
-          (BOUND << height) - bitextract(element, pos & 0b111, BOUNDSIZE + height);
+          (BOUND << height) - bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
 
       if (*val >= value) {
         idx++;
@@ -177,6 +165,6 @@ private:
   }
 };
 
-} // namespace sux::fenwick
+} // namespace hft::fenwick
 
 #endif // __FENWICK_BITL_HPP__

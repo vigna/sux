@@ -3,7 +3,7 @@
 
 #include "fenwick_tree.hpp"
 
-namespace sux::fenwick {
+namespace hft::fenwick {
 
 /**
  * class ByteF - byte compression and classical node layout.
@@ -23,20 +23,14 @@ protected:
 
 public:
   ByteF(uint64_t sequence[], size_t size) : Size(size), Tree(pos(size + 1) + 8) {
-    for (size_t i = 1; i <= size; i++) {
-      auint64_t &element = reinterpret_cast<auint64_t &>(Tree[pos(i)]);
-
-      const size_t isize = bytesize(i);
-      element &= ~BYTE_MASK[isize];
-      element |= sequence[i - 1] & BYTE_MASK[isize];
-    }
+    for (size_t i = 1; i <= size; i++)
+      bytewrite(&Tree[pos(i)], bytesize(i), sequence[i - 1]);
 
     for (size_t m = 2; m <= size; m <<= 1) {
       for (size_t idx = m; idx <= size; idx += m) {
-        auint64_t &left = reinterpret_cast<auint64_t &>(Tree[pos(idx)]);
-        const auint64_t right = *reinterpret_cast<auint64_t *>(&Tree[pos(idx - m / 2)]);
-
-        left += right & BYTE_MASK[bytesize(idx - m / 2)];
+        const uint64_t left = byteread(&Tree[pos(idx)], bytesize(idx));
+        const uint64_t right = byteread(&Tree[pos(idx - m / 2)], bytesize(idx - m / 2));
+        bytewrite(&Tree[pos(idx)], bytesize(idx), left + right);
       }
     }
   }
@@ -45,8 +39,7 @@ public:
     uint64_t sum = 0;
 
     while (idx != 0) {
-      const uint64_t element = *reinterpret_cast<auint64_t *>(&Tree[pos(idx)]);
-      sum += element & BYTE_MASK[bytesize(idx)];
+      sum += byteread(&Tree[pos(idx)], bytesize(idx));
       idx = clear_rho(idx);
     }
 
@@ -55,7 +48,7 @@ public:
 
   virtual void add(size_t idx, int64_t inc) {
     while (idx <= Size) {
-      reinterpret_cast<auint64_t &>(Tree[pos(idx)]) += inc;
+      bytewrite_inc(&Tree[pos(idx)], inc);
       idx += mask_rho(idx);
     }
   }
@@ -68,8 +61,7 @@ public:
       if (node + m > Size)
         continue;
 
-      const uint64_t value =
-          *reinterpret_cast<auint64_t *>(&Tree[pos(node + m)]) & BYTE_MASK[bytesize(node + m)];
+      const uint64_t value = byteread(&Tree[pos(node + m)], bytesize(node + m));
 
       if (*val >= value) {
         node += m;
@@ -89,8 +81,7 @@ public:
         continue;
 
       const uint64_t value =
-          (BOUND << rho(node + m)) -
-          (*reinterpret_cast<auint64_t *>(&Tree[pos(node + m)]) & BYTE_MASK[bytesize(node + m)]);
+          (BOUND << rho(node + m)) - byteread(&Tree[pos(node + m)], bytesize(node + m));
 
       if (*val >= value) {
         node += m;
@@ -141,6 +132,6 @@ private:
   }
 };
 
-} // namespace sux::fenwick
+} // namespace hft::fenwick
 
 #endif // __FENWICK_BYTEF_HPP__

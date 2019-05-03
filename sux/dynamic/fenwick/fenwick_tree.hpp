@@ -4,7 +4,7 @@
 #include "../common.hpp"
 #include "../darray.hpp"
 
-namespace sux::fenwick {
+namespace hft::fenwick {
 
 /**
  * FenwickTree - Fenwick Tree data structure interface.
@@ -94,6 +94,6 @@ public:
    */
 };
 
-} // namespace sux::fenwick
+} // namespace hft::fenwick
 
 #endif // __FENWICK_FENWICKTREE_HPP__

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sys/mman.h>
 
-namespace sux {
+namespace hft {
 
 /**
  * class DArray - Dinamically-allocated fixed-sized array with hugepages support
@@ -121,8 +121,8 @@ private:
 
     return is;
   }
-}; // namespace sux
+}; // namespace hft
 
-} // namespace sux
+} // namespace hft
 
 #endif // __DARRAY_HPP__

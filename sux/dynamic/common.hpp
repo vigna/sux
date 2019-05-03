@@ -4,7 +4,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <memory>
+#include <inttypes.h>
 #include <x86intrin.h>
 
 // Macro stringification
@@ -15,7 +17,9 @@
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
-namespace sux {
+namespace hft {
+
+using std::memcpy;
 
 using std::make_unique;
 using std::unique_ptr;
@@ -229,6 +233,74 @@ inline uint64_t bitextract(const uint64_t *word, int from, int length) {
     return (word[0] >> from) | ((word[1] << (128 - from - length)) >> (64 - from));
 }
 
+inline uint64_t byteread(const void *const word, int length) {
+  uint64_t ret;
+  memcpy(&ret, word, sizeof(uint64_t));
+  return ret & BYTE_MASK[length];
+}
+
+inline void bytewrite(void *const word, int length, uint64_t val) {
+  uint64_t old;
+  memcpy(&old, word, sizeof(uint64_t));
+
+  old = (old & ~BYTE_MASK[length]) | (val & BYTE_MASK[length]);
+  memcpy(word, &old, sizeof(uint64_t));
+}
+
+inline void bytewrite_inc(void *const word, uint64_t inc) {
+  uint64_t value;
+  memcpy(&value, word, sizeof(uint64_t));
+  value += inc;
+  memcpy(word, &value, sizeof(uint64_t));
+}
+
+inline uint64_t bitread(const void *const word, int from, int length) {
+  uint64_t ret;
+  memcpy(&ret, word, sizeof(uint64_t));
+
+  if (likely((from + length) <= 64)) {
+    return (ret >> from) & (-1ULL >> (64 - length));
+  } else {
+    uint64_t next;
+    memcpy(&next, static_cast<const uint64_t *>(word) + 1, sizeof(uint64_t));
+    return (ret >> from) | (next << (128 - from - length) >> (64 - length));
+  }
+}
+
+inline void bitwrite(void *word, int from, int length, uint64_t val) {
+  uint64_t old;
+  memcpy(&old, word, sizeof(uint64_t));
+  assert(length == 64 || val < (1ULL << length));
+
+  if (likely((from + length) <= 64)) {
+    const uint64_t mask = (-1ULL >> (64 - length)) << from;
+    old = (old & ~mask) | (val << from);
+    memcpy(word, &old, sizeof(uint64_t));
+  } else {
+    const uint64_t maskw = -1ULL << from;
+    old = (old & ~maskw) | (val << from);
+    memcpy(word, &old, sizeof(uint64_t));
+
+    uint64_t next;
+    memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
+    const uint64_t maskb = -1ULL >> (128 - from - length);
+    next = (next & ~maskb) | (val >> (64 - from));
+    memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
+  }
+}
+
+inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
+  if (likely((from + length) <= 64)) {
+    uint64_t value;
+    memcpy(&value, word, sizeof(uint64_t));
+    value += inc << from;
+    memcpy(word, &value, sizeof(uint64_t));
+  } else {
+    uint64_t value = bitread(word, from, length);
+    bitwrite(word, from, length, value + inc);
+  }
+}
+
 /**
  * popcount - Count the number of 1-bits in a word.
  * @word: Binary word.
@@ -365,6 +437,6 @@ template <class T> T hton(T value) { return is_little_endian() ? swap_endian<T>(
  */
 template <class T> T ntoh(T value) { return hton(value); }
 
-} // namespace sux
+} // namespace hft
 
 #endif // __COMMON_HPP__

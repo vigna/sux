@@ -3,7 +3,7 @@
 
 #include "rank_select.hpp"
 
-namespace sux::ranking {
+namespace hft::ranking {
 
 /**
  * Stride - Linear search on many words.
@@ -155,6 +155,6 @@ private:
   }
 };
 
-} // namespace sux::ranking
+} // namespace hft::ranking
 
 #endif // __RANKSELECT_STRIDE_HPP__

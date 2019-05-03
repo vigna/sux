@@ -3,7 +3,7 @@
 
 #include "fenwick_tree.hpp"
 
-namespace sux::fenwick {
+namespace hft::fenwick {
 
 /**
  * class FixedL - no compression and level-ordered node layout.
@@ -158,6 +158,6 @@ private:
   }
 };
 
-} // namespace sux::fenwick
+} // namespace hft::fenwick
 
 #endif // __FENWICK_FIXEDL_HPP__

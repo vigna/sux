@@ -4,7 +4,7 @@
 #include "../common.hpp"
 #include "../darray.hpp"
 
-namespace sux::ranking {
+namespace hft::ranking {
 
 /**
  * RankSelect - Dynamic rank & select data structure interface.
@@ -139,6 +139,6 @@ public:
    */
 };
 
-} // namespace sux::ranking
+} // namespace hft::ranking
 
 #endif // __RANK_SELECT_HPP__

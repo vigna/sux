@@ -1,9 +1,9 @@
 #ifndef __FENWICK_BITF_HPP__
 #define __FENWICK_BITF_HPP__
-
 #include "fenwick_tree.hpp"
+#include <cstring>
 
-namespace sux::fenwick {
+namespace hft::fenwick {
 
 /**
  * class BitF - bit compression and classical node layout.
@@ -108,21 +108,35 @@ private:
     const uint64_t mask = (UINT64_C(1) << (BOUNDSIZE + rho(idx))) - 1;
     idx--;
     const uint64_t prod = (BOUNDSIZE + 1) * idx;
-    const size_t pos = prod - popcount(idx) + holes(idx);
+    const uint64_t pos = prod - popcount(idx) + holes(idx);
 
-    return (prod + (BOUNDSIZE + 1)) % 64 == 0
-               ? (*(reinterpret_cast<auint64_t *>(&Tree[0]) + pos / 64) >> (pos % 64)) & mask
-               : (*(reinterpret_cast<auint64_t *>(&Tree[pos / 8])) >> (pos % 8)) & mask;
+    uint64_t t;
+    if ((prod + (BOUNDSIZE + 1)) % 64 == 0) {
+      memcpy(&t, (uint64_t *)&Tree[0] + pos / 64, 8);
+      return t >> (pos % 64) & mask;
+    } else {
+      memcpy(&t, &Tree[0] + pos / 8, 8);
+      return t >> (pos % 8) & mask;
+    }
   }
 
-  inline uint64_t addToPartialFrequency(size_t idx, uint64_t value) {
+  inline void addToPartialFrequency(size_t idx, uint64_t value) {
     idx--;
-    const size_t prod = (BOUNDSIZE + 1) * idx;
-    const size_t pos = prod - popcount(idx) + holes(idx);
+    const uint64_t prod = (BOUNDSIZE + 1) * idx;
+    const uint64_t pos = prod - popcount(idx) + holes(idx);
 
-    return (prod + (BOUNDSIZE + 1)) % 64 == 0
-               ? *(reinterpret_cast<auint64_t *>(&Tree[0]) + pos / 64) += value << (pos % 64)
-               : *reinterpret_cast<auint64_t *>(&Tree[pos / 8]) += value << (pos % 8);
+    uint64_t t;
+    if ((prod + (BOUNDSIZE + 1)) % 64 == 0) {
+      uint64_t *const p = (uint64_t *)&Tree[0] + pos / 64;
+      memcpy(&t, p, 8);
+      t += value << (pos % 64);
+      memcpy(p, &t, 8);
+    } else {
+      uint8_t *const p = &Tree[0] + pos / 8;
+      memcpy(&t, p, 8);
+      t += value << (pos % 8);
+      memcpy(p, &t, 8);
+    }
   }
 
   friend std::ostream &operator<<(std::ostream &os, const BitF<BOUND> &ft) {
@@ -141,6 +155,6 @@ private:
   }
 };
 
-} // namespace sux::fenwick
+} // namespace hft::fenwick
 
 #endif // __FENWICK_BITF_HPP__
