@@ -101,7 +101,7 @@ public:
 private:
   static inline size_t bytesize(size_t idx) { return ((rho(idx) + BOUNDSIZE - 1) >> 3) + 1; }
 
-  static inline size_t holes(size_t idx) { return (idx >> 14) * 8; }
+  static inline size_t holes(size_t idx) { return (BOUNDSIZE < 3 * 8) ? 0 : (idx >> 14) * 8; }
 
   static inline size_t pos(size_t idx) {
     idx--;
