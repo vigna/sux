@@ -3,7 +3,7 @@
 
 #include "rank_select.hpp"
 
-namespace hft::ranking {
+namespace sux::ranking {
 
 /**
  * Word - Linear search on a single word.
@@ -140,6 +140,6 @@ private:
   }
 };
 
-} // namespace hft::ranking
+} // namespace sux::ranking
 
 #endif // __RANKSELECT_WORD_HPP__

@@ -1,5 +1,4 @@
-#ifndef __COMMON_HPP__
-#define __COMMON_HPP__
+#pragma once
 
 #include <algorithm>
 #include <cassert>
@@ -17,7 +16,7 @@
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
-namespace hft {
+namespace sux {
 
 using std::memcpy;
 
@@ -270,6 +269,7 @@ inline uint64_t bitread(const void *const word, int from, int length) {
 inline void bitwrite(void *word, int from, int length, uint64_t val) {
   uint64_t old;
   memcpy(&old, word, sizeof(uint64_t));
+  assert(length == 64 || val < (1ULL << length));
 
   if (likely((from + length) <= 64)) {
     const uint64_t mask = (-1ULL >> (64 - length)) << from;
@@ -444,6 +444,4 @@ template <class T> T hton(T value) { return is_little_endian() ? swap_endian<T>(
  */
 template <class T> T ntoh(T value) { return hton(value); }
 
-} // namespace hft
-
-#endif // __COMMON_HPP__
+} // namespace sux

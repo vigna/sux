@@ -1,9 +1,8 @@
-#ifndef __FENWICK_BYTEL_HPP__
-#define __FENWICK_BYTEL_HPP__
+#pragma once
 
-#include "fenwick_tree.hpp"
+#include "tree.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class ByteL - byte compression and level ordered node layout.
@@ -169,6 +168,4 @@ private:
   }
 };
 
-} // namespace hft::fenwick
-
-#endif // __FENWICK_BYTEL_HPP__
+} // namespace sux::fenwick

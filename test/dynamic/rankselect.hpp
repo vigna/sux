@@ -4,7 +4,7 @@
 #include <sux/dynamic/rankselect.hpp>
 
 TEST(rankselect, all_ones) {
-  using namespace hft;
+  using namespace sux;
   constexpr size_t ELEMS = 16;
   constexpr size_t BITELEMS = ELEMS * 64;
   uint64_t bitvect[ELEMS] = {UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX,
@@ -100,7 +100,7 @@ TEST(rankselect, all_ones) {
 }
 
 TEST(rankselect, all_zeroes) {
-  using namespace hft;
+  using namespace sux;
   constexpr size_t ELEMS = 16;
   constexpr size_t BITELEMS = ELEMS * 64;
   uint64_t bitvect[ELEMS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -194,7 +194,7 @@ TEST(rankselect, all_zeroes) {
 }
 
 template <std::size_t S> void run_rankselect(std::size_t size) {
-  using namespace hft;
+  using namespace sux;
 
   static std::mt19937 mte;
   std::uniform_int_distribution<std::uint64_t> dist(0, UINT64_MAX);

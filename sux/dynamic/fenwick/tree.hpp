@@ -1,10 +1,9 @@
-#ifndef __FENWICK_FENWICKTREE_HPP__
-#define __FENWICK_FENWICKTREE_HPP__
+#pragma once
 
 #include "../common.hpp"
 #include "../darray.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * FenwickTree - Fenwick Tree data structure interface.
@@ -94,6 +93,5 @@ public:
    */
 };
 
-} // namespace hft::fenwick
+} // namespace sux::fenwick
 
-#endif // __FENWICK_FENWICKTREE_HPP__

@@ -1,4 +1,4 @@
-#include "fenwick/fenwick_tree.hpp"
+#include "fenwick/tree.hpp"
 
 #include "fenwick/fixedf.hpp"
 #include "fenwick/fixedl.hpp"

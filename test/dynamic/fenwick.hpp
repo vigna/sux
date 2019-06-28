@@ -6,7 +6,7 @@
 #include <sux/dynamic/fenwick.hpp>
 
 template <std::size_t S> void run_fenwick(std::size_t size) {
-  using namespace hft::fenwick;
+  using namespace sux::fenwick;
 
   static std::mt19937 mte;
   std::uniform_int_distribution<std::uint64_t> dist(0, S);

@@ -1,10 +1,11 @@
-#ifndef __RANK_SELECT_HPP__
-#define __RANK_SELECT_HPP__
+#pragma once
 
+#include "../../rank.hpp"
+#include "../../select.hpp"
 #include "../common.hpp"
 #include "../darray.hpp"
 
-namespace hft::ranking {
+namespace sux::ranking {
 
 /**
  * RankSelect - Dynamic rank & select data structure interface.
@@ -15,7 +16,7 @@ namespace hft::ranking {
  * This data structure indices starts from 0 and ends in @length-1.
  *
  */
-class RankSelect {
+class RankSelect : public Rank, public Select {
 public:
   virtual ~RankSelect() = default;
 
@@ -27,62 +28,7 @@ public:
    *
    */
   virtual const uint64_t *bitvector() const = 0;
-
-  /**
-   * size() - length (in bits) of the bitvector.
-   *
-   */
-  virtual size_t size() const = 0;
-
-  /**
-   * rank() - Numbers of 1-bits preceding a specified position.
-   * @pos: An index of the bit vector.
-   *
-   */
-  virtual uint64_t rank(size_t pos) const = 0;
-
-  /**
-   * rank() - Numbers of 1-bits between a given range.
-   * @from: Starting index of the bit vector.
-   * @to: Ending index of the bit vector.
-   *
-   */
-  virtual uint64_t rank(size_t from, size_t to) const = 0;
-
-  /**
-   * rankZero() - Numbers of 0-bits preceding a specified position.
-   * @pos: An index of the bit vector.
-   *
-   */
-  virtual uint64_t rankZero(size_t pos) const = 0;
-
-  /**
-   * rankZero() - Number of 0-bits between a given range.
-   * @from: Starting index of the bit vector.
-   * @to: Ending index of the bit vector.
-   *
-   */
-  virtual uint64_t rankZero(size_t from, size_t to) const = 0;
-
-  /**
-   * select() - Index of the 1-bit with a given rank.
-   * @rank: Number of 1-bits before the returned index.
-   *
-   * This method returns SIZE_MAX if no such an index exists.
-   *
-   */
-  virtual size_t select(uint64_t rank) const = 0;
-
-  /**
-   * selectZero() - Index of the 0-bit with a given rank.
-   * @rank: Number of 0-bits before the returned index.
-   *
-   * This method returns SIZE_MAX if no sucn an index exists.
-   *
-   */
-  virtual size_t selectZero(uint64_t rank) const = 0;
-
-  /**
+/**
    * update() - Replace a given word in the bitvector.
    * @index: index (in words) in the bitvector.
    * @word: new value for @bitvector[@index]
@@ -139,6 +85,4 @@ public:
    */
 };
 
-} // namespace hft::ranking
-
-#endif // __RANK_SELECT_HPP__
+} // namespace sux::ranking

@@ -1,12 +1,11 @@
-#ifndef __DARRAY_HPP__
-#define __DARRAY_HPP__
+#pragma once
 
 #include "common.hpp"
 #include <assert.h>
 #include <iostream>
 #include <sys/mman.h>
 
-namespace hft {
+namespace sux {
 
 /**
  * class DArray - Dinamically-allocated fixed-sized array with hugepages support
@@ -121,8 +120,6 @@ private:
 
     return is;
   }
-}; // namespace hft
+}; // namespace sux
 
-} // namespace hft
-
-#endif // __DARRAY_HPP__
+} // namespace sux

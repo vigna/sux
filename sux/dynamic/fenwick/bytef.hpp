@@ -1,9 +1,8 @@
-#ifndef __FENWICK_BYTEF_HPP__
-#define __FENWICK_BYTEF_HPP__
+#pragma once
 
-#include "fenwick_tree.hpp"
+#include "tree.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class ByteF - byte compression and classical node layout.
@@ -101,7 +100,18 @@ public:
 private:
   static inline size_t bytesize(size_t idx) { return ((rho(idx) + BOUNDSIZE - 1) >> 3) + 1; }
 
-  static inline size_t holes(size_t idx) { return (BOUNDSIZE < 3 * 8) ? 0 : (idx >> 14) * 8; }
+  static inline size_t holes(size_t idx) {
+    // Exhaustive benchmarking shows it is better to use no holes on (relatively) small trees,
+    // but we expect holes to be handy again in (very) big trees
+    if (BOUNDSIZE >= 32)
+      return 0;
+
+#ifdef HFT_DISABLE_TRANSHUGE
+    return (idx >> (18 + (64 - BOUNDSIZE) % 8));
+#else
+    return (idx >> (28 + (64 - BOUNDSIZE) % 8));
+#endif
+  }
 
   static inline size_t pos(size_t idx) {
     idx--;
@@ -132,6 +142,5 @@ private:
   }
 };
 
-} // namespace hft::fenwick
+} // namespace sux::fenwick
 
-#endif // __FENWICK_BYTEF_HPP__

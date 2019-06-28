@@ -1,9 +1,9 @@
-#ifndef __FENWICK_BITF_HPP__
-#define __FENWICK_BITF_HPP__
-#include "fenwick_tree.hpp"
+#pragma once
+
+#include "tree.hpp"
 #include <cstring>
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class BitF - bit compression and classical node layout.
@@ -155,6 +155,4 @@ private:
   }
 };
 
-} // namespace hft::fenwick
-
-#endif // __FENWICK_BITF_HPP__
+} // namespace sux::fenwick

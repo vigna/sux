@@ -1,9 +1,8 @@
-#ifndef __FENWICK_FIXEDL_HPP__
-#define __FENWICK_FIXEDL_HPP__
+#pragma once
 
-#include "fenwick_tree.hpp"
+#include "tree.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class FixedL - no compression and level-ordered node layout.
@@ -158,6 +157,5 @@ private:
   }
 };
 
-} // namespace hft::fenwick
+} // namespace sux::fenwick
 
-#endif // __FENWICK_FIXEDL_HPP__

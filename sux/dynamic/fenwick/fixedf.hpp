@@ -1,9 +1,8 @@
-#ifndef __FENWICK_FIXED_HPP__
-#define __FENWICK_FIXED_HPP__
+#pragma once
 
-#include "fenwick_tree.hpp"
+#include "tree.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class FixedF - no compression and classical node layout.
@@ -115,6 +114,5 @@ private:
   }
 };
 
-} // namespace hft::fenwick
+} // namespace sux::fenwick
 
-#endif // __FENWICK_FIXED_HPP__

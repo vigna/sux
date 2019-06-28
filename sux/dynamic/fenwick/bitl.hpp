@@ -1,9 +1,8 @@
-#ifndef __FENWICK_BITL_HPP__
-#define __FENWICK_BITL_HPP__
+#pragma once
 
-#include "fenwick_tree.hpp"
+#include "tree.hpp"
 
-namespace hft::fenwick {
+namespace sux::fenwick {
 
 /**
  * class BitL - bit compression and level ordered node layout.
@@ -66,7 +65,7 @@ public:
     while (idx <= Size) {
       const int height = rho(idx);
       const size_t pos = Level[height] + (idx >> (1 + height)) * (BOUNDSIZE + height);
-      //printf("node = %zu\n", idx);
+      // printf("node = %zu\n", idx);
       bitwrite_inc(&Tree[pos / 8], pos % 8, BOUNDSIZE + height, inc);
 
       idx += mask_rho(idx);
@@ -165,6 +164,5 @@ private:
   }
 };
 
-} // namespace hft::fenwick
+} // namespace sux::fenwick
 
-#endif // __FENWICK_BITL_HPP__
