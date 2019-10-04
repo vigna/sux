@@ -25,6 +25,8 @@ using namespace std;
 
 #include <cstdint>
 
+namespace sux {
+
 class simple_select_half {
 private:
   const uint64_t *bits;
@@ -42,5 +44,7 @@ public:
   void print_counts();
   uint64_t bit_count();
 };
+
+}
 
 #endif

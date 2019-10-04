@@ -22,6 +22,8 @@
 #define rank9sel_h
 #include <cstdint>
 
+namespace sux {
+
 class rank9sel {
 private:
   const uint64_t *bits;
@@ -39,4 +41,5 @@ public:
   uint64_t bit_count();
 };
 
+}
 #endif

@@ -22,6 +22,8 @@
 #define jacobson_h
 #include <cstdint>
 
+namespace sux {
+
 class jacobson {
 private:
   const uint64_t *bits;
@@ -68,4 +70,5 @@ public:
   uint64_t bit_count();
 };
 
+}
 #endif

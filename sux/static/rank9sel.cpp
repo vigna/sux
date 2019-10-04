@@ -18,7 +18,8 @@
  *
  */
 
-#include "rank9sel.h"
+#include "../common.hpp"
+#include "rank9sel.hpp"
 #include <cassert>
 #include <climits>
 #include <cstdio>
@@ -35,6 +36,8 @@
 #ifdef COUNTS
 uint64_t single, one_level, two_levels, shorts, longs, longlongs;
 #endif
+
+namespace sux {
 
 rank9sel::rank9sel(const uint64_t *const bits, const uint64_t num_bits) {
   this->bits = bits;
@@ -354,9 +357,9 @@ uint64_t rank9sel::select(const uint64_t rank) {
   assert(rank_in_word >= 0);
 
 #ifdef DEBUG
-  printf("Returning %lld\n", word * 64ULL + select_in_word(bits[word], rank_in_word));
+  printf("Returning %lld\n", word * 64ULL + select64(bits[word], rank_in_word));
 #endif
-  return word * 64ULL + select_in_word(bits[word], rank_in_word);
+  return word * 64ULL + select64(bits[word], rank_in_word);
 }
 
 uint64_t rank9sel::bit_count() { return (num_counts + inventory_size + num_words / 4) * 64; }
@@ -367,4 +370,6 @@ void rank9sel::print_counts() {
          "levels:\t%lld\nshorts:\t%lld\nlongs:\t%lld\nlonglongs:\t%lld\n",
          single, one_level, two_levels, shorts, longs, longlongs);
 #endif
+}
+
 }

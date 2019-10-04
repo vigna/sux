@@ -31,6 +31,8 @@ using namespace std;
 
 #define MAX_ONES_PER_INVENTORY (8192)
 
+namespace sux {
+
 simple_select_zero::simple_select_zero() {}
 
 simple_select_zero::simple_select_zero(const uint64_t *const bits, const uint64_t num_bits,
@@ -50,7 +52,7 @@ simple_select_zero::simple_select_zero(const uint64_t *const bits, const uint64_
 
   ones_per_inventory = num_bits == 0 ? 0 : (c * MAX_ONES_PER_INVENTORY + num_bits - 1) / num_bits;
   // Make ones_per_inventory into a power of 2
-  log2_ones_per_inventory = max(0, msb(ones_per_inventory));
+  log2_ones_per_inventory = max(0, lambda_safe(ones_per_inventory));
   ones_per_inventory = 1ULL << log2_ones_per_inventory;
   ones_per_inventory_mask = ones_per_inventory - 1;
   inventory_size = (c + ones_per_inventory - 1) / ones_per_inventory;
@@ -285,3 +287,5 @@ uint64_t simple_select_zero::bit_count() {
 }
 
 void simple_select_zero::print_counts() {}
+
+}

@@ -18,13 +18,15 @@
  *
  */
 
-#include "elias_fano.h"
+#include "elias_fano.hpp"
 #include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+namespace sux {
 
 elias_fano::elias_fano(const uint64_t *const bits, const uint64_t num_bits) {
   const uint64_t num_words = (num_bits + 63) / 64;
@@ -33,7 +35,7 @@ elias_fano::elias_fano(const uint64_t *const bits, const uint64_t num_bits) {
     m += __builtin_popcountll(bits[i]);
   num_ones = m;
   this->num_bits = num_bits;
-  l = num_ones == 0 ? 0 : max(0, msb(num_bits / num_ones));
+  l = num_ones == 0 ? 0 : max(0, lambda_safe(num_bits / num_ones));
 
   printf("Number of ones: %lld l: %d\n", num_ones, l);
   printf("Upper bits: %lld\n", num_ones + (num_bits >> l) + 1);
@@ -113,7 +115,7 @@ elias_fano::elias_fano(const std::vector<uint64_t> ones, const uint64_t num_bits
   const uint64_t num_words = (num_bits + 63) / 64;
   num_ones = ones.size();
   this->num_bits = num_bits;
-  l = num_ones == 0 ? 0 : max(0, msb(num_bits / num_ones));
+  l = num_ones == 0 ? 0 : max(0, lambda_safe(num_bits / num_ones));
 
   printf("Number of ones: %lld l: %d\n", num_ones, l);
   printf("Upper bits: %lld\n", num_ones + (num_bits >> l) + 1);
@@ -270,7 +272,7 @@ uint64_t elias_fano::rank(const uint64_t k) {
     // printf( "Combined compare: %llx\n", ~t );
 
     if (cmp_compr)
-      return rank + 1 + msb(cmp_compr);
+      return rank + 1 + lambda_safe(cmp_compr);
   }
 
   block_upper_bits = get_bits(upper_bits, pos - rank, rank);
@@ -295,7 +297,7 @@ uint64_t elias_fano::rank(const uint64_t k) {
 
   // printf( "Combined compare: %llx\n", ~t );
 
-  return 1 + msb(cmp_compr);
+  return 1 + lambda_safe(cmp_compr);
 
 #endif
 }
@@ -328,3 +330,5 @@ uint64_t elias_fano::bit_count() {
 }
 
 void elias_fano::print_counts() {}
+
+}

@@ -18,11 +18,14 @@
  *
  */
 
-#include "jacobson.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include "jacobson.hpp"
+#include "../common.hpp"
+
+namespace sux {
 
 jacobson::jacobson() {}
 
@@ -31,7 +34,7 @@ jacobson::jacobson(const uint64_t *const bits, const uint64_t num_bits) {
   num_words = (num_bits + 63) / 64;
   num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
   block_size = (uint64_t)floor(log(num_bits) / (2 * log(2)));
-  superblock_size = msb(num_bits) * block_size;
+  superblock_size = lambda_safe(num_bits) * block_size;
 
   counter_bits_per_superblock = ceil_log2(num_bits);
   num_bits_for_superblocks =
@@ -120,3 +123,5 @@ uint64_t jacobson::bit_count() {
 }
 
 void jacobson::print_counts() {}
+
+}

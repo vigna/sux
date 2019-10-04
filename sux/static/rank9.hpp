@@ -20,8 +20,8 @@
 
 #ifndef rank9_h
 #define rank9_h
-#include "macros.h"
-#include <stdint.h>
+#include "../common.hpp"
+#include <cstdint>
 
 class rank9 {
 private:

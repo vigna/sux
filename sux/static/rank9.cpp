@@ -18,7 +18,7 @@
  *
  */
 
-#include "rank9.h"
+#include "rank9.hpp"
 #include <cassert>
 #include <cstring>
 

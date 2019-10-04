@@ -43,6 +43,8 @@ using namespace std;
 #define ONES_PER_SUB16 (1 << LOG2_ONES_PER_SUB16)
 #define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
 
+namespace sux {
+
 simple_select_zero_half::simple_select_zero_half() {}
 
 simple_select_zero_half::simple_select_zero_half(const uint64_t *const bits,
@@ -219,7 +221,7 @@ uint64_t simple_select_zero_half::select_zero(const uint64_t rank) {
     residual -= bit_count;
   }
 
-  return word_index * 64 + select_in_word(word, residual);
+  return word_index * 64 + select64(word, residual);
 }
 
 uint64_t simple_select_zero_half::select_zero(const uint64_t rank, uint64_t *const next) {
@@ -241,3 +243,5 @@ uint64_t simple_select_zero_half::bit_count() {
 }
 
 void simple_select_zero_half::print_counts() {}
+
+}

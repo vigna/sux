@@ -20,14 +20,14 @@
 
 using namespace std;
 
-#include "simple_select_half.h"
+#include "simple_select_half.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #ifndef NDEBUG
-#include "rank9.h"
+#include "rank9.hpp"
 #endif
 
 #define LOG2_ONES_PER_INVENTORY (10)
@@ -41,6 +41,8 @@ using namespace std;
 #define LOG2_ONES_PER_SUB16 (LOG2_ONES_PER_SUB64 - 2)
 #define ONES_PER_SUB16 (1 << LOG2_ONES_PER_SUB16)
 #define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
+
+namespace sux {
 
 simple_select_half::simple_select_half() {}
 
@@ -215,7 +217,7 @@ uint64_t simple_select_half::select(const uint64_t rank) {
     residual -= bit_count;
   }
 
-  return word_index * 64 + select_in_word(word, residual);
+  return word_index * 64 + select64(word, residual);
 }
 
 uint64_t simple_select_half::select(const uint64_t rank, uint64_t *const next) {
@@ -237,3 +239,5 @@ uint64_t simple_select_half::bit_count() {
 }
 
 void simple_select_half::print_counts() {}
+
+}

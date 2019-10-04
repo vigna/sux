@@ -20,11 +20,13 @@
 
 #ifndef bal_paren_h
 #define bal_paren_h
-#include "elias_fano.h"
-#include "macros.h"
-#include "rank9.h"
-#include "tables.h"
-#include <stdint.h>
+#include "elias_fano.hpp"
+#include "rank9.hpp"
+#include "tables.hpp"
+#include "../common.hpp"
+#include <cstdint>
+
+namespace sux {
 
 class bal_paren {
 private:
@@ -329,4 +331,5 @@ public:
   uint64_t bit_count();
 };
 
+}
 #endif

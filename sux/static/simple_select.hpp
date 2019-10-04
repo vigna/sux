@@ -23,8 +23,10 @@
 
 using namespace std;
 
-#include "macros.h"
-#include <stdint.h>
+#include <cstdint>
+#include "../common.hpp"
+
+namespace sux {
 
 class simple_select {
 private:
@@ -48,5 +50,7 @@ public:
   void print_counts();
   uint64_t bit_count();
 };
+
+}
 
 #endif

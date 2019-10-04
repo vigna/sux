@@ -25,6 +25,8 @@
 #include <cstdint>
 #include <vector>
 
+namespace sux {
+
 class elias_fano {
 private:
   uint64_t *lower_bits, *upper_bits;
@@ -85,4 +87,5 @@ public:
   uint64_t bit_count();
 };
 
+}
 #endif

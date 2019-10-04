@@ -20,12 +20,15 @@
 
 using namespace std;
 
-#include "bal_paren.h"
+#include "../common.hpp"
+#include "bal_paren.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <vector>
+
+namespace sux {
 
 bal_paren::bal_paren() {}
 
@@ -136,8 +139,6 @@ bal_paren::~bal_paren() {
   delete[] opening_pioneers_matches;
 }
 
-long long far_find_close;
-
 uint64_t bal_paren::find_close(const uint64_t pos) {
   const int word = (int)(pos / 64);
   const int bit = (int)(pos & 63);
@@ -148,8 +149,6 @@ uint64_t bal_paren::find_close(const uint64_t pos) {
   if (result < 64 - bit) {
     return word * 64ULL + bit + result;
   }
-
-  far_find_close++;
 
   const long pioneerIndex = opening_pioneers_rank->rank(pos + 1) - 1;
   const long pioneer = opening_pioneers[pioneerIndex];
@@ -174,3 +173,5 @@ uint64_t bal_paren::find_close(const uint64_t pos) {
 uint64_t bal_paren::bit_count() { return -1; }
 
 void bal_paren::print_counts() {}
+
+}

@@ -20,8 +20,8 @@
 
 #ifndef simple_rank_h
 #define simple_rank_h
-#include "macros.h"
-#include <stdint.h>
+#include "../common.hpp"
+#include <cstdint>
 
 class simple_rank {
 private:
