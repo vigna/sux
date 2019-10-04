@@ -25,9 +25,10 @@ using namespace std;
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-#include "simple_select_zero_half.h"
+#include "../common.hpp"
+#include "simple_select_zero_half.hpp"
 #ifndef NDEBUG
-#include "rank9.h"
+#include "rank9.hpp"
 #endif
 
 #define LOG2_ONES_PER_INVENTORY (10)

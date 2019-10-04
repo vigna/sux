@@ -20,10 +20,10 @@
 
 #ifndef elias_fano_h
 #define elias_fano_h
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
-#include "simple_select_half.h"
-#include "simple_select_zero_half.h"
+#include "simple_select_half.hpp"
+#include "simple_select_zero_half.hpp"
 
 class elias_fano {
 private:

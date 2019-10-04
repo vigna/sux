@@ -20,10 +20,7 @@
 
 #ifndef rank9sel_h
 #define rank9sel_h
-#include <stdint.h>
-#include "popcount.h"
-#include "select.h"
-#include "macros.h"
+#include <cstdint>
 
 class rank9sel {
 private:

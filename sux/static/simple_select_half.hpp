@@ -23,9 +23,7 @@
 
 using namespace std;
 
-#include <stdint.h>
-#include "macros.h"
-#include "select.h"
+#include <cstdint>
 
 class simple_select_half {
 private:

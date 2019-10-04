@@ -22,7 +22,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-#include "jacobson.h"
+#include "jacobson.hpp"
 
 jacobson::jacobson() {}
 

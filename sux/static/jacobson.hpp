@@ -20,8 +20,7 @@
 
 #ifndef jacobson_h
 #define jacobson_h
-#include <stdint.h>
-#include "macros.h"
+#include <cstdint>
 
 class jacobson {
 private:
