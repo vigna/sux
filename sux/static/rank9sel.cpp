@@ -39,7 +39,7 @@ uint64_t single, one_level, two_levels, shorts, longs, longlongs;
 
 namespace sux {
 
-rank9sel::rank9sel(const uint64_t *const bits, const uint64_t num_bits) {
+Rank9Sel::Rank9Sel(const uint64_t *const bits, const uint64_t num_bits) {
   this->bits = bits;
   num_words = (num_bits + 63) / 64;
   num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
@@ -204,13 +204,13 @@ rank9sel::rank9sel(const uint64_t *const bits, const uint64_t num_bits) {
 #endif
 }
 
-rank9sel::~rank9sel() {
+Rank9Sel::~Rank9Sel() {
   delete[] counts;
   delete[] inventory;
   delete[] subinventory;
 }
 
-uint64_t rank9sel::rank(const uint64_t k) {
+uint64_t Rank9Sel::rank(const size_t k) {
   const uint64_t word = k / 64;
   const uint64_t block = word / 4 & ~1;
   const int offset = word % 8 - 1;
@@ -219,7 +219,7 @@ uint64_t rank9sel::rank(const uint64_t k) {
          __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
 }
 
-uint64_t rank9sel::select(const uint64_t rank) {
+uint64_t Rank9Sel::select(const size_t rank) {
   const uint64_t inventory_index_left = rank >> LOG2_ONES_PER_INVENTORY;
   assert(inventory_index_left < inventory_size);
 
@@ -362,14 +362,6 @@ uint64_t rank9sel::select(const uint64_t rank) {
   return word * 64ULL + select64(bits[word], rank_in_word);
 }
 
-uint64_t rank9sel::bit_count() { return (num_counts + inventory_size + num_words / 4) * 64; }
-
-void rank9sel::print_counts() {
-#ifdef COUNTS
-  printf("single:\t%lld\none level:\t%lld\ntwo "
-         "levels:\t%lld\nshorts:\t%lld\nlongs:\t%lld\nlonglongs:\t%lld\n",
-         single, one_level, two_levels, shorts, longs, longlongs);
-#endif
-}
+uint64_t Rank9Sel::bitCount() { return (num_counts + inventory_size + num_words / 4) * 64 + sizeof Rank9Sel; }
 
 }

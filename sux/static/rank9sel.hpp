@@ -21,10 +21,13 @@
 #ifndef rank9sel_h
 #define rank9sel_h
 #include <cstdint>
+#include "../Rank.hpp"
+#include "../Select.hpp"
+#include "../SelectZero.hpp"
 
 namespace sux {
 
-class rank9sel {
+class Rank9Sel : public Rank, public Select, public SelectZero {
 private:
   const uint64_t *bits;
   uint64_t *counts, *inventory, *subinventory;
@@ -32,13 +35,10 @@ private:
       num_ones;
 
 public:
-  rank9sel(const uint64_t *const bits, const uint64_t num_bits);
-  ~rank9sel();
-  uint64_t rank(const uint64_t pos);
-  uint64_t select(const uint64_t rank);
-  // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
+  uint64_t rank(const size_t pos);
+  uint64_t select(const size_t rank);
+  uint64_t bitCount();
 };
 
 }

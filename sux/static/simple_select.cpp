@@ -189,7 +189,7 @@ simple_select::simple_select(const uint64_t *const bits, const uint64_t num_bits
 
 #ifndef NDEBUG
   uint64_t r, t;
-  rank9 rank9(bits, num_bits);
+  Rank9 rank9(bits, num_bits);
   for (uint64_t i = 0; i < c; i++) {
     t = select(i);
     assert(t < num_bits);

@@ -20,10 +20,12 @@
 
 #ifndef rank9_h
 #define rank9_h
-#include "../common.hpp"
+#include "../Rank.hpp"
 #include <cstdint>
 
-class rank9 {
+namespace sux {
+
+class Rank9: public Rank {
 private:
   const uint64_t *bits;
   uint64_t *counts, *inventory;
@@ -31,13 +33,14 @@ private:
       num_ones;
 
 public:
-  rank9();
-  rank9(const uint64_t *const bits, const uint64_t num_bits);
-  ~rank9();
-  uint64_t rank(const uint64_t pos);
+  ~Rank9();
+  uint64_t rank(const size_t pos);
+  Rank9(const uint64_t *const bits, const uint64_t num_bits);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
+
+}
 
 #endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.hpp"
+
 namespace sux {
 class Rank {
 public:
@@ -10,7 +12,7 @@ public:
    * @pos: An index of the bit vector.
    *
    */
-  virtual uint64_t rank(size_t pos) const = 0;
+  virtual uint64_t rank(const size_t pos) const = 0;
 
   /**
    * rank() - Numbers of 1-bits between a given range.
@@ -18,14 +20,14 @@ public:
    * @to: Ending index of the bit vector.
    *
    */
-  virtual uint64_t rank(size_t from, size_t to) const = 0;
+  virtual uint64_t rank(const size_t from, const size_t to) const = 0;
 
   /**
    * rankZero() - Numbers of 0-bits preceding a specified position.
    * @pos: An index of the bit vector.
    *
    */
-  virtual uint64_t rankZero(size_t pos) const = 0;
+  virtual uint64_t rankZero(const size_t pos) const = 0;
 
   /**
    * rankZero() - Number of 0-bits between a given range.
@@ -33,7 +35,7 @@ public:
    * @to: Ending index of the bit vector.
    *
    */
-  virtual uint64_t rankZero(size_t from, size_t to) const = 0;
+  virtual uint64_t rankZero(const size_t from, const size_t to) const = 0;
 
   /**
    * size() - length (in bits) of the bitvector.
