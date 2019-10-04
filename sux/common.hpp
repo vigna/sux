@@ -60,10 +60,18 @@ static constexpr uint64_t BYTE_MASK[] = {
     0xFFFFFFFFFFULL, 0xFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
 
 /**
- * ceil_log2_plus1() - Static (i.e. computed in compile time) 1 + log2 roundup.
+ * ceil_log2_plus1() - Static (i.e. computed in compile time) 1 + log2 rounded up.
  *
  */
 constexpr size_t ceil_log2_plus1(size_t n) { return ((n < 2) ? 1 : 1 + ceil_log2_plus1(n / 2)); }
+
+/**
+ * ceil_log2() - log2 rounded up.
+ *
+ */
+int inline ceil_log2(const uint64_t x) {
+	return x <= 2 ? x - 1 : 64 - __builtin_clzll( x - 1 );
+}
 
 /**
  * round_pow2 - Static round up to the next highest power of two.
@@ -174,6 +182,17 @@ inline int rho(uint64_t word) { return __builtin_ctzll(word); }
  *
  */
 inline int lambda(uint64_t word) { return 63 ^ __builtin_clzll(word); }
+
+/**
+ * lambda_safe - Find the index of the most significant 1-bit in a word.
+ * @word: Binary word.
+ *
+ * The Knuth's lambda function is the dual of the rho function.
+ *
+ * Returns -1 on input zero.
+ *
+ */
+inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_clzll(word); }
 
 /**
  * clear_rho - Set to 0 the least significant 1-bit in a word.
