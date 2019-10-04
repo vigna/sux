@@ -13,8 +13,7 @@ namespace sux::ranking {
  * @WORDS: Length (in words) of the linear search stride.
  *
  */
-template <template <size_t> class T, size_t WORDS>
-class Stride : public RankSelect {
+template <template <size_t> class T, size_t WORDS> class Stride : public RankSelect {
 private:
   static constexpr size_t BOUND = 64 * WORDS;
   T<BOUND> Fenwick;
@@ -27,8 +26,7 @@ public:
   }
 
   Stride(DArray<uint64_t> bitvector, size_t size)
-      : Fenwick(buildFenwick(bitvector.get(), size)),
-        Vector(std::move(bitvector)) {}
+      : Fenwick(buildFenwick(bitvector.get(), size)), Vector(std::move(bitvector)) {}
 
   virtual const uint64_t *bitvector() const { return Vector.get(); }
 
@@ -44,15 +42,11 @@ public:
     return value + popcount(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1));
   }
 
-  virtual uint64_t rank(size_t from, size_t to) const {
-    return rank(to) - rank(from);
-  }
+  virtual uint64_t rank(size_t from, size_t to) const { return rank(to) - rank(from); }
 
   virtual uint64_t rankZero(size_t pos) const { return pos - rank(pos); }
 
-  virtual uint64_t rankZero(size_t from, size_t to) const {
-    return (to - from) - rank(from, to);
-  }
+  virtual uint64_t rankZero(size_t from, size_t to) const { return (to - from) - rank(from, to); }
 
   virtual size_t select(uint64_t rank) const {
     size_t idx = Fenwick.find(&rank);
@@ -130,9 +124,8 @@ public:
   }
 
   virtual size_t bitCount() const {
-    return sizeof(Stride<T, WORDS>) +
-           Vector.bitCount() - sizeof(Vector) +
-           Fenwick.bitCount() - sizeof(Fenwick);
+    return sizeof(Stride<T, WORDS>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() -
+           sizeof(Fenwick);
   }
 
 private:

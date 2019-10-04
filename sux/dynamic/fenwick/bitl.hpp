@@ -165,4 +165,3 @@ private:
 };
 
 } // namespace sux::fenwick
-

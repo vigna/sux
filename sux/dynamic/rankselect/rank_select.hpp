@@ -28,7 +28,7 @@ public:
    *
    */
   virtual const uint64_t *bitvector() const = 0;
-/**
+  /**
    * update() - Replace a given word in the bitvector.
    * @index: index (in words) in the bitvector.
    * @word: new value for @bitvector[@index]

@@ -1,7 +1,7 @@
-/*		 
+/*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna 
+ * Copyright (C) 2007-2013 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -20,23 +20,24 @@
 
 #ifndef simple_rank_h
 #define simple_rank_h
-#include <stdint.h>
 #include "macros.h"
+#include <stdint.h>
 
 class simple_rank {
 private:
-	const uint64_t *bits;
-	uint64_t *counts, *inventory;
-	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
+  const uint64_t *bits;
+  uint64_t *counts, *inventory;
+  uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
+      num_ones;
 
 public:
-	simple_rank();
-	simple_rank( const uint64_t * const bits, const uint64_t num_bits );
-	~simple_rank();
-	uint64_t rank( const uint64_t pos );
-	// Just for analysis purposes
-	void print_counts();
-	uint64_t bit_count();
+  simple_rank();
+  simple_rank(const uint64_t *const bits, const uint64_t num_bits);
+  ~simple_rank();
+  uint64_t rank(const uint64_t pos);
+  // Just for analysis purposes
+  void print_counts();
+  uint64_t bit_count();
 };
 
 #endif

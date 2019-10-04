@@ -1,7 +1,7 @@
-/*		 
+/*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna 
+ * Copyright (C) 2007-2013 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -20,23 +20,24 @@
 
 #ifndef rank9_h
 #define rank9_h
-#include <stdint.h>
 #include "macros.h"
+#include <stdint.h>
 
 class rank9 {
 private:
-	const uint64_t *bits;
-	uint64_t *counts, *inventory;
-	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
+  const uint64_t *bits;
+  uint64_t *counts, *inventory;
+  uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
+      num_ones;
 
 public:
-	rank9();
-	rank9( const uint64_t * const bits, const uint64_t num_bits );
-	~rank9();
-	uint64_t rank( const uint64_t pos );
-	// Just for analysis purposes
-	void print_counts();
-	uint64_t bit_count();
+  rank9();
+  rank9(const uint64_t *const bits, const uint64_t num_bits);
+  ~rank9();
+  uint64_t rank(const uint64_t pos);
+  // Just for analysis purposes
+  void print_counts();
+  uint64_t bit_count();
 };
 
 #endif
