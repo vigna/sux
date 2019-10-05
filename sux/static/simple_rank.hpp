@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef simple_rank_h
-#define simple_rank_h
+#pragma once
+
 #include "../common.hpp"
 #include <cstdint>
 
@@ -36,8 +36,6 @@ public:
   ~simple_rank();
   uint64_t rank(const uint64_t pos);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
-
-#endif

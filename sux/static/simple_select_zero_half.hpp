@@ -1,7 +1,7 @@
-/*		 
+/*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna 
+ * Copyright (C) 2007-2013 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -18,34 +18,30 @@
  *
  */
 
-#ifndef simple_select_zero_half_h
-#define simple_select_zero_half_h
+#pragma once
 
-using namespace std;
-
-#include <cstdint>
 #include "../common.hpp"
+#include <cstdint>
 
 namespace sux {
+using namespace std;
 
 class simple_select_zero_half {
 private:
-	const uint64_t *bits;
-	int64_t *inventory;
+  const uint64_t *bits;
+  int64_t *inventory;
 
-	uint64_t num_words, inventory_size, num_ones;
+  uint64_t num_words, inventory_size, num_ones;
 
 public:
-	simple_select_zero_half();
-	simple_select_zero_half( const uint64_t * const bits, const uint64_t num_bits );
-	~simple_select_zero_half();
-	uint64_t select_zero( const uint64_t rank );
-	uint64_t select_zero( const uint64_t rank, uint64_t * const next );
-	// Just for analysis purposes
-	void print_counts();
-	uint64_t bit_count();
+  simple_select_zero_half();
+  simple_select_zero_half(const uint64_t *const bits, const uint64_t num_bits);
+  ~simple_select_zero_half();
+  uint64_t select_zero(const uint64_t rank);
+  uint64_t select_zero(const uint64_t rank, uint64_t *const next);
+  // Just for analysis purposes
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-
-#endif
+} // namespace sux

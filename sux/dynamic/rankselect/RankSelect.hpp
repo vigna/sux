@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../../rank.hpp"
-#include "../../select.hpp"
-#include "../common.hpp"
-#include "../darray.hpp"
+#include "../../Rank.hpp"
+#include "../../RankZero.hpp"
+#include "../../Select.hpp"
+#include "../../SelectZero.hpp"
+#include "../../common.hpp"
+#include "../DArray.hpp"
 
 namespace sux::ranking {
 
@@ -16,7 +18,7 @@ namespace sux::ranking {
  * This data structure indices starts from 0 and ends in @length-1.
  *
  */
-class RankSelect : public Rank, public Select {
+class RankSelect : public Rank, public RankZero, public Select, public SelectZero {
 public:
   virtual ~RankSelect() = default;
 

@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef jacobson_h
-#define jacobson_h
+#pragma once
+
 #include <cstdint>
 
 namespace sux {
@@ -66,9 +66,8 @@ public:
   ~jacobson();
   uint64_t rank(const uint64_t pos);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-#endif
+} // namespace sux

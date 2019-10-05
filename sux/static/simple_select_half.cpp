@@ -18,8 +18,6 @@
  *
  */
 
-using namespace std;
-
 #include "simple_select_half.hpp"
 #include <algorithm>
 #include <cassert>
@@ -42,7 +40,8 @@ using namespace std;
 #define ONES_PER_SUB16 (1 << LOG2_ONES_PER_SUB16)
 #define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
 
-namespace sux {
+using namespace std;
+using namespace sux;
 
 simple_select_half::simple_select_half() {}
 
@@ -141,7 +140,7 @@ simple_select_half::simple_select_half(const uint64_t *const bits, const uint64_
 #ifndef NDEBUG
 
   uint64_t r, t;
-  rank9 rank9(bits, num_bits);
+  Rank9 rank9(bits, num_bits);
   for (uint64_t i = 0; i < c; i++) {
     t = select(i);
     r = rank9.rank(t);
@@ -234,10 +233,8 @@ uint64_t simple_select_half::select(const uint64_t rank, uint64_t *const next) {
   return s;
 }
 
-uint64_t simple_select_half::bit_count() {
+uint64_t simple_select_half::bitCount() {
   return (inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1) * 64;
 }
 
-void simple_select_half::print_counts() {}
-
-}
+void simple_select_half::printCounts() {}

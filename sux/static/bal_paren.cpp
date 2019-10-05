@@ -18,17 +18,16 @@
  *
  */
 
-using namespace std;
-
-#include "../common.hpp"
 #include "bal_paren.hpp"
+#include "../common.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <vector>
 
-namespace sux {
+using namespace std;
+using namespace sux;
 
 bal_paren::bal_paren() {}
 
@@ -99,7 +98,7 @@ bal_paren::bal_paren(const uint64_t *const bits, const uint64_t num_bits) {
 
   for (uint64_t i = 0; i < opening_pioneers.size(); i++)
     set(opening_pioneers_bits, opening_pioneers[i]);
-  opening_pioneers_rank = new rank9(opening_pioneers_bits, num_bits);
+  opening_pioneers_rank = new Rank9(opening_pioneers_bits, num_bits);
 
   reverse(opening_pioneers.begin(), opening_pioneers.end());
   this->opening_pioneers = new uint64_t[opening_pioneers.size()];
@@ -170,8 +169,6 @@ uint64_t bal_paren::find_close(const uint64_t pos) {
   return matchWord * 64ULL + find_far_close(bits[matchWord], numFarClose - e);
 }
 
-uint64_t bal_paren::bit_count() { return -1; }
+uint64_t bal_paren::bitCount() { return -1; }
 
-void bal_paren::print_counts() {}
-
-}
+void bal_paren::printCounts() {}

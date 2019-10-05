@@ -18,8 +18,7 @@
  *
  */
 
-#ifndef simple_select_half_h
-#define simple_select_half_h
+#pragma once
 
 using namespace std;
 
@@ -41,10 +40,8 @@ public:
   uint64_t select(const uint64_t rank);
   uint64_t select(const uint64_t rank, uint64_t *const next);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-
-#endif
+} // namespace sux

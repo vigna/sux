@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.hpp"
+#include "../common.hpp"
 #include <assert.h>
 #include <iostream>
 #include <sys/mman.h>

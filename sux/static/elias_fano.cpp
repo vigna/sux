@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace sux {
+using namespace sux;
 
 elias_fano::elias_fano(const uint64_t *const bits, const uint64_t num_bits) {
   const uint64_t num_words = (num_bits + 63) / 64;
@@ -324,11 +324,9 @@ uint64_t elias_fano::select(const uint64_t rank, uint64_t *const next) {
   return s << l | get_bits(lower_bits, position, l);
 }
 
-uint64_t elias_fano::bit_count() {
-  return num_ones * l + num_ones + (num_bits >> l) + select_upper->bit_count() +
-         selectz_upper->bit_count();
+uint64_t elias_fano::bitCount() {
+  return num_ones * l + num_ones + (num_bits >> l) + select_upper->bitCount() +
+         selectz_upper->bitCount();
 }
 
-void elias_fano::print_counts() {}
-
-}
+void elias_fano::printCounts() {}

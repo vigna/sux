@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../common.hpp"
-#include "../darray.hpp"
+#include "../../common.hpp"
+#include "../DArray.hpp"
 
 namespace sux::fenwick {
 

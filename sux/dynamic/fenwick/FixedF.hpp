@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tree.hpp"
+#include "Tree.hpp"
 
 namespace sux::fenwick {
 

@@ -1,5 +1,4 @@
-#ifndef __TEST_RANKSELECT_HPP__
-#define __TEST_RANKSELECT_HPP__
+#pragma once
 
 #include <sux/dynamic/rankselect.hpp>
 
@@ -375,5 +374,3 @@ TEST(rankselect, stride) {
     run_rankselect<1024>(i);
   }
 }
-
-#endif // __TEST_RANKSELECT_HPP__

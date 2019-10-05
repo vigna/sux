@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef elias_fano_h
-#define elias_fano_h
+#pragma once
+
 #include "simple_select_half.hpp"
 #include "simple_select_zero_half.hpp"
 #include <cstdint>
@@ -83,9 +83,8 @@ public:
   uint64_t select(const uint64_t rank);
   uint64_t select(const uint64_t rank, uint64_t *const next);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-#endif
+} // namespace sux

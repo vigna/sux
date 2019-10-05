@@ -1,5 +1,4 @@
-#ifndef __TEST_FENWICK_SAME_BEHAVIOR_HPP__
-#define __TEST_FENWICK_SAME_BEHAVIOR_HPP__
+#pragma once
 
 #include <cmath>
 #include <random>
@@ -121,5 +120,3 @@ TEST(fenwick, bound) {
 
   // Note: BOUND >= 2^55 is not supported in BitF
 }
-
-#endif // __TEST_FENWICK_SAME_BEHAVIOR_HPP__

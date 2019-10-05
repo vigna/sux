@@ -3,6 +3,7 @@
 #include "common.hpp"
 
 namespace sux {
+
 class Select {
 public:
   virtual ~Select() = default;

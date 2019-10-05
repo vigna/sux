@@ -1,10 +1,10 @@
-#include "fenwick/tree.hpp"
+#include "fenwick/Tree.hpp"
 
-#include "fenwick/fixedf.hpp"
-#include "fenwick/fixedl.hpp"
+#include "fenwick/FixedF.hpp"
+#include "fenwick/FixedL.hpp"
 
-#include "fenwick/bytef.hpp"
-#include "fenwick/bytel.hpp"
+#include "fenwick/ByteF.hpp"
+#include "fenwick/ByteL.hpp"
 
-#include "fenwick/bitf.hpp"
-#include "fenwick/bitl.hpp"
+#include "fenwick/BitF.hpp"
+#include "fenwick/BitL.hpp"

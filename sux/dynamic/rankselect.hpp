@@ -1,4 +1,4 @@
-#include "rankselect/rank_select.hpp"
+#include "rankselect/RankSelect.hpp"
 
-#include "rankselect/stride.hpp"
-#include "rankselect/word.hpp"
+#include "rankselect/Stride.hpp"
+#include "rankselect/Word.hpp"

@@ -18,17 +18,18 @@
  *
  */
 
-#ifndef rank9sel_h
-#define rank9sel_h
-#include <cstdint>
+#pragma once
+
 #include "../Rank.hpp"
 #include "../Select.hpp"
 #include "../SelectZero.hpp"
+#include <cstdint>
 
 namespace sux {
 
-class Rank9Sel : public Rank, public Select, public SelectZero {
+class Rank9Sel : public Rank, public Select {
 private:
+  const size_t num_bits;
   const uint64_t *bits;
   uint64_t *counts, *inventory, *subinventory;
   uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
@@ -36,10 +37,13 @@ private:
 
 public:
   Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
-  uint64_t rank(const size_t pos);
-  uint64_t select(const size_t rank);
+  ~Rank9Sel();
+
+  uint64_t rank(const size_t pos) const;
+  uint64_t select(const size_t rank) const;
+  size_t size() const;
+
   uint64_t bitCount();
 };
 
-}
-#endif
+} // namespace sux

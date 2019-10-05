@@ -29,8 +29,7 @@
 #define MAX_ONES_PER_INVENTORY (8192)
 
 using namespace std;
-
-namespace sux {
+using namespace sux;
 
 simple_select::simple_select() {}
 
@@ -219,7 +218,7 @@ simple_select::~simple_select() {
   delete[] exact_spill;
 }
 
-uint64_t simple_select::select(const uint64_t rank) {
+uint64_t simple_select::select(const uint64_t rank) const {
 #ifdef DEBUG
   printf("Selecting %lld\n...", rank);
 #endif
@@ -279,11 +278,8 @@ uint64_t simple_select::select(const uint64_t rank) {
   return word_index * 64 + select64(word, residual);
 }
 
-uint64_t simple_select::bit_count() {
+uint64_t simple_select::bitCount() {
   return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64;
 }
 
-void simple_select::print_counts() {}
-
-}
-
+void simple_select::printCounts() {}

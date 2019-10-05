@@ -18,8 +18,6 @@
  *
  */
 
-using namespace std;
-
 #include "simple_select_zero.h"
 #include "rank9.h"
 #include "select.h"
@@ -31,7 +29,8 @@ using namespace std;
 
 #define MAX_ONES_PER_INVENTORY (8192)
 
-namespace sux {
+using namespace std;
+using namespace sux;
 
 simple_select_zero::simple_select_zero() {}
 
@@ -192,7 +191,7 @@ simple_select_zero::simple_select_zero(const uint64_t *const bits, const uint64_
 
 #ifndef NDEBUG
   uint64_t r, t;
-  rank9 rank9(bits, num_bits);
+  Rank9 rank9(bits, num_bits);
   for (uint64_t i = 0; i < c; i++) {
     t = select_zero(i);
     assert(t < num_bits);
@@ -282,10 +281,8 @@ uint64_t simple_select_zero::select_zero(const uint64_t rank) {
   return word_index * 64 + select_in_word(word, residual);
 }
 
-uint64_t simple_select_zero::bit_count() {
+uint64_t simple_select_zero::bitCount() {
   return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64;
 }
 
-void simple_select_zero::print_counts() {}
-
-}
+void simple_select_zero::printCounts() {}

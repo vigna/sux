@@ -1,7 +1,7 @@
-/*		 
+/*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna 
+ * Copyright (C) 2007-2013 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -18,38 +18,35 @@
  *
  */
 
-#ifndef simple_select_zero_h
-#define simple_select_zero_h
+#pragma once
 
-using namespace std;
-
-#include <stdint.h>
-#include "macros.h"
+#include "../common.hpp"
+#include <cstdint>
 
 namespace sux {
+using namespace std;
 
 class simple_select_zero {
 private:
-	const uint64_t *bits;
-	int64_t *inventory;
-	uint64_t *exact_spill;
-	int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64, log2_longwords_per_subinventory,
-		ones_per_inventory, ones_per_sub16, ones_per_sub64, longwords_per_subinventory, longwords_per_inventory,
-		ones_per_inventory_mask, ones_per_sub16_mask, ones_per_sub64_mask;
+  const uint64_t *bits;
+  int64_t *inventory;
+  uint64_t *exact_spill;
+  int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64,
+      log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64,
+      longwords_per_subinventory, longwords_per_inventory, ones_per_inventory_mask,
+      ones_per_sub16_mask, ones_per_sub64_mask;
 
-	uint64_t num_words, inventory_size, exact_spill_size, num_ones;
+  uint64_t num_words, inventory_size, exact_spill_size, num_ones;
 
 public:
-	simple_select_zero();
-	simple_select_zero( const uint64_t * const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory );
-	~simple_select_zero();
-	uint64_t select_zero( const uint64_t rank );
-	// Just for analysis purposes
-	void print_counts();
-	uint64_t bit_count();
+  simple_select_zero();
+  simple_select_zero(const uint64_t *const bits, const uint64_t num_bits,
+                     const int max_log2_longwords_per_subinventory);
+  ~simple_select_zero();
+  uint64_t select_zero(const uint64_t rank);
+  // Just for analysis purposes
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-
-#endif
-
+} // namespace sux

@@ -22,10 +22,9 @@
 #include <cassert>
 #include <cstring>
 
-namespace sux {
+using namespace sux;
 
-Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) {
-  this->bits = bits;
+Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) : num_bits(num_bits), bits(bits) {
   num_words = (num_bits + 63) / 64;
   num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
 
@@ -51,7 +50,7 @@ Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) {
 
 Rank9::~Rank9() { delete[] counts; }
 
-uint64_t Rank9::rank(const size_t k) {
+uint64_t Rank9::rank(const size_t k) const {
   const uint64_t word = k / 64;
   const uint64_t block = word / 4 & ~1;
   const int offset = word % 8 - 1;
@@ -62,4 +61,4 @@ uint64_t Rank9::rank(const size_t k) {
 
 uint64_t Rank9::bitCount() { return num_counts * 64 + sizeof(Rank9); }
 
-}
+size_t Rank9::size() const { return num_counts * 64; };

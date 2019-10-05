@@ -18,14 +18,14 @@
  *
  */
 
+#include "jacobson.hpp"
+#include "../common.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#include "jacobson.hpp"
-#include "../common.hpp"
 
-namespace sux {
+using namespace sux;
 
 jacobson::jacobson() {}
 
@@ -118,10 +118,8 @@ uint64_t jacobson::rank(const uint64_t k) {
                    counter_bits_per_precomp);
 }
 
-uint64_t jacobson::bit_count() {
+uint64_t jacobson::bitCount() {
   return num_bits_for_blocks + num_bits_for_superblocks + num_bits_for_precomp;
 }
 
-void jacobson::print_counts() {}
-
-}
+void jacobson::printCounts() {}

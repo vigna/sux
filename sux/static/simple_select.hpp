@@ -18,17 +18,16 @@
  *
  */
 
-#ifndef simple_select_h
-#define simple_select_h
+#pragma once
+
+#include "../Select.hpp"
+#include "../common.hpp"
+#include <cstdint>
 
 using namespace std;
-
-#include <cstdint>
-#include "../common.hpp"
-
 namespace sux {
 
-class simple_select {
+class simple_select : public Select {
 private:
   const uint64_t *bits;
   int64_t *inventory;
@@ -45,12 +44,10 @@ public:
   simple_select(const uint64_t *const bits, const uint64_t num_bits,
                 const int max_log2_longwords_per_subinventory);
   ~simple_select();
-  uint64_t select(const uint64_t rank);
+  size_t select(const uint64_t rank) const;
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-
-#endif
+} // namespace sux

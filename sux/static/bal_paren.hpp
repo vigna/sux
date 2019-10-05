@@ -18,12 +18,12 @@
  *
  */
 
-#ifndef bal_paren_h
-#define bal_paren_h
+#pragma once
+
+#include "../common.hpp"
 #include "elias_fano.hpp"
 #include "rank9.hpp"
 #include "tables.hpp"
-#include "../common.hpp"
 #include <cstdint>
 
 namespace sux {
@@ -32,7 +32,7 @@ class bal_paren {
 private:
   const uint64_t *bits;
   uint64_t *opening_pioneers, *opening_pioneers_bits, *opening_pioneers_matches;
-  rank9 *opening_pioneers_rank;
+  Rank9 *opening_pioneers_rank;
   uint64_t num_words;
 
   __inline static void set(uint64_t *const bits, const uint64_t pos) {
@@ -327,9 +327,8 @@ public:
   ~bal_paren();
   uint64_t find_close(const uint64_t pos);
   // Just for analysis purposes
-  void print_counts();
-  uint64_t bit_count();
+  void printCounts();
+  uint64_t bitCount();
 };
 
-}
-#endif
+} // namespace sux
