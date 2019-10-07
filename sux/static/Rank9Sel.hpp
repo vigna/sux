@@ -20,33 +20,28 @@
 
 #pragma once
 
-#include "../Select.hpp"
-#include "../common.hpp"
 #include <cstdint>
+#include "../Rank.hpp"
+#include "../Select.hpp"
 
-using namespace std;
 namespace sux {
 
-class simple_select : public Select {
+class Rank9Sel : public Rank, public Select {
 private:
+  const size_t num_bits;
   const uint64_t *bits;
-  int64_t *inventory;
-  uint64_t *exact_spill;
-  int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64,
-      log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64,
-      longwords_per_subinventory, longwords_per_inventory, ones_per_inventory_mask,
-      ones_per_sub16_mask, ones_per_sub64_mask;
-
-  uint64_t num_words, inventory_size, exact_spill_size, num_ones;
+  uint64_t *counts, *inventory, *subinventory;
+  uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
+      num_ones;
 
 public:
-  simple_select();
-  simple_select(const uint64_t *const bits, const uint64_t num_bits,
-                const int max_log2_longwords_per_subinventory);
-  ~simple_select();
+  Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
+  ~Rank9Sel();
+
+  uint64_t rank(const size_t pos) const;
   size_t select(const uint64_t rank) const;
-  // Just for analysis purposes
-  void printCounts();
+  size_t size() const;
+
   uint64_t bitCount();
 };
 

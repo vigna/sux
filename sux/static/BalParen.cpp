@@ -18,20 +18,19 @@
  *
  */
 
-#include "bal_paren.hpp"
-#include "../common.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <vector>
+#include "bal_paren.hpp"
 
 using namespace std;
 using namespace sux;
 
-bal_paren::bal_paren() {}
+BalParen::BalParen() {}
 
-bal_paren::bal_paren(const uint64_t *const bits, const uint64_t num_bits) {
+BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
   this->bits = bits;
   num_words = (num_bits + 63) / 64;
 
@@ -133,12 +132,12 @@ bal_paren::bal_paren(const uint64_t *const bits, const uint64_t num_bits) {
 #endif
 }
 
-bal_paren::~bal_paren() {
+BalParen::~BalParen() {
   delete[] opening_pioneers;
   delete[] opening_pioneers_matches;
 }
 
-uint64_t bal_paren::find_close(const uint64_t pos) {
+uint64_t BalParen::findClose(const uint64_t pos) {
   const int word = (int)(pos / 64);
   const int bit = (int)(pos & 63);
   assert((bits[word] & 1ULL << bit) != 0);
@@ -169,6 +168,6 @@ uint64_t bal_paren::find_close(const uint64_t pos) {
   return matchWord * 64ULL + find_far_close(bits[matchWord], numFarClose - e);
 }
 
-uint64_t bal_paren::bitCount() { return -1; }
+uint64_t BalParen::bitCount() { return -1; }
 
-void bal_paren::printCounts() {}
+void BalParen::printCounts() {}

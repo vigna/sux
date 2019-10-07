@@ -18,8 +18,6 @@
  *
  */
 
-#include "rank9sel.hpp"
-#include "../common.hpp"
 #include <cassert>
 #include <climits>
 #include <cstdio>
@@ -28,6 +26,7 @@
 #include <ctime>
 #include <sys/resource.h>
 #include <sys/time.h>
+#include "Rank9Sel.hpp"
 
 #define ONES_PER_INVENTORY (512)
 #define LOG2_ONES_PER_INVENTORY (9)

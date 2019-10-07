@@ -18,23 +18,21 @@
  *
  */
 
-#include "../common.hpp"
-#include "simple_select_zero.hpp"
-#include "rank9.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include "SimpleSelectZero.hpp"
 
 #define MAX_ONES_PER_INVENTORY (8192)
 
 using namespace std;
 using namespace sux;
 
-simple_select_zero::simple_select_zero() {}
+SimpleSelectZero::SimpleSelectZero() {}
 
-simple_select_zero::simple_select_zero(const uint64_t *const bits, const uint64_t num_bits,
+SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits,
                                        const int max_log2_longwords_per_subinventory) {
   this->bits = bits;
   num_words = (num_bits + 63) / 64;
@@ -188,40 +186,14 @@ simple_select_zero::simple_select_zero(const uint64_t *const bits, const uint64_
     printf("First spilled entries: %016llx %016llx %016llx %016llx\n", exact_spill[0],
            exact_spill[1], exact_spill[2], exact_spill[3]);
 #endif
-
-#ifndef NDEBUG
-  uint64_t r, t;
-  Rank9 rank9(bits, num_bits);
-  for (uint64_t i = 0; i < c; i++) {
-    t = select_zero(i);
-    assert(t < num_bits);
-    r = t - rank9.rank(t);
-    if (r != i) {
-      printf("i: %lld s: %lld r: %lld\n", i, t, r);
-      assert(r == i);
-    }
-  }
-
-  for (uint64_t i = 0; i < num_bits; i++) {
-    r = i - rank9.rank(i);
-    if (r < c) {
-      t = select_zero(r);
-      if (t < i) {
-        printf("i: %lld r: %lld s: %lld\n", i, r, t);
-        assert(t >= i);
-      }
-    }
-  }
-
-#endif
 }
 
-simple_select_zero::~simple_select_zero() {
+SimpleSelectZero::~SimpleSelectZero() {
   delete[] inventory;
   delete[] exact_spill;
 }
 
-uint64_t simple_select_zero::select_zero(const uint64_t rank) {
+uint64_t SimpleSelectZero::select_zero(const uint64_t rank) {
 #ifdef DEBUG
   printf("Selecting %lld\n...", rank);
 #endif
@@ -281,8 +253,8 @@ uint64_t simple_select_zero::select_zero(const uint64_t rank) {
   return word_index * 64 + select64(word, residual);
 }
 
-uint64_t simple_select_zero::bitCount() {
+uint64_t SimpleSelectZero::bitCount() {
   return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64;
 }
 
-void simple_select_zero::printCounts() {}
+void SimpleSelectZero::printCounts() {}

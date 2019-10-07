@@ -18,22 +18,21 @@
  *
  */
 
-#include "simple_select.hpp"
-#include "rank9.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include "SimpleSelect.hpp"
 
 #define MAX_ONES_PER_INVENTORY (8192)
 
 using namespace std;
 using namespace sux;
 
-simple_select::simple_select() {}
+SimpleSelect::SimpleSelect() {}
 
-simple_select::simple_select(const uint64_t *const bits, const uint64_t num_bits,
+SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
                              const int max_log2_longwords_per_subinventory) {
   this->bits = bits;
   num_words = (num_bits + 63) / 64;
@@ -185,40 +184,14 @@ simple_select::simple_select(const uint64_t *const bits, const uint64_t num_bits
     printf("First spilled entries: %016llx %016llx %016llx %016llx\n", exact_spill[0],
            exact_spill[1], exact_spill[2], exact_spill[3]);
 #endif
-
-#ifndef NDEBUG
-  uint64_t r, t;
-  Rank9 rank9(bits, num_bits);
-  for (uint64_t i = 0; i < c; i++) {
-    t = select(i);
-    assert(t < num_bits);
-    r = rank9.rank(t);
-    if (r != i) {
-      printf("i: %lld s: %lld r: %lld\n", i, t, r);
-      assert(r == i);
-    }
-  }
-
-  for (uint64_t i = 0; i < num_bits; i++) {
-    r = rank9.rank(i);
-    if (r < c) {
-      t = select(r);
-      if (t < i) {
-        printf("i: %lld r: %lld s: %lld\n", i, r, t);
-        assert(t >= i);
-      }
-    }
-  }
-
-#endif
 }
 
-simple_select::~simple_select() {
+SimpleSelect::~SimpleSelect() {
   delete[] inventory;
   delete[] exact_spill;
 }
 
-size_t simple_select::select(const uint64_t rank) const {
+size_t SimpleSelect::select(const uint64_t rank) const {
 #ifdef DEBUG
   printf("Selecting %lld\n...", rank);
 #endif
@@ -278,8 +251,8 @@ size_t simple_select::select(const uint64_t rank) const {
   return word_index * 64 + select64(word, residual);
 }
 
-uint64_t simple_select::bitCount() {
+uint64_t SimpleSelect::bitCount() {
   return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64;
 }
 
-void simple_select::printCounts() {}
+void SimpleSelect::printCounts() {}

@@ -20,29 +20,27 @@
 
 #pragma once
 
-#include "../Rank.hpp"
-#include "../Select.hpp"
-#include "../SelectZero.hpp"
+#include "../common.hpp"
 #include <cstdint>
 
 namespace sux {
+using namespace std;
 
-class Rank9Sel : public Rank, public Select {
+class SimpleSelectZeroHalf {
 private:
-  const size_t num_bits;
   const uint64_t *bits;
-  uint64_t *counts, *inventory, *subinventory;
-  uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
-      num_ones;
+  int64_t *inventory;
+
+  uint64_t num_words, inventory_size, num_ones;
 
 public:
-  Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
-  ~Rank9Sel();
-
-  uint64_t rank(const size_t pos) const;
-  size_t select(const uint64_t rank) const;
-  size_t size() const;
-
+  SimpleSelectZeroHalf();
+  SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
+  ~SimpleSelectZeroHalf();
+  uint64_t select_zero(const uint64_t rank);
+  uint64_t select_zero(const uint64_t rank, uint64_t *const next);
+  // Just for analysis purposes
+  void printCounts();
   uint64_t bitCount();
 };
 

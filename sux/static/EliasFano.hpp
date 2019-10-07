@@ -21,16 +21,41 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
+#include "SimpleSelectHalf.hpp"
+#include "SimpleSelectZereHalf.hpp"
 
 namespace sux {
 
-class jacobson {
+class EliasFano {
 private:
-  const uint64_t *bits;
-  uint64_t *counts, *supercounts, *precomp;
-  uint64_t num_words, num_counts, block_size, superblock_size, num_patterns, counter_bits_per_block,
-      counter_bits_per_superblock, counter_bits_per_precomp, num_bits_for_blocks,
-      num_bits_for_superblocks, num_bits_for_precomp, num_ones;
+  uint64_t *lower_bits, *upper_bits;
+
+  simple_select_half *select_upper;
+  simple_select_zero_half *selectz_upper;
+  uint64_t num_bits, num_ones;
+  int l;
+  int block_size;
+  int block_length;
+  uint64_t block_size_mask, block_length_mask;
+  uint64_t lower_l_bits_mask;
+  uint64_t ones_step_l;
+  uint64_t msbs_step_l;
+  uint64_t compressor;
+
+  __inline static void set(uint64_t *const bits, const uint64_t pos) {
+    bits[pos / 64] |= 1ULL << pos % 64;
+  }
+
+  __inline static uint64_t get_bits(const uint64_t *const bits, const uint64_t start,
+                                    const int width) {
+    const int start_word = start / 64;
+    const int start_bit = start % 64;
+    const int total_offset = start_bit + width;
+    const uint64_t result = bits[start_word] >> start_bit;
+    return (total_offset <= 64 ? result : result | bits[start_word + 1] << 64 - start_bit) &
+           (1ULL << width) - 1;
+  }
 
   __inline static void set_bits(uint64_t *const bits, const uint64_t start, const int width,
                                 const uint64_t value) {
@@ -50,21 +75,13 @@ private:
     }
   }
 
-  __inline static uint64_t get_bits(const uint64_t *const bits, const uint64_t start,
-                                    const int width) {
-    const int start_word = start / 64;
-    const int start_bit = start % 64;
-    const int total_offset = start_bit + width;
-    const uint64_t result = bits[start_word] >> start_bit;
-    return (total_offset <= 64 ? result : result | bits[start_word + 1] << 64 - start_bit) &
-           (1ULL << width) - 1;
-  }
-
 public:
-  jacobson();
-  jacobson(const uint64_t *const bits, const uint64_t num_bits);
-  ~jacobson();
+  EliasFano(const uint64_t *const bits, const uint64_t num_bits);
+  EliasFano(const std::vector<uint64_t> pos, const uint64_t num_bits);
+  ~EliasFano();
   uint64_t rank(const uint64_t pos);
+  uint64_t select(const uint64_t rank);
+  uint64_t select(const uint64_t rank, uint64_t *const next);
   // Just for analysis purposes
   void printCounts();
   uint64_t bitCount();

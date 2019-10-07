@@ -1,4 +1,4 @@
-/*
+#include "bal_paren.hpp"/*
  * Sux: Succinct data structures
  *
  * Copyright (C) 2007-2019 Sebastiano Vigna
@@ -18,17 +18,17 @@
  *
  */
 
-#include "elias_fano.hpp"
 #include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include "EliasFano.hpp"
 
 using namespace sux;
 
-elias_fano::elias_fano(const uint64_t *const bits, const uint64_t num_bits) {
+EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   const uint64_t num_words = (num_bits + 63) / 64;
   uint64_t m = 0;
   for (uint64_t i = num_words; i-- != 0;)
@@ -111,7 +111,7 @@ elias_fano::elias_fano(const uint64_t *const bits, const uint64_t num_bits) {
 #endif
 }
 
-elias_fano::elias_fano(const std::vector<uint64_t> ones, const uint64_t num_bits) {
+EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) {
   const uint64_t num_words = (num_bits + 63) / 64;
   num_ones = ones.size();
   this->num_bits = num_bits;
@@ -192,14 +192,14 @@ elias_fano::elias_fano(const std::vector<uint64_t> ones, const uint64_t num_bits
 #endif
 }
 
-elias_fano::~elias_fano() {
+EliasFano::~EliasFano() {
   delete[] upper_bits;
   delete[] lower_bits;
   delete select_upper;
   delete selectz_upper;
 }
 
-uint64_t elias_fano::rank(const uint64_t k) {
+uint64_t EliasFano::rank(const uint64_t k) {
   if (num_ones == 0)
     return 0;
   if (k >= num_bits)
@@ -302,7 +302,7 @@ uint64_t elias_fano::rank(const uint64_t k) {
 #endif
 }
 
-uint64_t elias_fano::select(const uint64_t rank) {
+uint64_t EliasFano::select(const uint64_t rank) {
 #ifdef DEBUG
   printf("Selecting %lld...\n", rank);
 #endif
@@ -314,7 +314,7 @@ uint64_t elias_fano::select(const uint64_t rank) {
   return (select_upper->select(rank) - rank) << l | get_bits(lower_bits, rank * l, l);
 }
 
-uint64_t elias_fano::select(const uint64_t rank, uint64_t *const next) {
+uint64_t EliasFano::select(const uint64_t rank, uint64_t *const next) {
   uint64_t s, t;
   s = select_upper->select(rank, &t) - rank;
   t -= rank + 1;
@@ -324,9 +324,9 @@ uint64_t elias_fano::select(const uint64_t rank, uint64_t *const next) {
   return s << l | get_bits(lower_bits, position, l);
 }
 
-uint64_t elias_fano::bitCount() {
+uint64_t EliasFano::bitCount() {
   return num_ones * l + num_ones + (num_bits >> l) + select_upper->bitCount() +
          selectz_upper->bitCount();
 }
 
-void elias_fano::printCounts() {}
+void EliasFano::printCounts() {}

@@ -28,7 +28,7 @@
 
 namespace sux {
 
-class bal_paren {
+class BalParen {
 private:
   const uint64_t *bits;
   uint64_t *opening_pioneers, *opening_pioneers_bits, *opening_pioneers_matches;
@@ -322,10 +322,10 @@ private:
 #endif
 
 public:
-  bal_paren();
-  bal_paren(const uint64_t *const bits, const uint64_t num_bits);
-  ~bal_paren();
-  uint64_t find_close(const uint64_t pos);
+  BalParen();
+  BalParen(const uint64_t *const bits, const uint64_t num_bits);
+  ~BalParen();
+  uint64_t findClose(const uint64_t pos);
   // Just for analysis purposes
   void printCounts();
   uint64_t bitCount();
