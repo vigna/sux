@@ -1,7 +1,7 @@
 /*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna
+ * Copyright (C) 2007-2019 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -218,7 +218,7 @@ simple_select::~simple_select() {
   delete[] exact_spill;
 }
 
-uint64_t simple_select::select(const uint64_t rank) const {
+size_t simple_select::select(const uint64_t rank) const {
 #ifdef DEBUG
   printf("Selecting %lld\n...", rank);
 #endif

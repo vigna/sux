@@ -1,7 +1,7 @@
 /*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna
+ * Copyright (C) 2007-2019 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -40,7 +40,7 @@ public:
   ~Rank9Sel();
 
   uint64_t rank(const size_t pos) const;
-  uint64_t select(const size_t rank) const;
+  size_t select(const uint64_t rank) const;
   size_t size() const;
 
   uint64_t bitCount();

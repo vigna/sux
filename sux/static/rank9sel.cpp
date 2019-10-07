@@ -1,7 +1,7 @@
 /*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2007-2013 Sebastiano Vigna
+ * Copyright (C) 2007-2019 Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -220,7 +220,7 @@ uint64_t Rank9Sel::rank(const size_t k) const {
          __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
 }
 
-uint64_t Rank9Sel::select(const size_t rank) const {
+size_t Rank9Sel::select(const uint64_t rank) const {
   const uint64_t inventory_index_left = rank >> LOG2_ONES_PER_INVENTORY;
   assert(inventory_index_left < inventory_size);
 
