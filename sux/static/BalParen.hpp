@@ -21,8 +21,8 @@
 #pragma once
 
 #include "../common.hpp"
-#include "elias_fano.hpp"
-#include "rank9.hpp"
+#include "EliasFano.hpp"
+#include "Rank9.hpp"
 #include "tables.hpp"
 #include <cstdint>
 
@@ -234,21 +234,20 @@ private:
         ONES_STEP_8 * 2 - ((word >> 6 & (ONES_STEP_8 << 1)) + (word >> 5 & (ONES_STEP_8 << 1)));
     update = ((((byte_sums | MSBS_STEP_8) - ONES_STEP_8) >> 7 & ONES_STEP_8) | MSBS_STEP_8) -
              ONES_STEP_8;
-    zeroes = zeroes & ~update | (MSBS_STEP_8 >> 1 | ONES_STEP_8 * 5) & update;
+    zeroes = (zeroes & ~update) | ((MSBS_STEP_8 >> 1 | ONES_STEP_8 * 5) & update);
 
     byte_sums -=
         ONES_STEP_8 * 2 - ((word >> 4 & (ONES_STEP_8 << 1)) + (word >> 3 & (ONES_STEP_8 << 1)));
     update = ((((byte_sums | MSBS_STEP_8) - ONES_STEP_8) >> 7 & ONES_STEP_8) | MSBS_STEP_8) -
              ONES_STEP_8;
-    zeroes = zeroes & ~update | (MSBS_STEP_8 >> 1 | ONES_STEP_8 * 3) & update;
+    zeroes = (zeroes & ~update) | ((MSBS_STEP_8 >> 1 | ONES_STEP_8 * 3) & update);
 
     byte_sums -=
         ONES_STEP_8 * 2 - ((word >> 2 & (ONES_STEP_8 << 1)) + (word >> 1 & (ONES_STEP_8 << 1)));
     update = ((((byte_sums | MSBS_STEP_8) - ONES_STEP_8) >> 7 & ONES_STEP_8) | MSBS_STEP_8) -
              ONES_STEP_8;
-    zeroes = zeroes & ~update | (MSBS_STEP_8 >> 1 | ONES_STEP_8 * 1) & update;
+    zeroes = (zeroes & ~update) | ((MSBS_STEP_8 >> 1 | ONES_STEP_8 * 1) & update);
 
-    const uint64_t t = zeroes >> 6 & ONES_STEP_8;
     int block;
     for (block = 0; block < 64; block += 8)
       if (zeroes & 1ULL << block)

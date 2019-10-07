@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
-#include "bal_paren.hpp"
+#include "BalParen.hpp"
 
 using namespace std;
 using namespace sux;
@@ -41,13 +41,12 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
   vector<uint64_t> opening_pioneers_matches(0);
 
   int first_nonzero_block = -1;
-  for (int block = num_words; block-- != 0;) {
+  for (uint64_t block = num_words; block-- != 0;) {
     const int l = min(64ULL, num_bits - block * 64ULL);
 
     if (block != num_words - 1) {
       int excess = 0;
       int countFarOpening = count_far_open(bits[block], l);
-      bool somethingAdded = false;
 
       for (int j = l; j-- != 0;) {
         if ((bits[block] & 1ULL << j) == 0) {
@@ -73,7 +72,7 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
             if (block != 0 || j != 0) {
               while (count[first_nonzero_block] == 0)
                 first_nonzero_block++;
-              assert(first_nonzero_block < num_words);
+              assert((uint64_t)first_nonzero_block < num_words);
             }
           }
         }
@@ -102,33 +101,16 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
   copy(opening_pioneers_matches.begin(), opening_pioneers_matches.end(),
        this->opening_pioneers_matches);
 
-#ifndef NDEBUG
-  for (uint64_t i = 0; i < num_bits; i++) {
-    if (bits[i / 64] & 1ULL << (i & 63)) {
-      int64_t c = 1;
-      uint64_t j;
-      for (j = i + 1; j < num_bits; j++) {
-        if (bits[j / 64] & 1ULL << (j & 63))
-          c++;
-        else
-          c--;
 
-        if (c == 0)
-          break;
-      }
-
-      if (find_close(i) != j)
-        printf("find_close(%lld) = %lld != %lld\n", i, find_close(i), j);
-      assert(c == 0);
-      assert(find_close(i) == j);
-    }
-  }
-#endif
+  delete[] count;
+  delete[] residual;
 }
 
 BalParen::~BalParen() {
   delete[] opening_pioneers;
   delete[] opening_pioneers_matches;
+  delete opening_pioneers_rank;
+  delete[] opening_pioneers_bits;
 }
 
 uint64_t BalParen::findClose(const uint64_t pos) {
@@ -142,9 +124,9 @@ uint64_t BalParen::findClose(const uint64_t pos) {
     return word * 64ULL + bit + result;
   }
 
-  const long pioneerIndex = opening_pioneers_rank->rank(pos + 1) - 1;
-  const long pioneer = opening_pioneers[pioneerIndex];
-  const long match = pioneer + opening_pioneers_matches[pioneerIndex];
+  const uint64_t pioneerIndex = opening_pioneers_rank->rank(pos + 1) - 1;
+  const uint64_t pioneer = opening_pioneers[pioneerIndex];
+  const uint64_t match = pioneer + opening_pioneers_matches[pioneerIndex];
 
   if (pos == pioneer) {
     return match;
@@ -152,13 +134,13 @@ uint64_t BalParen::findClose(const uint64_t pos) {
 
   int dist = (int)(pos - pioneer);
 
-  int e = 2 * __builtin_popcountll((bits[word] >> (pioneer % 64)) & (1ULL << dist) - 1) - dist;
+  int e = 2 * __builtin_popcountll((bits[word] >> (pioneer % 64)) & ((1ULL << dist) - 1)) - dist;
 
   const int matchWord = (int)(match / 64);
   const int matchBit = (int)(match % 64);
 
   const int numFarClose =
-      matchBit - 2 * __builtin_popcountll(bits[matchWord] & (1ULL << matchBit) - 1);
+      matchBit - 2 * __builtin_popcountll(bits[matchWord] & ((1ULL << matchBit) - 1));
   return matchWord * 64ULL + find_far_close(bits[matchWord], numFarClose - e);
 }
 

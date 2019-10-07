@@ -1,4 +1,4 @@
-#include "bal_paren.hpp"/*
+/*
  * Sux: Succinct data structures
  *
  * Copyright (C) 2007-2019 Sebastiano Vigna
@@ -65,12 +65,11 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
          upper_bits[2], upper_bits[3]);
 #endif
 
-  select_upper = new simple_select_half(upper_bits, num_ones + (num_bits >> l));
-  selectz_upper = new simple_select_zero_half(upper_bits, num_ones + (num_bits >> l));
+  select_upper = new SimpleSelectHalf(upper_bits, num_ones + (num_bits >> l));
+  selectz_upper = new SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
 
   block_size = 0;
-  while (++block_size * l + block_size <= 64 && block_size <= l)
-    ;
+  do ++block_size; while (block_size * l + block_size <= 64 && block_size <= l);
   block_size--;
 
 #ifdef DEBUG
@@ -84,40 +83,16 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   ones_step_l = 0;
   for (int i = 0; i < block_size; i++)
     ones_step_l |= 1ULL << i * l;
-  msbs_step_l = ones_step_l << l - 1;
+  msbs_step_l = ones_step_l << (l - 1);
 
   compressor = 0;
   for (int i = 0; i < block_size; i++)
-    compressor |= 1ULL << (l - 1) * i + block_size;
+    compressor |= 1ULL << ((l - 1) * i + block_size);
 
   lower_l_bits_mask = (1ULL << l) - 1;
-
-#ifndef NDEBUG
-  uint64_t r, t;
-  for (uint64_t i = 0; i < num_ones; i++) {
-    t = select(i);
-    r = rank(t);
-    if (r != i) {
-      printf("i: %lld s: %lld r: %lld\n", i, t, r);
-      assert(r == i);
-    }
-  }
-
-  for (uint64_t i = 0; i < num_bits; i++) {
-    r = rank(i);
-    if (r < num_ones) {
-      t = select(r);
-      if (t < i) {
-        printf("i: %lld r: %lld s: %lld\n", i, r, t);
-        assert(t >= i);
-      }
-    }
-  }
-#endif
 }
 
 EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) {
-  const uint64_t num_words = (num_bits + 63) / 64;
   num_ones = ones.size();
   this->num_bits = num_bits;
   l = num_ones == 0 ? 0 : max(0, lambda_safe(num_bits / num_ones));
@@ -133,7 +108,7 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
   lower_bits = new uint64_t[(num_ones * l + 63) / 64 + 2 * (l == 0)];
   upper_bits = new uint64_t[((num_ones + (num_bits >> l) + 1) + 63) / 64]();
 
-  for (int64_t i = 0; i < num_ones; i++) {
+  for (uint64_t i = 0; i < num_ones; i++) {
     if (l != 0)
       set_bits(lower_bits, i * l, l, ones[i] & lower_bits_mask);
     set(upper_bits, (ones[i] >> l) + i);
@@ -146,12 +121,11 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
          upper_bits[2], upper_bits[3]);
 #endif
 
-  select_upper = new simple_select_half(upper_bits, num_ones + (num_bits >> l));
-  selectz_upper = new simple_select_zero_half(upper_bits, num_ones + (num_bits >> l));
+  select_upper = new SimpleSelectHalf(upper_bits, num_ones + (num_bits >> l));
+  selectz_upper = new SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
 
   block_size = 0;
-  while (++block_size * l + block_size <= 64 && block_size <= l)
-    ;
+  do ++block_size; while (block_size * l + block_size <= 64 && block_size <= l);
   block_size--;
 
 #ifdef DEBUG
@@ -164,41 +138,13 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
   ones_step_l = 0;
   for (int i = 0; i < block_size; i++)
     ones_step_l |= 1ULL << i * l;
-  msbs_step_l = ones_step_l << l - 1;
+  msbs_step_l = ones_step_l << (l - 1);
 
   compressor = 0;
   for (int i = 0; i < block_size; i++)
-    compressor |= 1ULL << (l - 1) * i + block_size;
+    compressor |= 1ULL << ((l - 1) * i + block_size);
 
   lower_l_bits_mask = (1ULL << l) - 1;
-
-#ifndef NDEBUG
-  for (uint64_t i = 0; i < num_ones; i++)
-    assert(select(i) == ones[i]);
-  for (uint64_t i = 0; i < num_ones; i++)
-    assert(rank(ones[i]) == i);
-
-  uint64_t r, t;
-  for (uint64_t i = 0; i < num_ones; i++) {
-    t = select(i);
-    r = rank(t);
-    if (r != i) {
-      printf("i: %lld s: %lld r: %lld\n", i, t, r);
-      assert(r == i);
-    }
-  }
-
-  for (uint64_t i = 0; i < num_bits; i++) {
-    r = rank(i);
-    if (r < num_ones) {
-      t = select(r);
-      if (t < i) {
-        printf("i: %lld r: %lld s: %lld\n", i, r, t);
-        assert(t >= i);
-      }
-    }
-  }
-#endif
 }
 
 EliasFano::~EliasFano() {
@@ -208,7 +154,7 @@ EliasFano::~EliasFano() {
   delete selectz_upper;
 }
 
-uint64_t EliasFano::rank(const uint64_t k) {
+uint64_t EliasFano::rank(const size_t k) const {
   if (num_ones == 0)
     return 0;
   if (k >= num_bits)
@@ -219,7 +165,7 @@ uint64_t EliasFano::rank(const uint64_t k) {
   const uint64_t k_shiftr_l = k >> l;
 
 #ifndef PARSEARCH
-  int64_t pos = selectz_upper->select_zero(k_shiftr_l);
+  int64_t pos = selectz_upper->selectZero(k_shiftr_l);
   uint64_t rank = pos - (k_shiftr_l);
 
 #ifdef DEBUG
@@ -246,7 +192,7 @@ uint64_t EliasFano::rank(const uint64_t k) {
 
   const uint64_t k_lower_bits_step_l = k_lower_bits * ones_step_l;
 
-  uint64_t pos = selectz_upper->select_zero(k_shiftr_l);
+  uint64_t pos = selectz_upper->selectZero(k_shiftr_l);
   uint64_t rank = pos - (k_shiftr_l);
   uint64_t rank_times_l = rank * l;
 
@@ -311,7 +257,7 @@ uint64_t EliasFano::rank(const uint64_t k) {
 #endif
 }
 
-uint64_t EliasFano::select(const uint64_t rank) {
+size_t EliasFano::select(const uint64_t rank) const {
 #ifdef DEBUG
   printf("Selecting %lld...\n", rank);
 #endif
@@ -331,6 +277,10 @@ uint64_t EliasFano::select(const uint64_t rank, uint64_t *const next) {
   const uint64_t position = rank * l;
   *next = t << l | get_bits(lower_bits, position + l, l);
   return s << l | get_bits(lower_bits, position, l);
+}
+
+size_t EliasFano::size() const {
+	return num_bits;
 }
 
 uint64_t EliasFano::bitCount() {

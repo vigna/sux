@@ -22,17 +22,19 @@
 
 #include <cstdint>
 #include <vector>
+#include "../Rank.hpp"
+#include "../Select.hpp"
 #include "SimpleSelectHalf.hpp"
-#include "SimpleSelectZereHalf.hpp"
+#include "SimpleSelectZeroHalf.hpp"
 
 namespace sux {
 
-class EliasFano {
+class EliasFano : public Rank, public Select {
 private:
   uint64_t *lower_bits, *upper_bits;
 
-  simple_select_half *select_upper;
-  simple_select_zero_half *selectz_upper;
+  SimpleSelectHalf *select_upper;
+  SimpleSelectZeroHalf *selectz_upper;
   uint64_t num_bits, num_ones;
   int l;
   int block_size;
@@ -53,8 +55,8 @@ private:
     const int start_bit = start % 64;
     const int total_offset = start_bit + width;
     const uint64_t result = bits[start_word] >> start_bit;
-    return (total_offset <= 64 ? result : result | bits[start_word + 1] << 64 - start_bit) &
-           (1ULL << width) - 1;
+    return (total_offset <= 64 ? result : result | bits[start_word + 1] << (64 - start_bit)) &
+           ((1ULL << width) - 1);
   }
 
   __inline static void set_bits(uint64_t *const bits, const uint64_t start, const int width,
@@ -70,8 +72,8 @@ private:
       // Here start_bit > 0.
       bits[start_word] &= (1ULL << start_bit) - 1;
       bits[start_word] |= value << start_bit;
-      bits[end_word] &= -(1ULL << width - 64 + start_bit);
-      bits[end_word] |= value >> 64 - start_bit;
+      bits[end_word] &= -(1ULL << (width - 64 + start_bit));
+      bits[end_word] |= value >> (64 - start_bit);
     }
   }
 
@@ -79,9 +81,10 @@ public:
   EliasFano(const uint64_t *const bits, const uint64_t num_bits);
   EliasFano(const std::vector<uint64_t> pos, const uint64_t num_bits);
   ~EliasFano();
-  uint64_t rank(const uint64_t pos);
-  uint64_t select(const uint64_t rank);
+  size_t select(const uint64_t rank) const;
+  uint64_t rank(const size_t pos) const;
   uint64_t select(const uint64_t rank, uint64_t *const next);
+  size_t size() const;
   // Just for analysis purposes
   void printCounts();
   uint64_t bitCount();
