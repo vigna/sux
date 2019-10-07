@@ -18,9 +18,9 @@
  *
  */
 
-#include "simple_select_zero.h"
-#include "rank9.h"
-#include "select.h"
+#include "../common.hpp"
+#include "simple_select_zero.hpp"
+#include "rank9.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -278,7 +278,7 @@ uint64_t simple_select_zero::select_zero(const uint64_t rank) {
     residual -= bit_count;
   }
 
-  return word_index * 64 + select_in_word(word, residual);
+  return word_index * 64 + select64(word, residual);
 }
 
 uint64_t simple_select_zero::bitCount() {

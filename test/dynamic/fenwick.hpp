@@ -1,23 +1,17 @@
 #pragma once
 
 #include <cmath>
-#include <random>
 #include <sux/dynamic/fenwick.hpp>
 
 template <std::size_t S> void run_fenwick(std::size_t size) {
   using namespace sux::fenwick;
 
-  static std::mt19937 mte;
-  std::uniform_int_distribution<std::uint64_t> dist(0, S);
-
   std::uint64_t *increments = new std::uint64_t[size];
   std::int64_t *add_updates = new std::int64_t[size];
 
   for (std::size_t i = 0; i < size; i++) {
-    increments[i] = dist(mte);
-
-    std::uniform_int_distribution<std::int64_t> sdist(0, S - increments[i]);
-    add_updates[i] = sdist(mte);
+    increments[i] = next() % S;
+    add_updates[i] = next() % (S - increments[i]);
   }
 
   FixedF<S> fixedf(increments, size);

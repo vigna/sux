@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "../xoroshiro128pp.hpp"
-#include "fenwick.hpp"
 #include "rankselect.hpp"
 
 int main(int argc, char **argv) {

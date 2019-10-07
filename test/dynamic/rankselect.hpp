@@ -195,15 +195,12 @@ TEST(rankselect, all_zeroes) {
 template <std::size_t S> void run_rankselect(std::size_t size) {
   using namespace sux;
 
-  static std::mt19937 mte;
-  std::uniform_int_distribution<std::uint64_t> dist(0, UINT64_MAX);
-
   std::uint64_t *bitvect = new std::uint64_t[size];
   std::uint64_t *updates = new std::uint64_t[size];
 
   for (std::size_t i = 0; i < size; i++) {
-    bitvect[i] = dist(mte);
-    updates[i] = dist(mte);
+    bitvect[i] = next();
+    updates[i] = next();
   }
 
   // word
