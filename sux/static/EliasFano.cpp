@@ -37,9 +37,11 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   this->num_bits = num_bits;
   l = num_ones == 0 ? 0 : max(0, lambda_safe(num_bits / num_ones));
 
+#ifdef DEBUG
   printf("Number of ones: %lld l: %d\n", num_ones, l);
   printf("Upper bits: %lld\n", num_ones + (num_bits >> l) + 1);
   printf("Lower bits: %lld\n", num_ones * l);
+#endif
 
   const uint64_t lower_bits_mask = (1ULL << l) - 1;
 
@@ -71,7 +73,10 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
     ;
   block_size--;
 
+#ifdef DEBUG
   printf("Block size: %d\n", block_size);
+#endif
+
   block_size_mask = (1ULL << block_size) - 1;
   block_length = block_size * l;
   block_length_mask = block_length - 1;
@@ -117,9 +122,11 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
   this->num_bits = num_bits;
   l = num_ones == 0 ? 0 : max(0, lambda_safe(num_bits / num_ones));
 
+#ifdef DEBUG
   printf("Number of ones: %lld l: %d\n", num_ones, l);
   printf("Upper bits: %lld\n", num_ones + (num_bits >> l) + 1);
   printf("Lower bits: %lld\n", num_ones * l);
+#endif
 
   const uint64_t lower_bits_mask = (1ULL << l) - 1;
 
@@ -147,7 +154,9 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
     ;
   block_size--;
 
+#ifdef DEBUG
   printf("Block size: %d\n", block_size);
+#endif
   block_size_mask = (1ULL << block_size) - 1;
   block_length = block_size * l;
   block_length_mask = block_length - 1;

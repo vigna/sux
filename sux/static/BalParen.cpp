@@ -43,10 +43,6 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
   int first_nonzero_block = -1;
   for (int block = num_words; block-- != 0;) {
     const int l = min(64ULL, num_bits - block * 64ULL);
-    if (block % 100000 == 0) {
-      fprintf(stderr, ".");
-      fflush(stderr);
-    }
 
     if (block != num_words - 1) {
       int excess = 0;
@@ -87,8 +83,6 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
     if (count[block] != 0)
       first_nonzero_block = block;
   }
-
-  fprintf(stderr, "\n");
 
   for (int i = num_words; i-- != 0;)
     assert(count[i] == 0);

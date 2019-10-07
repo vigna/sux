@@ -54,17 +54,17 @@ SimpleSelectHalf::SimpleSelectHalf(const uint64_t *const bits, const uint64_t nu
 
   assert(c <= num_bits);
 
-  printf("Number of bits: %lld Number of ones: %lld (%.2f%%)\n", num_bits, c,
-         (c * 100.0) / num_bits);
-
   inventory_size = (c + ONES_PER_INVENTORY - 1) / ONES_PER_INVENTORY;
+
+#ifdef DEBUG
+  printf("Number of bits: %" PRId64 " Number of ones: %" PRId64 " (%.2f%%)\n", num_bits, c,
+         (c * 100.0) / num_bits);
 
   printf("Ones per inventory: %d Ones per sub 64: %d sub 16: %d\n", ONES_PER_INVENTORY,
          ONES_PER_SUB64, ONES_PER_SUB16);
+#endif
 
   inventory = new int64_t[inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1];
-  const int64_t *end_of_inventory =
-      inventory + inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1;
 
   uint64_t d = 0;
   const uint64_t mask = ONES_PER_INVENTORY - 1;
@@ -84,7 +84,9 @@ SimpleSelectHalf::SimpleSelectHalf(const uint64_t *const bits, const uint64_t nu
   assert(c == d);
   inventory[inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1)] = num_bits;
 
-  printf("Inventory entries filled: %lld\n", inventory_size + 1);
+#ifdef DEBUG
+  printf("Inventory entries filled: %" PRId64 "\n", inventory_size + 1);
+#endif
 
   uint16_t *p16;
   int64_t *p64;
@@ -127,11 +129,11 @@ SimpleSelectHalf::SimpleSelectHalf(const uint64_t *const bits, const uint64_t nu
       }
     }
 
-  printf("Exact entries: %lld\n", exact);
 
 #ifdef DEBUG
-  printf("First inventories: %lld %lld %lld %lld\n", inventory[0], inventory[1], inventory[2],
-         inventory[3]);
+  //printf("Exact entries: %" PRId64 "\n", exact);
+  //printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
+  //       inventory[3]);
 #endif
 }
 
@@ -139,19 +141,19 @@ SimpleSelectHalf::~SimpleSelectHalf() { delete[] inventory; }
 
 uint64_t SimpleSelectHalf::select(const uint64_t rank) {
 #ifdef DEBUG
-  printf("Selecting %lld\n...", rank);
+  printf("Selecting %" PRId64 "\n...", rank);
 #endif
   assert(rank < num_ones);
 
   const uint64_t inventory_index = rank >> LOG2_ONES_PER_INVENTORY;
-  assert(inventory_index < inventory_size);
+  assert(inventory_index <= inventory_size);
   const int64_t *inventory_start =
       inventory + (inventory_index << LOG2_LONGWORDS_PER_SUBINVENTORY) + inventory_index;
 
   const int64_t inventory_rank = *inventory_start;
   const int subrank = rank & ONES_PER_INVENTORY_MASK;
 #ifdef DEBUG
-  printf("Rank: %lld inventory index: %lld inventory rank: %lld subrank: %d\n", rank,
+  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank,
          inventory_index, inventory_rank, subrank);
 #endif
 
@@ -168,7 +170,7 @@ uint64_t SimpleSelectHalf::select(const uint64_t rank) {
   }
 
 #ifdef DEBUG
-  printf("Differential; start: %lld residual: %d\n", start, residual);
+  printf("Differential; start: %" PRId64 " residual: %d\n", start, residual);
   if (residual == 0)
     puts("No residual; returning start");
 #endif

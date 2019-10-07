@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../common.hpp"
+#include "../SelectZero.hpp"
 #include <cstdint>
 
 namespace sux {
@@ -43,7 +43,7 @@ public:
   SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits,
                      const int max_log2_longwords_per_subinventory);
   ~SimpleSelectZero();
-  uint64_t select_zero(const uint64_t rank);
+  uint64_t selectZero(const uint64_t rank);
   // Just for analysis purposes
   void printCounts();
   uint64_t bitCount();

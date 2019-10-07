@@ -23,6 +23,7 @@
 using namespace std;
 
 #include <cstdint>
+#include "../Select.hpp"
 
 namespace sux {
 

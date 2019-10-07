@@ -21,7 +21,6 @@
 #pragma once
 
 #include <cstdint>
-#include "../common.hpp"
 #include "../Select.hpp"
 
 using namespace std;

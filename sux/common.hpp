@@ -36,17 +36,17 @@
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
-#define ONES_STEP_4 (0x1111111111111111ULL)
-#define ONES_STEP_8 (0x0101010101010101ULL)
+#define ONES_STEP_4 (UINT64_C(0x1111111111111111))
+#define ONES_STEP_8 (UINT64_C(0x0101010101010101))
 #define ONES_STEP_9                                                                                \
-  (1ULL << 0 | 1ULL << 9 | 1ULL << 18 | 1ULL << 27 | 1ULL << 36 | 1ULL << 45 | 1ULL << 54)
-#define ONES_STEP_16 (1ULL << 0 | 1ULL << 16 | 1ULL << 32 | 1ULL << 48)
-#define ONES_STEP_32 (0x0000000100000001ULL)
-#define MSBS_STEP_4 (0x8ULL * ONES_STEP_4)
-#define MSBS_STEP_8 (0x80ULL * ONES_STEP_8)
-#define MSBS_STEP_9 (0x100ULL * ONES_STEP_9)
-#define MSBS_STEP_16 (0x8000ULL * ONES_STEP_16)
-#define MSBS_STEP_32 (0x8000000080000000ULL)
+  (UINT64_C(1) << 0 | UINT64_C(1) << 9 | UINT64_C(1) << 18 | UINT64_C(1) << 27 | UINT64_C(1) << 36 | UINT64_C(1) << 45 | UINT64_C(1) << 54)
+#define ONES_STEP_16 (UINT64_C(1) << 0 | UINT64_C(1) << 16 | UINT64_C(1) << 32 | UINT64_C(1) << 48)
+#define ONES_STEP_32 (UINT64_C(0x0000000100000001))
+#define MSBS_STEP_4 (UINT64_C(0x8) * ONES_STEP_4)
+#define MSBS_STEP_8 (UINT64_C(0x80) * ONES_STEP_8)
+#define MSBS_STEP_9 (UINT64_C(0x100) * ONES_STEP_9)
+#define MSBS_STEP_16 (UINT64_C(0x8000) * ONES_STEP_16)
+#define MSBS_STEP_32 (UINT64_C(0x8000000080000000))
 #define ULEQ_STEP_9(x, y)                                                                          \
   (((((((y) | MSBS_STEP_9) - ((x) & ~MSBS_STEP_9)) | (x ^ y)) ^ (x & ~y)) & MSBS_STEP_9) >> 8)
 #define ULEQ_STEP_16(x, y)                                                                         \

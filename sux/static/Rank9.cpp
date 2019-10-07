@@ -55,7 +55,7 @@ uint64_t Rank9::rank(const size_t k) const {
   const uint64_t block = word / 4 & ~1;
   const int offset = word % 8 - 1;
   return counts[block] +
-         (counts[block + 1] >> (offset + (offset >> sizeof offset * 8 - 4 & 0x8)) * 9 & 0x1FF) +
+         (counts[block + 1] >> (offset + (offset >> (sizeof offset * 8 - 4) & 0x8)) * 9 & 0x1FF) +
          __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
 }
 

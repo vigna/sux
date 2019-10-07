@@ -52,7 +52,9 @@ SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
   ones_per_inventory_mask = ones_per_inventory - 1;
   inventory_size = (c + ones_per_inventory - 1) / ones_per_inventory;
 
-  printf("Number of ones: %lld Number of ones per inventory item: %d\n", c, ones_per_inventory);
+#ifdef DEBUG
+  printf("Number of ones: %" PRId64 " Number of ones per inventory item: %d\n", c, ones_per_inventory);
+#endif
 
   log2_longwords_per_subinventory =
       min(max_log2_longwords_per_subinventory, max(0, log2_ones_per_inventory - 2));
@@ -65,8 +67,10 @@ SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
   ones_per_sub64_mask = ones_per_sub64 - 1;
   ones_per_sub16_mask = ones_per_sub16 - 1;
 
+#ifdef DEBUG
   printf("Longwords per subinventory: %d Ones per sub 64: %d sub 16: %d\n",
          longwords_per_subinventory, ones_per_sub64, ones_per_sub16);
+#endif
 
   inventory = new int64_t[inventory_size * longwords_per_inventory + 1];
   const int64_t *end_of_inventory = inventory + inventory_size * longwords_per_inventory + 1;
@@ -88,7 +92,9 @@ SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
   assert(c == d);
   inventory[inventory_size * longwords_per_inventory] = num_bits;
 
-  printf("Inventory entries filled: %lld\n", inventory_size + 1);
+#ifdef DEBUG
+  printf("Inventory entries filled: %" PRId64 "\n", inventory_size + 1);
+#endif
 
   if (ones_per_inventory > 1) {
     d = 0;
@@ -120,7 +126,9 @@ SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
         }
       }
 
-    printf("Spilled entries: %lld exact: %lld\n", spilled, exact);
+#ifdef DEBUG
+    printf("Spilled entries: %" PRId64 " exact: %" PRId64 "\n", spilled, exact);
+#endif
 
     exact_spill_size = spilled;
     exact_spill = new uint64_t[exact_spill_size];
@@ -176,13 +184,13 @@ SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
   }
 
 #ifdef DEBUG
-  printf("First inventories: %lld %lld %lld %lld\n", inventory[0], inventory[1], inventory[2],
-         inventory[3]);
-  // if ( subinventory_size > 0 ) printf("First subinventories: %016llx %016llx %016llx %016llx\n",
+  //printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
+  //       inventory[3]);
+  // if ( subinventory_size > 0 ) printf("First subinventories: %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n",
   // subinventory[ 0 ], subinventory[ 1 ], subinventory[ 2 ], subinventory[ 3 ] );
-  if (exact_spill_size > 0)
-    printf("First spilled entries: %016llx %016llx %016llx %016llx\n", exact_spill[0],
-           exact_spill[1], exact_spill[2], exact_spill[3]);
+  //if (exact_spill_size > 0)
+  //  printf("First spilled entries: %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n", exact_spill[0],
+  //         exact_spill[1], exact_spill[2], exact_spill[3]);
 #endif
 }
 
@@ -193,18 +201,18 @@ SimpleSelect::~SimpleSelect() {
 
 size_t SimpleSelect::select(const uint64_t rank) const {
 #ifdef DEBUG
-  printf("Selecting %lld\n...", rank);
+  printf("Selecting %" PRId64 "\n...", rank);
 #endif
 
   const uint64_t inventory_index = rank >> log2_ones_per_inventory;
   const int64_t *inventory_start =
       inventory + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
-  assert(inventory_index < inventory_size);
+  assert(inventory_index <= inventory_size);
 
   const int64_t inventory_rank = *inventory_start;
   const int subrank = rank & ones_per_inventory_mask;
 #ifdef DEBUG
-  printf("Rank: %lld inventory index: %lld inventory rank: %lld subrank: %d\n", rank,
+  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank,
          inventory_index, inventory_rank, subrank);
 #endif
 
@@ -224,12 +232,12 @@ size_t SimpleSelect::select(const uint64_t rank) const {
   } else {
     if (ones_per_sub64 == 1)
       return *(inventory_start + 1 + subrank);
-    assert(*(inventory_start + 1) + subrank < exact_spill_size);
+    assert(*(inventory_start + 1) + subrank < (int64_t)exact_spill_size);
     return exact_spill[*(inventory_start + 1) + subrank];
   }
 
 #ifdef DEBUG
-  printf("Differential; start: %lld residual: %d\n", start, residual);
+  printf("Differential; start: %" PRId64 " residual: %d\n", start, residual);
   if (residual == 0)
     puts("No residual; returning start");
 #endif
