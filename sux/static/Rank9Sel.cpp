@@ -312,13 +312,6 @@ size_t Rank9Sel::select(const uint64_t rank) const {
   const uint64_t word = block_left + offset_in_block;
   const uint64_t rank_in_word =
       rank_in_block - (subcounts >> ((offset_in_block - 1) & 7) * 9 & 0x1FF);
-#ifdef DEBUG
-  printf(
-      "rank_in_block: %" PRId64 " offset_in_block: %" PRId64 " rank_in_word: %" PRId64 " compare: %016" PRIx64 " shift: %" PRId64 "\n",
-      rank_in_block, offset_in_block, rank_in_word,
-      ULEQ_STEP_9(subcounts, rank_in_block_step_9),
-      subcounts >> (offset_in_block - 1) * 9 & 0x1FF);
-#endif
   assert(offset_in_block <= 7);
 
 #ifdef DEBUG

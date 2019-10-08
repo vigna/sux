@@ -59,10 +59,10 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   }
 
 #ifdef DEBUG
-  printf("First lower: %016llx %016llx %016llx %016llx\n", lower_bits[0], lower_bits[1],
-         lower_bits[2], lower_bits[3]);
-  printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1],
-         upper_bits[2], upper_bits[3]);
+  //printf("First lower: %016llx %016llx %016llx %016llx\n", lower_bits[0], lower_bits[1],
+  //       lower_bits[2], lower_bits[3]);
+  //printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1],
+  //       upper_bits[2], upper_bits[3]);
 #endif
 
   select_upper = new SimpleSelectHalf(upper_bits, num_ones + (num_bits >> l));
@@ -78,8 +78,8 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
 
   block_size_mask = (1ULL << block_size) - 1;
   block_length = block_size * l;
-  block_length_mask = block_length - 1;
 
+#ifdef PARSEARCH
   ones_step_l = 0;
   for (int i = 0; i < block_size; i++)
     ones_step_l |= 1ULL << i * l;
@@ -88,6 +88,7 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   compressor = 0;
   for (int i = 0; i < block_size; i++)
     compressor |= 1ULL << ((l - 1) * i + block_size);
+#endif
 
   lower_l_bits_mask = (1ULL << l) - 1;
 }
@@ -133,8 +134,8 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
 #endif
   block_size_mask = (1ULL << block_size) - 1;
   block_length = block_size * l;
-  block_length_mask = block_length - 1;
 
+#ifdef PARSEARCH
   ones_step_l = 0;
   for (int i = 0; i < block_size; i++)
     ones_step_l |= 1ULL << i * l;
@@ -143,6 +144,7 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
   compressor = 0;
   for (int i = 0; i < block_size; i++)
     compressor |= 1ULL << ((l - 1) * i + block_size);
+#endif
 
   lower_l_bits_mask = (1ULL << l) - 1;
 }

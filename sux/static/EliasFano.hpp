@@ -39,7 +39,7 @@ private:
   int l;
   int block_size;
   int block_length;
-  uint64_t block_size_mask, block_length_mask;
+  uint64_t block_size_mask;
   uint64_t lower_l_bits_mask;
   uint64_t ones_step_l;
   uint64_t msbs_step_l;
