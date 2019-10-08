@@ -345,13 +345,13 @@ inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
   uint64_t value;
   memcpy(&value, word, sizeof(uint64_t));
   const uint64_t sum = (value >> from) + inc;
-  const uint64_t carry = sum >> (64 - from);
+  const uint64_t carry = from > 0 ? sum >> (64 - from) : 0;
 
   if (likely((from + length) <= 64 || carry == 0)) {
     value += inc << from;
     memcpy(word, &value, sizeof(uint64_t));
   } else {
-    value = (value & (-1ULL >> (64 - from))) | (sum << from);
+    value = from > 0 ? (value & (-1ULL >> (64 - from))) | (sum << from) : (sum << from);
     memcpy(word, &value, sizeof(uint64_t));
 
     uint64_t next;
