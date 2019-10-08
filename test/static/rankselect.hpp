@@ -11,7 +11,6 @@ TEST(rankselect, all_ones) {
   using namespace sux;
 
   for(size_t size = 0; size <= 2049; size++) {
-    printf("Size: %lu\n", size);
     uint64_t *bitvect = new uint64_t[size / 64 + 1]();
     for(size_t i = 0; i < size; i++) bitvect[i / 64] |= UINT64_C(1) << i % 64;
 

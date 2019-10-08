@@ -182,7 +182,7 @@ uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank) {
     return start;
 
   uint64_t word_index = start / 64;
-  uint64_t word = ~bits[word_index] & -1ULL << start;
+  uint64_t word = ~bits[word_index] & -1ULL << start % 64;
 
   for (;;) {
     const int bit_count = __builtin_popcountll(word);
