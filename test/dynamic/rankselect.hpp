@@ -194,34 +194,43 @@ TEST(rankselect, all_zeroes) {
 
 template <std::size_t S> void run_rankselect(std::size_t size) {
   using namespace sux;
+  const size_t words = size / 64 + 1;
 
-  std::uint64_t *bitvect = new std::uint64_t[size];
-  std::uint64_t *updates = new std::uint64_t[size];
+  uint64_t *bitvect = new uint64_t[words];
+  uint64_t *updates = new uint64_t[words];
 
-  for (std::size_t i = 0; i < size; i++) {
+  uint64_t ones = 0;
+  for (size_t i = 0; i < (size + 63) / 64; i++) {
     bitvect[i] = next();
-    updates[i] = next();
+    if (i == (size + 63) / 64 - 1 && size % 64 != 0)
+      bitvect[i] &= (UINT64_C(1) << size % 64) - 1;
+    ones += __builtin_popcountll(bitvect[i]);
   }
 
+  const size_t zeros = size - ones;
+
   // word
-  ranking::Word<fenwick::FixedF> fixedf(bitvect, size);
-  ranking::Word<fenwick::FixedL> fixedl(bitvect, size);
-  ranking::Word<fenwick::BitF> bit(bitvect, size);
-  ranking::Word<fenwick::BitL> bitl(bitvect, size);
-  ranking::Word<fenwick::ByteF> byte(bitvect, size);
-  ranking::Word<fenwick::ByteL> bytel(bitvect, size);
+  ranking::Word<fenwick::FixedF> fixedf(bitvect, words);
+  ranking::Word<fenwick::FixedL> fixedl(bitvect, words);
+  ranking::Word<fenwick::BitF> bit(bitvect, words);
+  ranking::Word<fenwick::BitL> bitl(bitvect, words);
+  ranking::Word<fenwick::ByteF> byte(bitvect, words);
+  ranking::Word<fenwick::ByteL> bytel(bitvect, words);
 
   // line
-  ranking::Stride<fenwick::FixedF, S> fixedfS(bitvect, size);
-  ranking::Stride<fenwick::FixedL, S> fixedlS(bitvect, size);
-  ranking::Stride<fenwick::BitF, S> bitS(bitvect, size);
-  ranking::Stride<fenwick::BitL, S> bitlS(bitvect, size);
-  ranking::Stride<fenwick::ByteF, S> byteS(bitvect, size);
-  ranking::Stride<fenwick::ByteL, S> bytelS(bitvect, size);
+  ranking::Stride<fenwick::FixedF, S> fixedfS(bitvect, words);
+  ranking::Stride<fenwick::FixedL, S> fixedlS(bitvect, words);
+  ranking::Stride<fenwick::BitF, S> bitS(bitvect, words);
+  ranking::Stride<fenwick::BitL, S> bitlS(bitvect, words);
+  ranking::Stride<fenwick::ByteF, S> byteS(bitvect, words);
+  ranking::Stride<fenwick::ByteL, S> bytelS(bitvect, words);
 
   // rank
-  for (size_t i = 0; i <= size; i++) {
+  for (size_t i = 0; i < ones; i++) {
     auto res = fixedf.rank(i);
+
+    auto pos = fixedf.select(i);
+    EXPECT_EQ(i, fixedf.rank(pos));
 
     EXPECT_EQ(res, fixedl.rank(i)) << "at index " << i << ", stride " << S;
     EXPECT_EQ(res, bit.rank(i)) << "at index " << i << ", stride " << S;
@@ -238,8 +247,11 @@ template <std::size_t S> void run_rankselect(std::size_t size) {
   }
 
   // rankZero
-  for (size_t i = 0; i <= size; i++) {
+  for (size_t i = 0; i < zeros; i++) {
     auto res = fixedf.rankZero(i);
+
+    auto pos = fixedf.selectZero(i);
+    EXPECT_EQ(i, fixedf.rankZero(pos));
 
     EXPECT_EQ(res, fixedl.rankZero(i)) << "at index " << i << ", stride " << S;
     EXPECT_EQ(res, bit.rankZero(i)) << "at index " << i << ", stride " << S;
@@ -256,43 +268,80 @@ template <std::size_t S> void run_rankselect(std::size_t size) {
   }
 
   // select
-  for (size_t i = 0; i < size; i++) {
-    auto res = fixedf.select(i);
+  auto poslim = std::min(size - 1, fixedf.select(fixedf.rank(size) - 1));
+  for (size_t pos = 0; pos <= poslim; pos++) {
+    auto res = fixedf.rank(pos);
 
-    EXPECT_EQ(res, fixedl.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bit.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitl.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, byte.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bytel.select(i)) << "at index " << i << ", stride " << S;
+    if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
+      EXPECT_EQ(pos, fixedf.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, fixedl.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bit.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitl.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, byte.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bytel.select(res)) << "at index " << pos << ", stride " << S;
 
-    EXPECT_EQ(res, fixedfS.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, fixedlS.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitS.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitlS.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, byteS.select(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bytelS.select(i)) << "at index " << i << ", stride " << S;
+      EXPECT_EQ(pos, fixedfS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, fixedlS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitlS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, byteS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bytelS.select(res)) << "at index " << pos << ", stride " << S;
+    } else {
+      EXPECT_LT(pos, fixedf.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, fixedl.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bit.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitl.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, byte.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bytel.select(res)) << "at index " << pos << ", stride " << S;
+
+      EXPECT_LT(pos, fixedfS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, fixedlS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitlS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, byteS.select(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bytelS.select(res)) << "at index " << pos << ", stride " << S;
+    }
   }
 
   // selectZero
-  for (size_t i = 0; i < size; i++) {
-    auto res = fixedf.selectZero(i);
+  poslim = std::min(size - 1, fixedf.selectZero(fixedf.rankZero(size) - 1));
+  for (size_t pos = 0; pos <= poslim; pos++) {
 
-    EXPECT_EQ(res, fixedl.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bit.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitl.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, byte.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bytel.selectZero(i)) << "at index " << i << ", stride " << S;
+    auto res = fixedf.rankZero(pos);
 
-    EXPECT_EQ(res, fixedfS.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, fixedlS.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitS.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bitlS.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, byteS.selectZero(i)) << "at index " << i << ", stride " << S;
-    EXPECT_EQ(res, bytelS.selectZero(i)) << "at index " << i << ", stride " << S;
+    if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
+      EXPECT_LT(pos, fixedf.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, fixedl.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bit.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitl.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, byte.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bytel.selectZero(res)) << "at index " << pos << ", stride " << S;
+
+      EXPECT_LT(pos, fixedfS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, fixedlS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bitlS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, byteS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_LT(pos, bytelS.selectZero(res)) << "at index " << pos << ", stride " << S;
+    } else {
+      EXPECT_EQ(pos, fixedf.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, fixedl.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bit.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitl.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, byte.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bytel.selectZero(res)) << "at index " << pos << ", stride " << S;
+
+      EXPECT_EQ(pos, fixedfS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, fixedlS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bitlS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, byteS.selectZero(res)) << "at index " << pos << ", stride " << S;
+      EXPECT_EQ(pos, bytelS.selectZero(res)) << "at index " << pos << ", stride " << S;
+    }
   }
 
   // update
-  for (size_t i = 0; i < size; i++) {
+  for (size_t i = 0; i < words; i++) {
     fixedf.update(i, updates[i]);
     fixedl.update(i, updates[i]);
     bit.update(i, updates[i]);

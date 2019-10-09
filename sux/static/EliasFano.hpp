@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include <cstdint>
-#include <vector>
 #include "../Rank.hpp"
 #include "../Select.hpp"
 #include "SimpleSelectHalf.hpp"
 #include "SimpleSelectZeroHalf.hpp"
+#include <cstdint>
+#include <vector>
 
 namespace sux {
 

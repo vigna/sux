@@ -43,8 +43,7 @@ using namespace sux;
 
 SimpleSelectZeroHalf::SimpleSelectZeroHalf() {}
 
-SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits,
-                                                 const uint64_t num_bits) {
+SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits) {
   this->bits = bits;
   num_words = (num_bits + 63) / 64;
 
@@ -135,8 +134,8 @@ SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits,
 
 #ifdef DEBUG
   printf("Exact entries: %" PRId64 "\n", exact);
-  printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
-         inventory[3]);
+  printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
+         inventory[1], inventory[2], inventory[3]);
 #endif
 }
 
@@ -156,8 +155,8 @@ uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank) {
   const int64_t inventory_rank = *inventory_start;
   const int subrank = rank & ONES_PER_INVENTORY_MASK;
 #ifdef DEBUG
-  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank,
-         inventory_index, inventory_rank, subrank);
+  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n",
+         rank, inventory_index, inventory_rank, subrank);
 #endif
 
   uint64_t start;

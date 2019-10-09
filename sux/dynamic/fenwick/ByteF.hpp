@@ -37,16 +37,18 @@ public:
   static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
 protected:
+  Vector<uint8_t> Tree;
   size_t Size;
-  DArray<uint8_t> Tree;
 
 public:
-  ByteF(uint64_t sequence[], size_t size) : Size(size), Tree(pos(size + 1) + 8) {
-    for (size_t i = 1; i <= size; i++)
+  ByteF() : Tree(0), Size(0) {}
+
+  ByteF(uint64_t sequence[], size_t size) : Tree(pos(size + 1) + 8), Size(size) {
+    for (size_t i = 1; i <= Size; i++)
       bytewrite(&Tree[pos(i)], bytesize(i), sequence[i - 1]);
 
-    for (size_t m = 2; m <= size; m <<= 1) {
-      for (size_t idx = m; idx <= size; idx += m) {
+    for (size_t m = 2; m <= Size; m <<= 1) {
+      for (size_t idx = m; idx <= Size; idx += m) {
         const uint64_t left = byteread(&Tree[pos(idx)], bytesize(idx));
         const uint64_t right = byteread(&Tree[pos(idx - m / 2)], bytesize(idx - m / 2));
         bytewrite(&Tree[pos(idx)], bytesize(idx), left + right);
@@ -110,6 +112,26 @@ public:
 
     return node;
   }
+
+  virtual void push(int64_t val) {
+    size_t p = pos(++Size);
+    Tree.resize(p + 8);
+    bytewrite(&Tree[p], bytesize(Size), val);
+
+    if ((Size & 1) == 0) {
+      for (size_t idx = Size - 1; rho(idx) < rho(Size); idx = clear_rho(idx)) {
+        uint64_t inc = byteread(&Tree[pos(idx)], bytesize(idx));
+        bytewrite_inc(&Tree[p], inc);
+      }
+    }
+  }
+
+  virtual void pop() { Size--; }
+
+  virtual void reserve(size_t space) { Tree.reserve(pos(space) + 8); }
+
+  using FenwickTree::shrinkToFit;
+  virtual void shrink(size_t space) { Tree.shrink(pos(space) + 8); };
 
   virtual size_t size() const { return Size; }
 

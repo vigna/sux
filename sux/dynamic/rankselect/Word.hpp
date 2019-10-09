@@ -50,15 +50,11 @@ public:
 
   virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
 
+  using Rank::rank;
+  using Rank::rankZero;
   virtual uint64_t rank(size_t pos) const {
-    return Fenwick.prefix(pos / 64) + popcount(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1));
+    return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1));
   }
-
-  virtual uint64_t rank(size_t from, size_t to) const { return rank(to) - rank(from); }
-
-  virtual uint64_t rankZero(size_t pos) const { return pos - rank(pos); }
-
-  virtual uint64_t rankZero(size_t from, size_t to) const { return (to - from) - rank(from, to); }
 
   virtual size_t select(uint64_t rank) const {
     size_t idx = Fenwick.find(&rank);
@@ -66,7 +62,7 @@ public:
     if (idx >= Vector.size())
       return SIZE_MAX;
 
-    uint64_t rank_chunk = popcount(Vector[idx]);
+    uint64_t rank_chunk = nu(Vector[idx]);
     if (rank < rank_chunk)
       return idx * 64 + select64(Vector[idx], rank);
 
@@ -79,7 +75,7 @@ public:
     if (idx >= Vector.size())
       return SIZE_MAX;
 
-    uint64_t rank_chunk = popcount(~Vector[idx]);
+    uint64_t rank_chunk = nu(~Vector[idx]);
     if (rank < rank_chunk)
       return idx * 64 + select64(~Vector[idx], rank);
 
@@ -89,7 +85,7 @@ public:
   virtual uint64_t update(size_t index, uint64_t word) {
     uint64_t old = Vector[index];
     Vector[index] = word;
-    Fenwick.add(index + 1, popcount(word) - popcount(old));
+    Fenwick.add(index + 1, nu(word) - nu(old));
 
     return old;
   }
@@ -136,7 +132,7 @@ private:
   T<BOUNDSIZE> buildFenwick(const uint64_t bitvector[], size_t size) {
     uint64_t *sequence = new uint64_t[size];
     for (size_t i = 0; i < size; i++)
-      sequence[i] = popcount(bitvector[i]);
+      sequence[i] = nu(bitvector[i]);
 
     T<BOUNDSIZE> tree(sequence, size);
     delete[] sequence;

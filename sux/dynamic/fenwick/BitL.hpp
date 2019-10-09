@@ -37,32 +37,29 @@ public:
   static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
 protected:
-  size_t Size, Levels;
-  unique_ptr<size_t[]> Level;
-  DArray<uint8_t> Tree;
+  Vector<uint8_t> Tree[64];
+  size_t Levels, Size;
 
 public:
-  BitL(uint64_t sequence[], size_t size)
-      : Size(size), Levels(size != 0 ? lambda(size) + 2 : 1), Level(make_unique<size_t[]>(Levels)) {
-    Level[0] = 0;
-    for (size_t i = 1; i < Levels; i++)
-      Level[i] = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE + i - 1) + Level[i - 1];
+  BitL() : Levels(0), Size(0) {}
 
-    Tree = DArray<uint8_t>((Level[Levels - 1] / 8) + 7); // +7 for safety
+  BitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
+    for (size_t i = 1; i <= Levels; i++)
+      Tree[i - 1].resize(((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
 
-    for (size_t l = 0; l < Levels - 1; l++) {
+    for (size_t l = 0; l < Levels; l++) {
       for (size_t node = 1ULL << l; node <= size; node += 1ULL << (l + 1)) {
         size_t sequence_idx = node - 1;
         uint64_t value = sequence[sequence_idx];
 
         for (size_t j = 0; j < l; j++) {
           sequence_idx >>= 1;
-          const size_t lowpos = Level[j] + (BOUNDSIZE + j) * sequence_idx;
-          value += bitread(&Tree[lowpos / 8], lowpos % 8, BOUNDSIZE + j);
+          const size_t lowpos = (BOUNDSIZE + j) * sequence_idx;
+          value += bitread(&Tree[j][lowpos / 8], lowpos % 8, BOUNDSIZE + j);
         }
 
-        const size_t highpos = Level[l] + (BOUNDSIZE + l) * (node >> (l + 1));
-        bitwrite(&Tree[highpos / 8], highpos % 8, BOUNDSIZE + l, value);
+        const size_t highpos = (BOUNDSIZE + l) * (node >> (l + 1));
+        bitwrite_inc(&Tree[l][highpos / 8], highpos % 8, BOUNDSIZE + l, value);
       }
     }
   }
@@ -72,8 +69,8 @@ public:
 
     while (idx != 0) {
       const int height = rho(idx);
-      const size_t pos = Level[height] + (idx >> (1 + height)) * (BOUNDSIZE + height);
-      sum += bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
+      const size_t pos = (idx >> (1 + height)) * (BOUNDSIZE + height);
+      sum += bitread(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height);
 
       idx = clear_rho(idx);
     }
@@ -84,9 +81,8 @@ public:
   virtual void add(size_t idx, int64_t inc) {
     while (idx <= Size) {
       const int height = rho(idx);
-      const size_t pos = Level[height] + (idx >> (1 + height)) * (BOUNDSIZE + height);
-      // printf("node = %zu\n", idx);
-      bitwrite_inc(&Tree[pos / 8], pos % 8, BOUNDSIZE + height, inc);
+      const size_t pos = (idx >> (1 + height)) * (BOUNDSIZE + height);
+      bitwrite_inc(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height, inc);
 
       idx += mask_rho(idx);
     }
@@ -96,15 +92,15 @@ public:
   virtual size_t find(uint64_t *val) const {
     size_t node = 0, idx = 0;
 
-    for (size_t height = Levels - 2; height != SIZE_MAX; height--) {
-      const size_t pos = Level[height] + idx * (BOUNDSIZE + height);
+    for (size_t height = Levels - 1; height != SIZE_MAX; height--) {
+      const size_t pos = idx * (BOUNDSIZE + height);
 
       idx <<= 1;
 
-      if (pos >= Level[height + 1])
+      if (pos >= Tree[height].size())
         continue;
 
-      const uint64_t value = bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
+      const uint64_t value = bitread(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height);
 
       if (*val >= value) {
         idx++;
@@ -120,16 +116,16 @@ public:
   virtual size_t compFind(uint64_t *val) const {
     size_t node = 0, idx = 0;
 
-    for (size_t height = Levels - 2; height != SIZE_MAX; height--) {
-      const size_t pos = Level[height] + idx * (BOUNDSIZE + height);
+    for (size_t height = Levels - 1; height != SIZE_MAX; height--) {
+      const size_t pos = idx * (BOUNDSIZE + height);
 
       idx <<= 1;
 
-      if (pos >= Level[height + 1])
+      if (pos >= Tree[height].size())
         continue;
 
       const uint64_t value =
-          (BOUND << height) - bitread(&Tree[pos / 8], pos % 8, BOUNDSIZE + height);
+          (BOUND << height) - bitread(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height);
 
       if (*val >= value) {
         idx++;
@@ -141,11 +137,55 @@ public:
     return min(node, Size);
   }
 
+  virtual void push(int64_t val) {
+    Levels = lambda(++Size) + 1;
+
+    int height = rho(Size);
+    size_t idx = Size >> (1 + height);
+    size_t hipos = (BOUNDSIZE + height) * idx;
+
+    Tree[height].resize(hipos / 8 + 8);
+    bitwrite_inc(&Tree[height][hipos / 8], hipos % 8, BOUNDSIZE + height, val);
+
+    idx <<= 1;
+    for (size_t h = height - 1; h != SIZE_MAX; h--) {
+      size_t lopos = (BOUNDSIZE + h) * idx;
+      int64_t inc = bitread(&Tree[h][lopos / 8], lopos % 8, BOUNDSIZE + h);
+      bitwrite_inc(&Tree[height][hipos / 8], hipos % 8, BOUNDSIZE + height, inc);
+
+      idx = (idx << 1) + 1;
+    }
+  }
+
+  virtual void pop() {
+    int height = rho(Size);
+    size_t pos = (BOUNDSIZE + height) * (Size >> (1 + height));
+    Tree[height].resize(pos / 8);
+    Size--;
+  }
+
+  virtual void reserve(size_t space) {
+    size_t levels = lambda(space) + 1;
+    for (size_t i = 1; i <= levels; i++)
+      Tree[i - 1].reserve(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
+  }
+
+  using FenwickTree::shrinkToFit;
+  virtual void shrink(size_t space) {
+    size_t levels = lambda(space) + 1;
+    for (size_t i = 1; i <= levels; i++)
+      Tree[i - 1].shrink(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
+  };
+
   virtual size_t size() const { return Size; }
 
   virtual size_t bitCount() const {
-    return sizeof(BitL<BOUNDSIZE>) * 8 + Tree.bitCount() - sizeof(Tree) +
-           Levels * sizeof(size_t) * 8;
+    size_t ret = sizeof(BitL<BOUNDSIZE>) * 8;
+
+    for (size_t i = 0; i < 64; i++)
+      ret += Tree[i].bitCount() - sizeof(Tree[i]);
+
+    return ret;
   }
 
 private:
@@ -161,7 +201,10 @@ private:
       os.write((char *)&nlevel, sizeof(uint64_t));
     }
 
-    return os << ft.Tree;
+    for (size_t i = 0; i < 64; i++)
+      os << ft.Tree[i];
+
+    return os;
   }
 
   friend std::istream &operator>>(std::istream &is, BitL<BOUND> &ft) {
@@ -180,7 +223,10 @@ private:
       ft.Level[i] = ntoh(nlevel);
     }
 
-    return is >> ft.Tree;
+    for (size_t i = 0; i < 64; i++)
+      is >> ft.Tree[i];
+
+    return is;
   }
 };
 

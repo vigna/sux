@@ -129,11 +129,11 @@ SimpleSelectHalf::SimpleSelectHalf(const uint64_t *const bits, const uint64_t nu
       }
     }
 
-
 #ifdef DEBUG
-  //printf("Exact entries: %" PRId64 "\n", exact);
-  //printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
-  //       inventory[3]);
+    // printf("Exact entries: %" PRId64 "\n", exact);
+    // printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
+    // inventory[1], inventory[2],
+    //       inventory[3]);
 #endif
 }
 
@@ -153,8 +153,8 @@ uint64_t SimpleSelectHalf::select(const uint64_t rank) {
   const int64_t inventory_rank = *inventory_start;
   const int subrank = rank & ONES_PER_INVENTORY_MASK;
 #ifdef DEBUG
-  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank,
-         inventory_index, inventory_rank, subrank);
+  printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n",
+         rank, inventory_index, inventory_rank, subrank);
 #endif
 
   uint64_t start;

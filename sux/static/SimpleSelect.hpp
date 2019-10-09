@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include "../Select.hpp"
+#include <cstdint>
 
 using namespace std;
 namespace sux {
@@ -41,7 +41,7 @@ private:
 public:
   SimpleSelect();
   SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
-                const int max_log2_longwords_per_subinventory);
+               const int max_log2_longwords_per_subinventory);
   ~SimpleSelect();
   size_t select(const uint64_t rank) const;
   // Just for analysis purposes

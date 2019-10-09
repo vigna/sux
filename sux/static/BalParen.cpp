@@ -18,12 +18,12 @@
  *
  */
 
+#include "BalParen.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <vector>
-#include "BalParen.hpp"
 
 using namespace std;
 using namespace sux;
@@ -100,7 +100,6 @@ BalParen::BalParen(const uint64_t *const bits, const uint64_t num_bits) {
   this->opening_pioneers_matches = new uint64_t[opening_pioneers_matches.size()];
   copy(opening_pioneers_matches.begin(), opening_pioneers_matches.end(),
        this->opening_pioneers_matches);
-
 
   delete[] count;
   delete[] residual;

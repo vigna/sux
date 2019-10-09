@@ -39,7 +39,8 @@
 #define ONES_STEP_4 (UINT64_C(0x1111111111111111))
 #define ONES_STEP_8 (UINT64_C(0x0101010101010101))
 #define ONES_STEP_9                                                                                \
-  (UINT64_C(1) << 0 | UINT64_C(1) << 9 | UINT64_C(1) << 18 | UINT64_C(1) << 27 | UINT64_C(1) << 36 | UINT64_C(1) << 45 | UINT64_C(1) << 54)
+  (UINT64_C(1) << 0 | UINT64_C(1) << 9 | UINT64_C(1) << 18 | UINT64_C(1) << 27 |                   \
+   UINT64_C(1) << 36 | UINT64_C(1) << 45 | UINT64_C(1) << 54)
 #define ONES_STEP_16 (UINT64_C(1) << 0 | UINT64_C(1) << 16 | UINT64_C(1) << 32 | UINT64_C(1) << 48)
 #define ONES_STEP_32 (UINT64_C(0x0000000100000001))
 #define MSBS_STEP_4 (UINT64_C(0x8) * ONES_STEP_4)
@@ -233,7 +234,13 @@ inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_c
  * @word: Binary word.
  *
  */
-inline uint64_t clear_rho(uint64_t word) { return word & (word - 1ULL); }
+inline uint64_t clear_rho(uint64_t word) {
+#ifndef __haswell__
+  return _blsr_u64(word);
+#else
+  return word & (word - 1);
+#endif
+}
 
 /**
  * mask_rho - Bitmask where only the least significant 1-bit is set.
@@ -362,11 +369,11 @@ inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
 }
 
 /**
- * popcount - Count the number of 1-bits in a word.
+ * nu - Count the number of 1-bits in a word.
  * @word: Binary word.
  *
  */
-inline int popcount(uint64_t word) { return __builtin_popcountll(word); }
+inline int nu(uint64_t word) { return __builtin_popcountll(word); }
 
 /**
  * mround - Returns a number rounded to the desired power of two multiple.
@@ -420,7 +427,7 @@ inline uint64_t select64(uint64_t x, uint64_t k) {
 
   uint64_t kStep8 = k * kOnesStep8;
   uint64_t geqKStep8 = (((kStep8 | kLAMBDAsStep8) - byteSums) & kLAMBDAsStep8);
-  uint64_t place = popcount(geqKStep8) * 8;
+  uint64_t place = nu(geqKStep8) * 8;
   uint64_t byteRank = k - (((byteSums << 8) >> place) & uint64_t(0xFF));
   return place + kSelectInByte[((x >> place) & 0xFF) | (byteRank << 8)];
 #elif defined(__GNUC__) || defined(__clang__)

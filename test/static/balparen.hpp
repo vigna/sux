@@ -18,11 +18,10 @@ static void fill_paren(uint64_t *bits, uint64_t num_bits, double twist) {
   }
 }
 
-
 TEST(bal_paren, random) {
   using namespace sux;
 
-  for(size_t size = 2; size <= 2048; size+=2) {
+  for (size_t size = 2; size <= 2048; size += 2) {
     uint64_t *bitvect = new uint64_t[(size + 63) / 64]();
     fill_paren(bitvect, size, 1);
 

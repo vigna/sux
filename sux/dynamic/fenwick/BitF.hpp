@@ -40,17 +40,19 @@ public:
   static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 55, "Some nodes will span on multiple words");
 
 protected:
+  Vector<uint8_t> Tree;
   size_t Size;
-  DArray<uint8_t> Tree;
 
 public:
+  BitF() : Size(0) {}
+
   BitF(uint64_t sequence[], size_t size)
-      : Size(size), Tree((first_bit_after(size) + END_PADDING + 7) >> 3) {
-    for (size_t idx = 1; idx <= size; idx++)
+      : Tree((first_bit_after(size) + END_PADDING + 7) >> 3), Size(size) {
+    for (size_t idx = 1; idx <= Size; idx++)
       addToPartialFrequency(idx, sequence[idx - 1]);
 
-    for (size_t m = 2; m <= size; m <<= 1)
-      for (size_t idx = m; idx <= size; idx += m)
+    for (size_t m = 2; m <= Size; m <<= 1)
+      for (size_t idx = m; idx <= Size; idx += m)
         addToPartialFrequency(idx, getPartialFrequency(idx - m / 2));
   }
 
@@ -111,6 +113,27 @@ public:
     return node;
   }
 
+  virtual void push(int64_t val) {
+    Tree.resize((first_bit_after(++Size) + END_PADDING + 7) >> 3);
+    addToPartialFrequency(Size, val);
+
+    if ((Size & 1) == 0) {
+      for (size_t idx = Size - 1; rho(idx) < rho(Size); idx = clear_rho(idx))
+        addToPartialFrequency(Size, getPartialFrequency(idx));
+    }
+  }
+
+  virtual void pop() { Size--; }
+
+  virtual void reserve(size_t space) {
+    Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3);
+  }
+
+  using FenwickTree::shrinkToFit;
+  virtual void shrink(size_t space) {
+    Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3);
+  };
+
   virtual size_t size() const { return Size; }
 
   virtual size_t bitCount() const {
@@ -121,14 +144,14 @@ private:
   inline static size_t holes(size_t idx) { return STARTING_OFFSET + (idx >> 14) * 64; }
 
   inline static size_t first_bit_after(size_t idx) {
-    return (BOUNDSIZE + 1) * idx - popcount(idx) + holes(idx);
+    return (BOUNDSIZE + 1) * idx - nu(idx) + holes(idx);
   }
 
   inline uint64_t getPartialFrequency(size_t idx) const {
     const uint64_t mask = (UINT64_C(1) << (BOUNDSIZE + rho(idx))) - 1;
     idx--;
     const uint64_t prod = (BOUNDSIZE + 1) * idx;
-    const uint64_t pos = prod - popcount(idx) + holes(idx);
+    const uint64_t pos = prod - nu(idx) + holes(idx);
 
     uint64_t t;
     if ((prod + (BOUNDSIZE + 1)) % 64 == 0) {
@@ -143,7 +166,7 @@ private:
   inline void addToPartialFrequency(size_t idx, uint64_t value) {
     idx--;
     const uint64_t prod = (BOUNDSIZE + 1) * idx;
-    const uint64_t pos = prod - popcount(idx) + holes(idx);
+    const uint64_t pos = prod - nu(idx) + holes(idx);
 
     uint64_t t;
     if ((prod + (BOUNDSIZE + 1)) % 64 == 0) {

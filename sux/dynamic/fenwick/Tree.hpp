@@ -22,6 +22,7 @@
 
 #include "../../common.hpp"
 #include "../DArray.hpp"
+#include "../Vector.hpp"
 
 namespace sux::fenwick {
 
@@ -85,6 +86,58 @@ public:
    */
   virtual size_t compFind(uint64_t *val) const = 0;
   size_t compFind(uint64_t val) const { return compFind(&val); }
+
+  /**
+   * push() - Append a value to the sequence
+   * @val: Value to append
+   *
+   * Append a new value to the sequence and update the Tree respectively. You are allowed to use
+   * negative values for the increment, but keep in mind you should respect the structure
+   * boundaries.
+   *
+   */
+  virtual void push(int64_t val) = 0;
+
+  /**
+   * pop() - Remove the last value of the sequence
+   *
+   * This method does not release the allocated space.
+   *
+   */
+  virtual void pop() = 0;
+
+  /**
+   * reserve() - Reserve enough space to contain @space elements
+   * @space: how much space to reserve
+   *
+   * Nothing happens if the requested space is already reserved. Opposite of FenwickTree::shrink().
+   *
+   */
+  virtual void reserve(size_t space) = 0;
+
+  /**
+   * shrink() - Free part of the reserved memory
+   * @space: how much space to reserve
+   *
+   * Nothing happens if @space is more than the reserved spcae. This method behaves as
+   * FenwickTree::shrinkToFit() for values less or equal than the required space for the tree.
+   * Nothing happens if the requested space more than the space reserved. Opposite of
+   * FenwickTree::reserve().
+   *
+   */
+  virtual void shrink(size_t space) = 0;
+
+  /**
+   * shrinkToFit() - Reserve enough space to contain @space elements
+   * @space: how much space to reserve
+   *
+   * Nothing happens if @space is more than the reserved spcae. This method behaves as
+   * FenwickTree::shrinkToFit() for values less or equal than the required space for the tree.
+   * Nothing happens if the requested space more than the space reserved. Opposite of
+   * FenwickTree::reserve().
+   *
+   */
+  void shrinkToFit() { shrink(0); };
 
   /**
    * size() - Returns the length of the sequence.

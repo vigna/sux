@@ -41,7 +41,7 @@ private:
 public:
   SimpleSelectZero();
   SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits,
-                     const int max_log2_longwords_per_subinventory);
+                   const int max_log2_longwords_per_subinventory);
   ~SimpleSelectZero();
   uint64_t selectZero(const uint64_t rank);
   // Just for analysis purposes

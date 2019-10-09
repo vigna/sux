@@ -18,9 +18,9 @@
  *
  */
 
+#include "Rank9.hpp"
 #include <cassert>
 #include <cstring>
-#include "Rank9.hpp"
 
 using namespace sux;
 

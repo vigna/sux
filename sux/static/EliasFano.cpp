@@ -18,13 +18,13 @@
  *
  */
 
+#include "EliasFano.hpp"
 #include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "EliasFano.hpp"
 
 using namespace sux;
 
@@ -69,7 +69,9 @@ EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
   selectz_upper = new SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
 
   block_size = 0;
-  do ++block_size; while (block_size * l + block_size <= 64 && block_size <= l);
+  do
+    ++block_size;
+  while (block_size * l + block_size <= 64 && block_size <= l);
   block_size--;
 
 #ifdef DEBUG
@@ -125,7 +127,9 @@ EliasFano::EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) 
   selectz_upper = new SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
 
   block_size = 0;
-  do ++block_size; while (block_size * l + block_size <= 64 && block_size <= l);
+  do
+    ++block_size;
+  while (block_size * l + block_size <= 64 && block_size <= l);
   block_size--;
 
 #ifdef DEBUG
@@ -279,9 +283,7 @@ uint64_t EliasFano::select(const uint64_t rank, uint64_t *const next) {
   return s << l | get_bits(lower_bits, position, l);
 }
 
-size_t EliasFano::size() const {
-	return num_bits;
-}
+size_t EliasFano::size() const { return num_bits; }
 
 uint64_t EliasFano::bitCount() {
   return num_ones * l + num_ones + (num_bits >> l) + select_upper->bitCount() +

@@ -22,8 +22,8 @@
 
 using namespace std;
 
-#include <cstdint>
 #include "../Select.hpp"
+#include <cstdint>
 
 namespace sux {
 

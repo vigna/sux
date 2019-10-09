@@ -18,6 +18,7 @@
  *
  */
 
+#include "Rank9Sel.hpp"
 #include <cassert>
 #include <climits>
 #include <cstdio>
@@ -26,7 +27,6 @@
 #include <ctime>
 #include <sys/resource.h>
 #include <sys/time.h>
-#include "Rank9Sel.hpp"
 
 #define ONES_PER_INVENTORY (512)
 #define LOG2_ONES_PER_INVENTORY (9)
@@ -95,7 +95,8 @@ Rank9Sel::Rank9Sel(const uint64_t *const bits, const uint64_t num_bits)
 #ifdef DEBUG
   printf("Inventory size: %" PRId64 "\n", inventory_size);
   printf("Inventory entries filled: %" PRId64 "\n", d / ONES_PER_INVENTORY + 1);
-  //printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
+  // printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
+  // inventory[1], inventory[2],
   //       inventory[3]);
 #endif
 
@@ -212,8 +213,9 @@ size_t Rank9Sel::select(const uint64_t rank) const {
   uint64_t count_left, rank_in_block;
 
 #ifdef DEBUG
-  printf("Initially, rank: %" PRId64 " block_left: %" PRId64 " block_right: %" PRId64 " span: %" PRId64 "\n", rank, block_left,
-         block_right, span);
+  printf("Initially, rank: %" PRId64 " block_left: %" PRId64 " block_right: %" PRId64
+         " span: %" PRId64 "\n",
+         rank, block_left, block_right, span);
 #endif
 
   if (span < 2) {
@@ -222,7 +224,8 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     assert(rank < counts[count_left + 2]);
     rank_in_block = rank - counts[count_left];
 #ifdef DEBUG
-    printf("Single span; rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", rank_in_block, block_left);
+    printf("Single span; rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", rank_in_block,
+           block_left);
 #endif
 #ifdef COUNTS
     single++;
@@ -241,8 +244,8 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     assert(where >= 0);
     assert(where <= 16);
 #ifdef DEBUG
-    printf("rank_in_superblock: %" PRId64 " (%" PRIx64 ") %" PRIx64 " %" PRIx64 "\n", rank_in_superblock, rank_in_superblock,
-           s[0], s[1]);
+    printf("rank_in_superblock: %" PRId64 " (%" PRIx64 ") %" PRIx64 " %" PRIx64 "\n",
+           rank_in_superblock, rank_in_superblock, s[0], s[1]);
 #endif
 
     block_left += where * 4;
@@ -250,8 +253,8 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     rank_in_block = rank - counts[count_left];
     assert(rank_in_block < 512);
 #ifdef DEBUG
-    printf("Found where (1): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where, rank_in_block,
-           block_left);
+    printf("Found where (1): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where,
+           rank_in_block, block_left);
     printf("supercounts: %016" PRIx64 " %016" PRIx64 "\n", s[0], s[1]);
 #endif
 #ifdef COUNTS
@@ -281,8 +284,8 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     assert(rank_in_block < 512);
 
 #ifdef DEBUG
-    printf("Found where (2): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where1, rank_in_block,
-           block_left);
+    printf("Found where (2): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where1,
+           rank_in_block, block_left);
 #endif
 #ifdef COUNTS
     two_levels++;
@@ -313,17 +316,16 @@ size_t Rank9Sel::select(const uint64_t rank) const {
   const uint64_t rank_in_word =
       rank_in_block - (subcounts >> ((offset_in_block - 1) & 7) * 9 & 0x1FF);
 #ifdef DEBUG
-  printf(
-      "rank_in_block: %" PRId64 " offset_in_block: %" PRId64 " rank_in_word: %" PRId64 " compare: %016" PRIx64 " shift: %" PRId64 "\n",
-      rank_in_block, offset_in_block, rank_in_word,
-      ULEQ_STEP_9(subcounts, rank_in_block_step_9),
-      subcounts >> (offset_in_block - 1) * 9 & 0x1FF);
+  printf("rank_in_block: %" PRId64 " offset_in_block: %" PRId64 " rank_in_word: %" PRId64
+         " compare: %016" PRIx64 " shift: %" PRId64 "\n",
+         rank_in_block, offset_in_block, rank_in_word, ULEQ_STEP_9(subcounts, rank_in_block_step_9),
+         subcounts >> (offset_in_block - 1) * 9 & 0x1FF);
 #endif
   assert(offset_in_block <= 7);
 
 #ifdef DEBUG
-  printf("rank_in_block: %" PRId64 " offset_in_block: %" PRId64 " rank_in_word: %" PRId64 "\n", rank_in_block,
-         offset_in_block, rank_in_word);
+  printf("rank_in_block: %" PRId64 " offset_in_block: %" PRId64 " rank_in_word: %" PRId64 "\n",
+         rank_in_block, offset_in_block, rank_in_word);
   printf("subcounts: ");
   for (int i = 0; i < 7; i++)
     printf("%" PRId64 " ", subcounts >> i * 9 & 0x1FF);

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "../xoroshiro128pp.hpp"
-#include "rankselect.hpp"
 #include "balparen.hpp"
+#include "rankselect.hpp"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

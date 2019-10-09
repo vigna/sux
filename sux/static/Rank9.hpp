@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <cstdint>
 #include "../Rank.hpp"
+#include <cstdint>
 
 namespace sux {
 

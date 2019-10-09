@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include <cstdint>
 #include "../Rank.hpp"
 #include "../Select.hpp"
+#include <cstdint>
 
 namespace sux {
 
