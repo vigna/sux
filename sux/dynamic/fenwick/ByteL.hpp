@@ -100,7 +100,7 @@ public:
 
       idx <<= 1;
 
-      if (pos + isize > Tree[height].size())
+      if (pos + isize >= Tree[height].size())
         continue;
 
       const uint64_t value = byteread(&Tree[height][pos], isize);
@@ -125,7 +125,7 @@ public:
 
       idx <<= 1;
 
-      if (pos + isize > Tree[height].size())
+      if (pos + isize >= Tree[height].size())
         continue;
 
       const uint64_t value = (BOUND << height) - byteread(&Tree[height][pos], isize);
