@@ -116,7 +116,7 @@ private:
     if (size == 0)
       return;
 
-    size_t space = page_aligned(size * sizeof(T));
+    size_t space = page_aligned(size);
     void *mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0)
                               : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
     assert(mem != MAP_FAILED && "mmap failed");
