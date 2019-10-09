@@ -102,7 +102,7 @@ public:
 
   inline size_t capacity() const { return Capacity; }
 
-  size_t bitCount() const { return sizeof(Vector<T, PT>) * 8 + Capacity; }
+  size_t bitCount() const { return sizeof(Vector<T, PT>) * 8 + Capacity * 8; }
 
 private:
   static size_t page_aligned(size_t size) {
