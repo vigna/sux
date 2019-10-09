@@ -252,9 +252,8 @@ private:
     for (block = 0; block < 64; block += 8)
       if (zeroes & 1ULL << block)
         break;
-    // const int block = msb( t & -t );
-    // A simple trick to return 127 if block < 0 (i.e., no match)
-    return ((int)(block + (zeroes >> block & 0x3F)) | (block >> 8)) & 0x7F;
+    // The expression block & 0x3F avoids undefined behaviour when block == 64
+    return block + (zeroes >> (block & 0x3F) & 0x3F);
   }
 
 #endif

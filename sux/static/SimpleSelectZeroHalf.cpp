@@ -133,9 +133,9 @@ SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uin
     }
 
 #ifdef DEBUG
-  printf("Exact entries: %" PRId64 "\n", exact);
-  printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
-         inventory[1], inventory[2], inventory[3]);
+  //printf("Exact entries: %" PRId64 "\n", exact);
+  //printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
+  //       inventory[3]);
 #endif
 }
 
@@ -181,7 +181,7 @@ uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank) {
     return start;
 
   uint64_t word_index = start / 64;
-  uint64_t word = ~bits[word_index] & -1ULL << start;
+  uint64_t word = ~bits[word_index] & -1ULL << start % 64;
 
   for (;;) {
     const int bit_count = __builtin_popcountll(word);

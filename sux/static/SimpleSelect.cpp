@@ -250,7 +250,7 @@ size_t SimpleSelect::select(const uint64_t rank) const {
     return start;
 
   uint64_t word_index = start / 64;
-  uint64_t word = bits[word_index] & -1ULL << start;
+  uint64_t word = bits[word_index] & -1ULL << start % 64;
 
   for (;;) {
     const int bit_count = __builtin_popcountll(word);
