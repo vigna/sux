@@ -44,8 +44,11 @@ public:
   ByteL() : Levels(0), Size(0) {}
 
   ByteL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
-    for (size_t i = 1; i <= Levels; i++)
-      Tree[i - 1].resize(((size + (1ULL << (i - 1))) / (1ULL << i)) * heightsize(i - 1));
+    for (size_t i = 1; i <= Levels; i++) {
+      size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * heightsize(i - 1);
+      Tree[i - 1].reserve(space);
+      Tree[i - 1].resize(space);
+    }
 
     for (size_t l = 0; l < Levels; l++) {
       for (size_t node = 1ULL << l; node <= Size; node += 1ULL << (l + 1)) {
