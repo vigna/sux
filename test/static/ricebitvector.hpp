@@ -5,6 +5,7 @@
 #include "sux/static/RiceBitvector.hpp"
 
 using namespace std;
+using namespace sux;
 
 static const size_t rice_test_nkeys = 256;
 static const size_t rice_test_ntrees = 100000;

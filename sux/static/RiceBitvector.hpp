@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace sux {
+
 #define DEFAULT_VECTSIZE (1 << 2)
 
 class RiceBitvector {
@@ -34,3 +36,4 @@ public:
     void load(FILE* fp);
 };
 
+}

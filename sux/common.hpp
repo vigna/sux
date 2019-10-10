@@ -275,6 +275,24 @@ inline uint64_t compact_bitmask(size_t count, size_t pos) {
   return (-(count != 0ULL)) & (UINT64_MAX >> (64 - count)) << pos;
 }
 
+
+static inline uint64_t remap16(uint64_t x, uint64_t n) {
+    static const int masklen = 48;
+    static const uint64_t mask = (uint64_t(1) << masklen) - 1;
+    return ((x & mask) * n) >> masklen;
+}
+
+static inline uint64_t remap128(uint64_t x, uint64_t n) {
+#ifdef __SIZEOF_INT128__
+    return (uint64_t)(((__uint128_t)x * (__uint128_t)n) >> 64);
+#else
+    // Less than 2^32 keys
+    return (uint32_t)x * n >> 32;
+#endif // __SIZEOF_INT128__
+}
+
+
+
 /**
  * bitextract - Extract consecutives bits in a word.
  * @word: Binary word.

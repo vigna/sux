@@ -3,8 +3,10 @@
 #include <cstdlib>
 #include <algorithm>
 #include <cstring>
-#include "RiceBitvector.h"
+#include "RiceBitvector.hpp"
 #include "../common.hpp"
+
+namespace sux {
 
 RiceBitvector::RiceBitvector(const std::size_t alloc_words) {
     data = (uint64_t*)calloc(alloc_words, sizeof(*data));
@@ -47,7 +49,7 @@ uint64_t RiceBitvector::read_next(const int log2golomb) {
 
 	uint64_t fixed;
 	memcpy(&fixed, (uint8_t *)data + curr_fixed_offset / 8, 8);
-    result |= (fixed >> curr_fixed_offset % 8) & (uint64_t(1) << log2golomb) - 1;
+    result |= (fixed >> curr_fixed_offset % 8) & ((uint64_t(1) << log2golomb) - 1);
 	curr_fixed_offset += log2golomb;
 	return result;
 }
@@ -60,7 +62,7 @@ void RiceBitvector::skip_subtree(const size_t nodes, const size_t fixed_len) {
         missing -= cnt;
         valid_lower_bits_unary = 64;
     }
-    cnt = select64(missing - 1, curr_window_unary);
+    cnt = select64(curr_window_unary, missing - 1);
     curr_window_unary >>= cnt;
     curr_window_unary >>= 1;
     valid_lower_bits_unary -= cnt + 1;
@@ -154,18 +156,19 @@ int RiceBitvector::dump(FILE* fp) const {
 }
 
 void RiceBitvector::load(FILE* fp) {
-    size_t nbytes;
     curr_window_unary = 0;
     valid_lower_bits_unary = 0;
 
-    nbytes = fread(&bit_count, sizeof(bit_count), (size_t)1, fp);
-    nbytes = fread(&data_bytes, sizeof(data_bytes), (size_t)1, fp);
+	fread(&bit_count, sizeof(bit_count), (size_t)1, fp);
+	fread(&data_bytes, sizeof(data_bytes), (size_t)1, fp);
 
     if(data) {
         free(data);
         data = NULL;
     }
     data = (uint64_t*)malloc(data_bytes);
-    nbytes = fread(data, data_bytes, (size_t)1, fp);
+    fread(data, data_bytes, (size_t)1, fp);
     curr_ptr_unary = data;
+}
+
 }

@@ -1,14 +1,16 @@
-#ifndef DoubleEF_h
-#define DoubleEF_h
+#pragma once
+
 #include <cstdint>
 #include <cstring>
 #include <vector>
 #include <limits>
-#include "fast.h"
+#include "../common.hpp"
 
 #ifndef LOG2Q
 #define LOG2Q 8
 #endif
+
+namespace sux {
 
 class DoubleEF {
 private:
@@ -32,10 +34,10 @@ private:
 	}
 
 	__inline static void set_bits(uint64_t * const bits, const uint64_t start, const int width, const uint64_t value) {
-		const uint64_t mask = (UINT64_C(1) << width) - 1 << start % 8;
+		const uint64_t mask = ((UINT64_C(1) << width) - 1) << start % 8;
 		uint64_t t;
 		memcpy(&t, (uint8_t *)bits + start / 8, 8);
-		t = t & ~mask | value << start % 8;
+		t = (t & ~mask) | value << start % 8;
 		memcpy((uint8_t *)bits + start / 8, &t, 8);
 	}
 
@@ -69,4 +71,4 @@ public:
 	void load(FILE* fp);
 };
 
-#endif
+}

@@ -7,6 +7,8 @@
 #include "sux/static/RecSplit.hpp"
 
 using namespace std;
+using namespace sux;
+
 using RecSplit2 = RecSplit<LEAF>;
 
 static constexpr size_t BUCKET_SIZE_TEST = 1024;
@@ -29,7 +31,7 @@ static void recsplit_unit_test(RS& rs, FILE* keys_fp) {
     uint64_t i = 0;
     char* key = NULL;
     size_t key_len, bsize = 0;
-    while((key_len = getline(&key, &bsize, keys_fp)) != -1) {
+    while((key_len = getline(&key, &bsize, keys_fp)) != size_t(-1)) {
         string str(key);
         uint64_t h = rs.apply(str);
         ASSERT_EQ(0, recsplit_check[h]) << "ERROR: h(key#" << recsplit_check[h] - 1 << ") = h(key#" << i << ") = " << h << endl;
@@ -40,7 +42,6 @@ static void recsplit_unit_test(RS& rs, FILE* keys_fp) {
 }
 
 TEST(recsplit_test, random_hash128) {
-    reset_seed();
     vector<hash128_t> keys;
     for(size_t i = 0; i < NKEYS_TEST; ++i) {
         keys.push_back(hash128_t(next(), next()));
@@ -50,17 +51,16 @@ TEST(recsplit_test, random_hash128) {
     recsplit_unit_test(rs, keys);
 }
 
-TEST(recsplit_test, from_sample1) {
+/*TEST(recsplit_test, from_sample1) {
     FILE* keys_fp = fopen("samples/sample1.txt", "r");
     ASSERT_NE(keys_fp, nullptr) << "Sample file not found" << endl;
     RecSplit2 rs(keys_fp, BUCKET_SIZE_TEST);
     fseek(keys_fp, 0, SEEK_SET);
     recsplit_unit_test(rs, keys_fp);
     fclose(keys_fp);
-}
+}*/
 
 TEST(recsplit_test, dump_and_load) {
-    reset_seed();
     vector<hash128_t> keys;
     for(size_t i = 0; i < NKEYS_TEST; ++i) {
         keys.push_back(hash128_t(next(), next()));
