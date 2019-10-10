@@ -1,2 +1,7 @@
 BasedOnStyle: LLVM
-ColumnLimit: 100
+ColumnLimit: 150
+UseTab: ForContinuationAndIndentation
+TabWidth: 4
+IndentWidth: 4
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
