@@ -3,6 +3,8 @@
 #include "../xoroshiro128pp.hpp"
 #include "balparen.hpp"
 #include "rankselect.hpp"
+#include "ricebitvector.hpp"
+#include "recsplit.hpp"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
