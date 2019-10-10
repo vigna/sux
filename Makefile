@@ -12,6 +12,14 @@ test: bin/static bin/dynamic
 	./bin/static --gtest_color=yes
 	./bin/dynamic --gtest_color=yes
 
+LEAF?=8
+
+rs: test/static/recsplit_*
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump128.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load128.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
+
 .PHONY: clean
 
 clean:

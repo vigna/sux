@@ -309,8 +309,9 @@ public:
         this->bucket_size = bucket_size;
         std::vector<hash128_t> h;
         char* key = NULL;
-        size_t key_len, bsize = 0;
-        while((key_len = getline(&key, &bsize, keys_fp)) != size_t(-1)) {
+        size_t bsize = 0;
+        for(ssize_t key_len; (key_len = getline(&key, &bsize, keys_fp)) != -1;) {
+	printf("%lld\n", key_len);
             h.push_back(first_hash(key, key_len));
         }
         if(key) free(key);
