@@ -59,6 +59,10 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 		return *this;
 	}
 
+	void shrink(size_t size) {
+		if (size * sizeof(T) < Capacity) remap(size);
+	}
+
 	void reserve(size_t size) {
 		if (size * sizeof(T) > Capacity) remap(size);
 	}
@@ -68,13 +72,9 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 		Size = size;
 	}
 
-	void shrink(size_t size) {
-		if (size * sizeof(T) < Capacity) remap(size);
-	}
-
 	void pushBack(T elem) {
-		resize(++Size);
-		Data[Size] = elem;
+		resize(Size + 1);
+		Data[Size - 1] = elem;
 	}
 
 	T popBack() { return Data[--Size]; }
