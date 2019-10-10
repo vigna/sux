@@ -32,129 +32,122 @@ namespace sux::fenwick {
  *
  */
 template <size_t BOUND> class FixedF : public FenwickTree {
-public:
-  static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
-  static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
+  public:
+	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
+	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
-protected:
-  Vector<uint64_t> Tree;
-  size_t Size;
+  protected:
+	Vector<uint64_t> Tree;
+	size_t Size;
 
-public:
-  FixedF() : Size(0) {}
+  public:
+	FixedF() : Size(0) {}
 
-  FixedF(uint64_t sequence[], size_t size) : Tree(pos(size) + 1), Size(size) {
-    for (size_t j = 1; j <= Size; j++)
-      Tree[pos(j)] = sequence[j - 1];
+	FixedF(uint64_t sequence[], size_t size) : Tree(pos(size) + 1), Size(size) {
+		for (size_t j = 1; j <= Size; j++) Tree[pos(j)] = sequence[j - 1];
 
-    for (size_t m = 2; m <= Size; m <<= 1) {
-      for (size_t idx = m; idx <= Size; idx += m)
-        Tree[pos(idx)] += Tree[pos(idx - m / 2)];
-    }
-  }
+		for (size_t m = 2; m <= Size; m <<= 1) {
+			for (size_t idx = m; idx <= Size; idx += m) Tree[pos(idx)] += Tree[pos(idx - m / 2)];
+		}
+	}
 
-  virtual uint64_t prefix(size_t idx) const {
-    uint64_t sum = 0;
+	virtual uint64_t prefix(size_t idx) const {
+		uint64_t sum = 0;
 
-    while (idx != 0) {
-      sum += Tree[pos(idx)];
-      idx = clear_rho(idx);
-    }
+		while (idx != 0) {
+			sum += Tree[pos(idx)];
+			idx = clear_rho(idx);
+		}
 
-    return sum;
-  }
+		return sum;
+	}
 
-  virtual void add(size_t idx, int64_t inc) {
-    while (idx <= Size) {
-      Tree[pos(idx)] += inc;
-      idx += mask_rho(idx);
-    }
-  }
+	virtual void add(size_t idx, int64_t inc) {
+		while (idx <= Size) {
+			Tree[pos(idx)] += inc;
+			idx += mask_rho(idx);
+		}
+	}
 
-  using FenwickTree::find;
-  virtual size_t find(uint64_t *val) const {
-    size_t node = 0;
+	using FenwickTree::find;
+	virtual size_t find(uint64_t *val) const {
+		size_t node = 0;
 
-    for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
-      if (node + m > Size)
-        continue;
+		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
+			if (node + m > Size) continue;
 
-      uint64_t value = Tree[pos(node + m)];
+			uint64_t value = Tree[pos(node + m)];
 
-      if (*val >= value) {
-        node += m;
-        *val -= value;
-      }
-    }
+			if (*val >= value) {
+				node += m;
+				*val -= value;
+			}
+		}
 
-    return node;
-  }
+		return node;
+	}
 
-  using FenwickTree::compFind;
-  virtual size_t compFind(uint64_t *val) const {
-    size_t node = 0;
+	using FenwickTree::compFind;
+	virtual size_t compFind(uint64_t *val) const {
+		size_t node = 0;
 
-    for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
-      if (node + m > Size)
-        continue;
+		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
+			if (node + m > Size) continue;
 
-      uint64_t value = (BOUND << rho(node + m)) - Tree[pos(node + m)];
+			uint64_t value = (BOUND << rho(node + m)) - Tree[pos(node + m)];
 
-      if (*val >= value) {
-        node += m;
-        *val -= value;
-      }
-    }
+			if (*val >= value) {
+				node += m;
+				*val -= value;
+			}
+		}
 
-    return node;
-  }
+		return node;
+	}
 
-  virtual void push(int64_t val) {
-    size_t p = pos(++Size);
-    Tree.resize(p + 1);
-    Tree[p] = val;
+	virtual void push(int64_t val) {
+		size_t p = pos(++Size);
+		Tree.resize(p + 1);
+		Tree[p] = val;
 
-    if ((Size & 1) == 0) {
-      for (size_t idx = Size - 1; rho(idx) < rho(Size); idx = clear_rho(idx))
-        Tree[p] += Tree[pos(idx)];
-    }
-  }
+		if ((Size & 1) == 0) {
+			for (size_t idx = Size - 1; rho(idx) < rho(Size); idx = clear_rho(idx)) Tree[p] += Tree[pos(idx)];
+		}
+	}
 
-  virtual void pop() {
-    Size--;
-    Tree.popBack();
-  }
+	virtual void pop() {
+		Size--;
+		Tree.popBack();
+	}
 
-  virtual void reserve(size_t space) { Tree.reserve(space); }
+	virtual void reserve(size_t space) { Tree.reserve(space); }
 
-  using FenwickTree::shrinkToFit;
-  virtual void shrink(size_t space) { Tree.shrink(space); };
+	using FenwickTree::shrinkToFit;
+	virtual void shrink(size_t space) { Tree.shrink(space); };
 
-  virtual size_t size() const { return Size; }
+	virtual size_t size() const { return Size; }
 
-  virtual size_t bitCount() const {
-    return sizeof(FixedF<BOUNDSIZE>) * 8 + Tree.bitCount() - sizeof(Tree);
-  }
+	virtual size_t bitCount() const { return sizeof(FixedF<BOUNDSIZE>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
-private:
-  static inline size_t holes(size_t idx) { return idx >> 14; }
+  private:
+	static inline size_t holes(size_t idx) { return idx >> 14; }
 
-  static inline size_t pos(size_t idx) { return idx + holes(idx); }
+	static inline size_t pos(size_t idx) { return idx + holes(idx); }
 
-  friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND> &ft) {
-    uint64_t nsize = hton((uint64_t)ft.Size);
-    os.write((char *)&nsize, sizeof(uint64_t));
+	friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND> &ft) {
+		uint64_t nsize = hton((uint64_t)ft.Size);
+		os.write((char *)&nsize, sizeof(uint64_t));
 
-    return os << ft.Tree;
-  }
+		return os << ft.Tree;
+	}
 
-  friend std::istream &operator>>(std::istream &is, FixedF<BOUND> &ft) {
-    uint64_t nsize;
-    is.read((char *)(&nsize), sizeof(uint64_t));
+	friend std::istream &operator>>(std::istream &is, FixedF<BOUND> &ft) {
+		uint64_t nsize;
+		is.read((char *)(&nsize), sizeof(uint64_t));
 
-    ft.Size = ntoh(nsize);
-    return is >> ft.Tree;
-  }
+		ft.Size = ntoh(nsize);
+		return is >> ft.Tree;
+	}
 };
 
 } // namespace sux::fenwick

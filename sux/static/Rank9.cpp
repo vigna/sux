@@ -25,38 +25,35 @@
 using namespace sux;
 
 Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) : num_bits(num_bits), bits(bits) {
-  num_words = (num_bits + 63) / 64;
-  num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
+	num_words = (num_bits + 63) / 64;
+	num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
 
-  // Init rank structure
-  counts = new uint64_t[num_counts + 1]();
+	// Init rank structure
+	counts = new uint64_t[num_counts + 1]();
 
-  uint64_t c = 0;
-  uint64_t pos = 0;
-  for (uint64_t i = 0; i < num_words; i += 8, pos += 2) {
-    counts[pos] = c;
-    c += __builtin_popcountll(bits[i]);
-    for (int j = 1; j < 8; j++) {
-      counts[pos + 1] |= (c - counts[pos]) << 9 * (j - 1);
-      if (i + j < num_words)
-        c += __builtin_popcountll(bits[i + j]);
-    }
-  }
+	uint64_t c = 0;
+	uint64_t pos = 0;
+	for (uint64_t i = 0; i < num_words; i += 8, pos += 2) {
+		counts[pos] = c;
+		c += __builtin_popcountll(bits[i]);
+		for (int j = 1; j < 8; j++) {
+			counts[pos + 1] |= (c - counts[pos]) << 9 * (j - 1);
+			if (i + j < num_words) c += __builtin_popcountll(bits[i + j]);
+		}
+	}
 
-  counts[num_counts] = c;
+	counts[num_counts] = c;
 
-  assert(c <= num_bits);
+	assert(c <= num_bits);
 }
 
 Rank9::~Rank9() { delete[] counts; }
 
 uint64_t Rank9::rank(const size_t k) const {
-  const uint64_t word = k / 64;
-  const uint64_t block = word / 4 & ~1;
-  const int offset = word % 8 - 1;
-  return counts[block] +
-         (counts[block + 1] >> (offset + (offset >> (sizeof offset * 8 - 4) & 0x8)) * 9 & 0x1FF) +
-         __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
+	const uint64_t word = k / 64;
+	const uint64_t block = word / 4 & ~1;
+	const int offset = word % 8 - 1;
+	return counts[block] + (counts[block + 1] >> (offset + (offset >> (sizeof offset * 8 - 4) & 0x8)) * 9 & 0x1FF) + __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
 }
 
 uint64_t Rank9::bitCount() { return num_counts * 64 + sizeof(Rank9); }

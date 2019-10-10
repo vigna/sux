@@ -32,120 +32,102 @@ namespace sux::ranking {
  *
  */
 template <template <size_t> class T> class Word : public RankSelect {
-private:
-  static constexpr size_t BOUNDSIZE = 64;
-  T<BOUNDSIZE> Fenwick;
-  DArray<uint64_t> Vector;
+  private:
+	static constexpr size_t BOUNDSIZE = 64;
+	T<BOUNDSIZE> Fenwick;
+	DArray<uint64_t> Vector;
 
-public:
-  Word(uint64_t bitvector[], size_t size)
-      : Fenwick(buildFenwick(bitvector, size)), Vector(DArray<uint64_t>(size)) {
-    std::copy_n(bitvector, size, Vector.get());
-  }
+  public:
+	Word(uint64_t bitvector[], size_t size) : Fenwick(buildFenwick(bitvector, size)), Vector(DArray<uint64_t>(size)) { std::copy_n(bitvector, size, Vector.get()); }
 
-  Word(DArray<uint64_t> bitvector, size_t size)
-      : Fenwick(buildFenwick(bitvector.get(), size)), Vector(std::move(bitvector)) {}
+	Word(DArray<uint64_t> bitvector, size_t size) : Fenwick(buildFenwick(bitvector.get(), size)), Vector(std::move(bitvector)) {}
 
-  virtual const uint64_t *bitvector() const { return Vector.get(); }
+	virtual const uint64_t *bitvector() const { return Vector.get(); }
 
-  virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
+	virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
 
-  using Rank::rank;
-  using Rank::rankZero;
-  virtual uint64_t rank(size_t pos) const {
-    return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1));
-  }
+	using Rank::rank;
+	using Rank::rankZero;
+	virtual uint64_t rank(size_t pos) const { return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1)); }
 
-  virtual size_t select(uint64_t rank) const {
-    size_t idx = Fenwick.find(&rank);
+	virtual size_t select(uint64_t rank) const {
+		size_t idx = Fenwick.find(&rank);
 
-    if (idx >= Vector.size())
-      return SIZE_MAX;
+		if (idx >= Vector.size()) return SIZE_MAX;
 
-    uint64_t rank_chunk = nu(Vector[idx]);
-    if (rank < rank_chunk)
-      return idx * 64 + select64(Vector[idx], rank);
+		uint64_t rank_chunk = nu(Vector[idx]);
+		if (rank < rank_chunk) return idx * 64 + select64(Vector[idx], rank);
 
-    return SIZE_MAX;
-  }
+		return SIZE_MAX;
+	}
 
-  virtual size_t selectZero(uint64_t rank) const {
-    const size_t idx = Fenwick.compFind(&rank);
+	virtual size_t selectZero(uint64_t rank) const {
+		const size_t idx = Fenwick.compFind(&rank);
 
-    if (idx >= Vector.size())
-      return SIZE_MAX;
+		if (idx >= Vector.size()) return SIZE_MAX;
 
-    uint64_t rank_chunk = nu(~Vector[idx]);
-    if (rank < rank_chunk)
-      return idx * 64 + select64(~Vector[idx], rank);
+		uint64_t rank_chunk = nu(~Vector[idx]);
+		if (rank < rank_chunk) return idx * 64 + select64(~Vector[idx], rank);
 
-    return SIZE_MAX;
-  }
+		return SIZE_MAX;
+	}
 
-  virtual uint64_t update(size_t index, uint64_t word) {
-    uint64_t old = Vector[index];
-    Vector[index] = word;
-    Fenwick.add(index + 1, nu(word) - nu(old));
+	virtual uint64_t update(size_t index, uint64_t word) {
+		uint64_t old = Vector[index];
+		Vector[index] = word;
+		Fenwick.add(index + 1, nu(word) - nu(old));
 
-    return old;
-  }
+		return old;
+	}
 
-  virtual bool set(size_t index) {
-    uint64_t old = Vector[index / 64];
-    Vector[index / 64] |= uint64_t(1) << (index % 64);
+	virtual bool set(size_t index) {
+		uint64_t old = Vector[index / 64];
+		Vector[index / 64] |= uint64_t(1) << (index % 64);
 
-    if (Vector[index / 64] != old) {
-      Fenwick.add(index / 64 + 1, 1);
-      return false;
-    }
+		if (Vector[index / 64] != old) {
+			Fenwick.add(index / 64 + 1, 1);
+			return false;
+		}
 
-    return true;
-  }
+		return true;
+	}
 
-  virtual bool clear(size_t index) {
-    uint64_t old = Vector[index / 64];
-    Vector[index / 64] &= ~(uint64_t(1) << (index % 64));
+	virtual bool clear(size_t index) {
+		uint64_t old = Vector[index / 64];
+		Vector[index / 64] &= ~(uint64_t(1) << (index % 64));
 
-    if (Vector[index / 64] != old) {
-      Fenwick.add(index / 64 + 1, -1);
-      return true;
-    }
+		if (Vector[index / 64] != old) {
+			Fenwick.add(index / 64 + 1, -1);
+			return true;
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  virtual bool toggle(size_t index) {
-    uint64_t old = Vector[index / 64];
-    Vector[index / 64] ^= uint64_t(1) << (index % 64);
-    bool was_set = Vector[index / 64] < old;
-    Fenwick.add(index / 64 + 1, was_set ? -1 : 1);
+	virtual bool toggle(size_t index) {
+		uint64_t old = Vector[index / 64];
+		Vector[index / 64] ^= uint64_t(1) << (index % 64);
+		bool was_set = Vector[index / 64] < old;
+		Fenwick.add(index / 64 + 1, was_set ? -1 : 1);
 
-    return was_set;
-  }
+		return was_set;
+	}
 
-  virtual size_t bitCount() const {
-    return sizeof(Word<T>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() -
-           sizeof(Fenwick);
-  }
+	virtual size_t bitCount() const { return sizeof(Word<T>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
-private:
-  T<BOUNDSIZE> buildFenwick(const uint64_t bitvector[], size_t size) {
-    uint64_t *sequence = new uint64_t[size];
-    for (size_t i = 0; i < size; i++)
-      sequence[i] = nu(bitvector[i]);
+  private:
+	T<BOUNDSIZE> buildFenwick(const uint64_t bitvector[], size_t size) {
+		uint64_t *sequence = new uint64_t[size];
+		for (size_t i = 0; i < size; i++) sequence[i] = nu(bitvector[i]);
 
-    T<BOUNDSIZE> tree(sequence, size);
-    delete[] sequence;
-    return tree;
-  }
+		T<BOUNDSIZE> tree(sequence, size);
+		delete[] sequence;
+		return tree;
+	}
 
-  friend std::ostream &operator<<(std::ostream &os, const Word<T> &bv) {
-    return os << bv.Fenwick << bv.Vector;
-  }
+	friend std::ostream &operator<<(std::ostream &os, const Word<T> &bv) { return os << bv.Fenwick << bv.Vector; }
 
-  friend std::istream &operator>>(std::istream &is, Word<T> &bv) {
-    return is >> bv.Fenwick >> bv.Vector;
-  }
+	friend std::istream &operator>>(std::istream &is, Word<T> &bv) { return is >> bv.Fenwick >> bv.Vector; }
 };
 
 } // namespace sux::ranking

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../common.hpp"
 #include <cstdint>
 #include <cstring>
-#include <vector>
 #include <limits>
-#include "../common.hpp"
+#include <vector>
 
 #ifndef LOG2Q
 #define LOG2Q 8
@@ -13,7 +13,7 @@
 namespace sux {
 
 class DoubleEF {
-private:
+  private:
 	static constexpr uint64_t log2q = LOG2Q;
 	static constexpr uint64_t q = 1 << log2q;
 	static constexpr uint64_t q_mask = q - 1;
@@ -29,11 +29,9 @@ private:
 	int64_t cum_keys_min_delta, min_diff;
 	uint64_t bits_per_key_fixed_point;
 
-	__inline static void set(uint64_t * const bits, const uint64_t pos) {
-		bits[ pos / 64 ] |= 1ULL << pos % 64;
-	}
+	__inline static void set(uint64_t *const bits, const uint64_t pos) { bits[pos / 64] |= 1ULL << pos % 64; }
 
-	__inline static void set_bits(uint64_t * const bits, const uint64_t start, const int width, const uint64_t value) {
+	__inline static void set_bits(uint64_t *const bits, const uint64_t start, const int width, const uint64_t value) {
 		const uint64_t mask = ((UINT64_C(1) << width) - 1) << start % 8;
 		uint64_t t;
 		memcpy(&t, (uint8_t *)bits + start / 8, 8);
@@ -41,34 +39,28 @@ private:
 		memcpy((uint8_t *)bits + start / 8, &t, 8);
 	}
 
-	__inline size_t lower_bits_size_words() const {
-		return ((num_buckets + 1) * (l_cum_keys + l_position) + 63 ) / 64 + 1;
-	}
+	__inline size_t lower_bits_size_words() const { return ((num_buckets + 1) * (l_cum_keys + l_position) + 63) / 64 + 1; }
 
-	__inline size_t cum_keys_size_words() const {
-		return (num_buckets + 1 + (u_cum_keys >> l_cum_keys) + 63) / 64;
-	}
+	__inline size_t cum_keys_size_words() const { return (num_buckets + 1 + (u_cum_keys >> l_cum_keys) + 63) / 64; }
 
-	__inline size_t position_size_words() const {
-		return (num_buckets + 1 + (u_position >> l_position) + 63) / 64;
-	}
+	__inline size_t position_size_words() const { return (num_buckets + 1 + (u_position >> l_position) + 63) / 64; }
 
 	__inline size_t jump_size_words() const {
-		size_t size = (num_buckets / super_q) * super_q_size * 2; // Whole blocks
-	   if (num_buckets % super_q != 0) size += (1 + ((num_buckets % super_q + q - 1) / q + 3) / 4) * 2; // Partial block
-      return size;
+		size_t size = (num_buckets / super_q) * super_q_size * 2;                                        // Whole blocks
+		if (num_buckets % super_q != 0) size += (1 + ((num_buckets % super_q + q - 1) / q + 3) / 4) * 2; // Partial block
+		return size;
 	}
 
-public:
+  public:
 	DoubleEF() {}
-	DoubleEF(const std::vector<uint64_t>& cum_keys, const std::vector<uint64_t>& position);
+	DoubleEF(const std::vector<uint64_t> &cum_keys, const std::vector<uint64_t> &position);
 	~DoubleEF();
-	void get(const uint64_t i, uint64_t& cum_keys, uint64_t& position);
-	void get(const uint64_t i, uint64_t& cum_keys, uint64_t& cum_keys_next, uint64_t& position);
+	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &position);
+	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &cum_keys_next, uint64_t &position);
 	uint64_t bit_count_cum_keys();
 	uint64_t bit_count_position();
-	int dump(FILE* fp) const;
-	void load(FILE* fp);
+	int dump(FILE *fp) const;
+	void load(FILE *fp);
 };
 
-}
+} // namespace sux

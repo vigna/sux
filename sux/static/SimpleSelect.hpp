@@ -27,26 +27,23 @@ using namespace std;
 namespace sux {
 
 class SimpleSelect : public Select {
-private:
-  const uint64_t *bits;
-  int64_t *inventory;
-  uint64_t *exact_spill;
-  int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64,
-      log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64,
-      longwords_per_subinventory, longwords_per_inventory, ones_per_inventory_mask,
-      ones_per_sub16_mask, ones_per_sub64_mask;
+  private:
+	const uint64_t *bits;
+	int64_t *inventory;
+	uint64_t *exact_spill;
+	int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64, log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64, longwords_per_subinventory,
+		longwords_per_inventory, ones_per_inventory_mask, ones_per_sub16_mask, ones_per_sub64_mask;
 
-  uint64_t num_words, inventory_size, exact_spill_size, num_ones;
+	uint64_t num_words, inventory_size, exact_spill_size, num_ones;
 
-public:
-  SimpleSelect();
-  SimpleSelect(const uint64_t *const bits, const uint64_t num_bits,
-               const int max_log2_longwords_per_subinventory);
-  ~SimpleSelect();
-  size_t select(const uint64_t rank) const;
-  // Just for analysis purposes
-  void printCounts();
-  uint64_t bitCount();
+  public:
+	SimpleSelect();
+	SimpleSelect(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory);
+	~SimpleSelect();
+	size_t select(const uint64_t rank) const;
+	// Just for analysis purposes
+	void printCounts();
+	uint64_t bitCount();
 };
 
 } // namespace sux

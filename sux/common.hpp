@@ -38,9 +38,7 @@
 
 #define ONES_STEP_4 (UINT64_C(0x1111111111111111))
 #define ONES_STEP_8 (UINT64_C(0x0101010101010101))
-#define ONES_STEP_9                                                                                \
-  (UINT64_C(1) << 0 | UINT64_C(1) << 9 | UINT64_C(1) << 18 | UINT64_C(1) << 27 |                   \
-   UINT64_C(1) << 36 | UINT64_C(1) << 45 | UINT64_C(1) << 54)
+#define ONES_STEP_9 (UINT64_C(1) << 0 | UINT64_C(1) << 9 | UINT64_C(1) << 18 | UINT64_C(1) << 27 | UINT64_C(1) << 36 | UINT64_C(1) << 45 | UINT64_C(1) << 54)
 #define ONES_STEP_16 (UINT64_C(1) << 0 | UINT64_C(1) << 16 | UINT64_C(1) << 32 | UINT64_C(1) << 48)
 #define ONES_STEP_32 (UINT64_C(0x0000000100000001))
 #define MSBS_STEP_4 (UINT64_C(0x8) * ONES_STEP_4)
@@ -48,10 +46,8 @@
 #define MSBS_STEP_9 (UINT64_C(0x100) * ONES_STEP_9)
 #define MSBS_STEP_16 (UINT64_C(0x8000) * ONES_STEP_16)
 #define MSBS_STEP_32 (UINT64_C(0x8000000080000000))
-#define ULEQ_STEP_9(x, y)                                                                          \
-  (((((((y) | MSBS_STEP_9) - ((x) & ~MSBS_STEP_9)) | (x ^ y)) ^ (x & ~y)) & MSBS_STEP_9) >> 8)
-#define ULEQ_STEP_16(x, y)                                                                         \
-  (((((((y) | MSBS_STEP_16) - ((x) & ~MSBS_STEP_16)) | (x ^ y)) ^ (x & ~y)) & MSBS_STEP_16) >> 15)
+#define ULEQ_STEP_9(x, y) (((((((y) | MSBS_STEP_9) - ((x) & ~MSBS_STEP_9)) | (x ^ y)) ^ (x & ~y)) & MSBS_STEP_9) >> 8)
+#define ULEQ_STEP_16(x, y) (((((((y) | MSBS_STEP_16) - ((x) & ~MSBS_STEP_16)) | (x ^ y)) ^ (x & ~y)) & MSBS_STEP_16) >> 15)
 
 namespace sux {
 
@@ -92,9 +88,7 @@ using auint8_t = std::uint8_t __attribute__((__may_alias__));
  * Bitmask array used in fenwick::ByteL and fenwick::ByteF
  *
  */
-static constexpr uint64_t BYTE_MASK[] = {
-    0x0ULL,          0xFFULL,           0xFFFFULL,           0xFFFFFFULL,          0xFFFFFFFFULL,
-    0xFFFFFFFFFFULL, 0xFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
+static constexpr uint64_t BYTE_MASK[] = {0x0ULL, 0xFFULL, 0xFFFFULL, 0xFFFFFFULL, 0xFFFFFFFFULL, 0xFFFFFFFFFFULL, 0xFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
 
 /**
  * ceil_log2_plus1() - Static (i.e. computed in compile time) 1 + log2 rounded up.
@@ -118,82 +112,50 @@ int inline ceil_log2(const uint64_t x) { return x <= 2 ? x - 1 : 64 - __builtin_
  *
  */
 constexpr uint64_t round_pow2(uint64_t v) {
-  v--;
-  v |= v >> 1;
-  v |= v >> 2;
-  v |= v >> 4;
-  v |= v >> 8;
-  v |= v >> 16;
-  v |= v >> 32;
-  return v + 1;
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v |= v >> 32;
+	return v + 1;
 }
 
 // Required by select64
 constexpr uint8_t kSelectInByte[2048] = {
-    8, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    8, 8, 8, 1, 8, 2, 2, 1, 8, 3, 3, 1, 3, 2, 2, 1, 8, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    8, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    8, 6, 6, 1, 6, 2, 2, 1, 6, 3, 3, 1, 3, 2, 2, 1, 6, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    6, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    8, 7, 7, 1, 7, 2, 2, 1, 7, 3, 3, 1, 3, 2, 2, 1, 7, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    7, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    7, 6, 6, 1, 6, 2, 2, 1, 6, 3, 3, 1, 3, 2, 2, 1, 6, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    6, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
-    8, 8, 8, 8, 8, 8, 8, 2, 8, 8, 8, 3, 8, 3, 3, 2, 8, 8, 8, 4, 8, 4, 4, 2, 8, 4, 4, 3, 4, 3, 3, 2,
-    8, 8, 8, 5, 8, 5, 5, 2, 8, 5, 5, 3, 5, 3, 3, 2, 8, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
-    8, 8, 8, 6, 8, 6, 6, 2, 8, 6, 6, 3, 6, 3, 3, 2, 8, 6, 6, 4, 6, 4, 4, 2, 6, 4, 4, 3, 4, 3, 3, 2,
-    8, 6, 6, 5, 6, 5, 5, 2, 6, 5, 5, 3, 5, 3, 3, 2, 6, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
-    8, 8, 8, 7, 8, 7, 7, 2, 8, 7, 7, 3, 7, 3, 3, 2, 8, 7, 7, 4, 7, 4, 4, 2, 7, 4, 4, 3, 4, 3, 3, 2,
-    8, 7, 7, 5, 7, 5, 5, 2, 7, 5, 5, 3, 5, 3, 3, 2, 7, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
-    8, 7, 7, 6, 7, 6, 6, 2, 7, 6, 6, 3, 6, 3, 3, 2, 7, 6, 6, 4, 6, 4, 4, 2, 6, 4, 4, 3, 4, 3, 3, 2,
-    7, 6, 6, 5, 6, 5, 5, 2, 6, 5, 5, 3, 5, 3, 3, 2, 6, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 3, 8, 8, 8, 8, 8, 8, 8, 4, 8, 8, 8, 4, 8, 4, 4, 3,
-    8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 5, 8, 5, 5, 3, 8, 8, 8, 5, 8, 5, 5, 4, 8, 5, 5, 4, 5, 4, 4, 3,
-    8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 3, 8, 8, 8, 6, 8, 6, 6, 4, 8, 6, 6, 4, 6, 4, 4, 3,
-    8, 8, 8, 6, 8, 6, 6, 5, 8, 6, 6, 5, 6, 5, 5, 3, 8, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
-    8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 3, 8, 8, 8, 7, 8, 7, 7, 4, 8, 7, 7, 4, 7, 4, 4, 3,
-    8, 8, 8, 7, 8, 7, 7, 5, 8, 7, 7, 5, 7, 5, 5, 3, 8, 7, 7, 5, 7, 5, 5, 4, 7, 5, 5, 4, 5, 4, 4, 3,
-    8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 3, 8, 7, 7, 6, 7, 6, 6, 4, 7, 6, 6, 4, 6, 4, 4, 3,
-    8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 3, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 5, 8, 5, 5, 4,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 4,
-    8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 5, 8, 8, 8, 6, 8, 6, 6, 5, 8, 6, 6, 5, 6, 5, 5, 4,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 4,
-    8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 5, 8, 8, 8, 7, 8, 7, 7, 5, 8, 7, 7, 5, 7, 5, 5, 4,
-    8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6, 8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 4,
-    8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 5,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 5,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6,
-    8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6, 8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7};
+	8, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
+	8, 8, 8, 1, 8, 2, 2, 1, 8, 3, 3, 1, 3, 2, 2, 1, 8, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1, 8, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
+	8, 6, 6, 1, 6, 2, 2, 1, 6, 3, 3, 1, 3, 2, 2, 1, 6, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1, 6, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
+	8, 7, 7, 1, 7, 2, 2, 1, 7, 3, 3, 1, 3, 2, 2, 1, 7, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1, 7, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
+	7, 6, 6, 1, 6, 2, 2, 1, 6, 3, 3, 1, 3, 2, 2, 1, 6, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1, 6, 5, 5, 1, 5, 2, 2, 1, 5, 3, 3, 1, 3, 2, 2, 1, 5, 4, 4, 1, 4, 2, 2, 1, 4, 3, 3, 1, 3, 2, 2, 1,
+	8, 8, 8, 8, 8, 8, 8, 2, 8, 8, 8, 3, 8, 3, 3, 2, 8, 8, 8, 4, 8, 4, 4, 2, 8, 4, 4, 3, 4, 3, 3, 2, 8, 8, 8, 5, 8, 5, 5, 2, 8, 5, 5, 3, 5, 3, 3, 2, 8, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
+	8, 8, 8, 6, 8, 6, 6, 2, 8, 6, 6, 3, 6, 3, 3, 2, 8, 6, 6, 4, 6, 4, 4, 2, 6, 4, 4, 3, 4, 3, 3, 2, 8, 6, 6, 5, 6, 5, 5, 2, 6, 5, 5, 3, 5, 3, 3, 2, 6, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
+	8, 8, 8, 7, 8, 7, 7, 2, 8, 7, 7, 3, 7, 3, 3, 2, 8, 7, 7, 4, 7, 4, 4, 2, 7, 4, 4, 3, 4, 3, 3, 2, 8, 7, 7, 5, 7, 5, 5, 2, 7, 5, 5, 3, 5, 3, 3, 2, 7, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
+	8, 7, 7, 6, 7, 6, 6, 2, 7, 6, 6, 3, 6, 3, 3, 2, 7, 6, 6, 4, 6, 4, 4, 2, 6, 4, 4, 3, 4, 3, 3, 2, 7, 6, 6, 5, 6, 5, 5, 2, 6, 5, 5, 3, 5, 3, 3, 2, 6, 5, 5, 4, 5, 4, 4, 2, 5, 4, 4, 3, 4, 3, 3, 2,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 3, 8, 8, 8, 8, 8, 8, 8, 4, 8, 8, 8, 4, 8, 4, 4, 3, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 5, 8, 5, 5, 3, 8, 8, 8, 5, 8, 5, 5, 4, 8, 5, 5, 4, 5, 4, 4, 3,
+	8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 3, 8, 8, 8, 6, 8, 6, 6, 4, 8, 6, 6, 4, 6, 4, 4, 3, 8, 8, 8, 6, 8, 6, 6, 5, 8, 6, 6, 5, 6, 5, 5, 3, 8, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+	8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 3, 8, 8, 8, 7, 8, 7, 7, 4, 8, 7, 7, 4, 7, 4, 4, 3, 8, 8, 8, 7, 8, 7, 7, 5, 8, 7, 7, 5, 7, 5, 5, 3, 8, 7, 7, 5, 7, 5, 5, 4, 7, 5, 5, 4, 5, 4, 4, 3,
+	8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 3, 8, 7, 7, 6, 7, 6, 6, 4, 7, 6, 6, 4, 6, 4, 4, 3, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 3, 7, 6, 6, 5, 6, 5, 5, 4, 6, 5, 5, 4, 5, 4, 4, 3,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8, 8, 5, 8, 5, 5, 4,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 4, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 5, 8, 8, 8, 6, 8, 6, 6, 5, 8, 6, 6, 5, 6, 5, 5, 4,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 4, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 5, 8, 8, 8, 7, 8, 7, 7, 5, 8, 7, 7, 5, 7, 5, 5, 4,
+	8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6, 8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 4, 8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5, 8, 7, 7, 6, 7, 6, 6, 5, 7, 6, 6, 5, 6, 5, 5, 4,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 5,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 8, 8, 8, 8, 6, 8, 8, 8, 6, 8, 6, 6, 5,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 5,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6, 8, 8, 8, 7, 8, 7, 7, 6, 8, 7, 7, 6, 7, 6, 6, 5,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 6,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 8, 8, 8, 8, 7, 8, 8, 8, 7, 8, 7, 7, 6,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7};
 
 /**
  * rho - Find the index of the least significant 1-bit in a word.
@@ -236,9 +198,9 @@ inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_c
  */
 inline uint64_t clear_rho(uint64_t word) {
 #ifdef __haswell__
-  return _blsr_u64(word);
+	return _blsr_u64(word);
 #else
-  return word & (word - 1);
+	return word & (word - 1);
 #endif
 }
 
@@ -258,9 +220,7 @@ inline uint64_t mask_rho(uint64_t word) { return word & (-word); }
  * Undefined behavior when @word is zero.
  *
  */
-inline uint64_t mask_lambda(uint64_t word) {
-  return 0x8000000000000000ULL >> __builtin_clzll(word);
-}
+inline uint64_t mask_lambda(uint64_t word) { return 0x8000000000000000ULL >> __builtin_clzll(word); }
 
 /**
  * compact_bitmask - Generate a compact bitmask.
@@ -271,27 +231,22 @@ inline uint64_t mask_lambda(uint64_t word) {
  * one. If @pos is zero the bitmask has its @count least significant bits setted to one.
  *
  */
-inline uint64_t compact_bitmask(size_t count, size_t pos) {
-  return (-(count != 0ULL)) & (UINT64_MAX >> (64 - count)) << pos;
-}
-
+inline uint64_t compact_bitmask(size_t count, size_t pos) { return (-(count != 0ULL)) & (UINT64_MAX >> (64 - count)) << pos; }
 
 static inline uint64_t remap16(uint64_t x, uint64_t n) {
-    static const int masklen = 48;
-    static const uint64_t mask = (uint64_t(1) << masklen) - 1;
-    return ((x & mask) * n) >> masklen;
+	static const int masklen = 48;
+	static const uint64_t mask = (uint64_t(1) << masklen) - 1;
+	return ((x & mask) * n) >> masklen;
 }
 
 static inline uint64_t remap128(uint64_t x, uint64_t n) {
 #ifdef __SIZEOF_INT128__
-    return (uint64_t)(((__uint128_t)x * (__uint128_t)n) >> 64);
+	return (uint64_t)(((__uint128_t)x * (__uint128_t)n) >> 64);
 #else
-    // Less than 2^32 keys
-    return (uint32_t)x * n >> 32;
+	// Less than 2^32 keys
+	return (uint32_t)x * n >> 32;
 #endif // __SIZEOF_INT128__
 }
-
-
 
 /**
  * bitextract - Extract consecutives bits in a word.
@@ -304,86 +259,86 @@ static inline uint64_t remap128(uint64_t x, uint64_t n) {
  *
  */
 inline uint64_t bitextract(const uint64_t *word, int from, int length) {
-  if (likely((from + length) <= 64))
-    return (word[0] >> from) & (-1ULL >> (64 - length));
-  else
-    return (word[0] >> from) | ((word[1] << (128 - from - length)) >> (64 - from));
+	if (likely((from + length) <= 64))
+		return (word[0] >> from) & (-1ULL >> (64 - length));
+	else
+		return (word[0] >> from) | ((word[1] << (128 - from - length)) >> (64 - from));
 }
 
 inline uint64_t byteread(const void *const word, int length) {
-  uint64_t ret;
-  memcpy(&ret, word, sizeof(uint64_t));
-  return ret & BYTE_MASK[length];
+	uint64_t ret;
+	memcpy(&ret, word, sizeof(uint64_t));
+	return ret & BYTE_MASK[length];
 }
 
 inline void bytewrite(void *const word, int length, uint64_t val) {
-  uint64_t old;
-  memcpy(&old, word, sizeof(uint64_t));
+	uint64_t old;
+	memcpy(&old, word, sizeof(uint64_t));
 
-  old = (old & ~BYTE_MASK[length]) | (val & BYTE_MASK[length]);
-  memcpy(word, &old, sizeof(uint64_t));
+	old = (old & ~BYTE_MASK[length]) | (val & BYTE_MASK[length]);
+	memcpy(word, &old, sizeof(uint64_t));
 }
 
 inline void bytewrite_inc(void *const word, uint64_t inc) {
-  uint64_t value;
-  memcpy(&value, word, sizeof(uint64_t));
-  value += inc;
-  memcpy(word, &value, sizeof(uint64_t));
+	uint64_t value;
+	memcpy(&value, word, sizeof(uint64_t));
+	value += inc;
+	memcpy(word, &value, sizeof(uint64_t));
 }
 
 inline uint64_t bitread(const void *const word, int from, int length) {
-  uint64_t ret;
-  memcpy(&ret, word, sizeof(uint64_t));
+	uint64_t ret;
+	memcpy(&ret, word, sizeof(uint64_t));
 
-  if (likely((from + length) <= 64)) {
-    return (ret >> from) & (-1ULL >> (64 - length));
-  } else {
-    uint64_t next;
-    memcpy(&next, static_cast<const uint64_t *>(word) + 1, sizeof(uint64_t));
-    return (ret >> from) | (next << (128 - from - length) >> (64 - length));
-  }
+	if (likely((from + length) <= 64)) {
+		return (ret >> from) & (-1ULL >> (64 - length));
+	} else {
+		uint64_t next;
+		memcpy(&next, static_cast<const uint64_t *>(word) + 1, sizeof(uint64_t));
+		return (ret >> from) | (next << (128 - from - length) >> (64 - length));
+	}
 }
 
 inline void bitwrite(void *word, int from, int length, uint64_t val) {
-  uint64_t old;
-  memcpy(&old, word, sizeof(uint64_t));
-  assert(length == 64 || val < (1ULL << length));
+	uint64_t old;
+	memcpy(&old, word, sizeof(uint64_t));
+	assert(length == 64 || val < (1ULL << length));
 
-  if (likely((from + length) <= 64)) {
-    const uint64_t mask = (-1ULL >> (64 - length)) << from;
-    old = (old & ~mask) | (val << from);
-    memcpy(word, &old, sizeof(uint64_t));
-  } else {
-    const uint64_t maskw = -1ULL << from;
-    old = (old & ~maskw) | (val << from);
-    memcpy(word, &old, sizeof(uint64_t));
+	if (likely((from + length) <= 64)) {
+		const uint64_t mask = (-1ULL >> (64 - length)) << from;
+		old = (old & ~mask) | (val << from);
+		memcpy(word, &old, sizeof(uint64_t));
+	} else {
+		const uint64_t maskw = -1ULL << from;
+		old = (old & ~maskw) | (val << from);
+		memcpy(word, &old, sizeof(uint64_t));
 
-    uint64_t next;
-    memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
-    const uint64_t maskb = -1ULL >> (128 - from - length);
-    next = (next & ~maskb) | (val >> (64 - from));
-    memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
-  }
+		uint64_t next;
+		memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
+		const uint64_t maskb = -1ULL >> (128 - from - length);
+		next = (next & ~maskb) | (val >> (64 - from));
+		memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
+	}
 }
 
 inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
-  uint64_t value;
-  memcpy(&value, word, sizeof(uint64_t));
-  const uint64_t sum = (value >> from) + inc;
-  const uint64_t carry = from > 0 ? sum >> (64 - from) : 0;
+	uint64_t value;
+	memcpy(&value, word, sizeof(uint64_t));
+	const uint64_t sum = (value >> from) + inc;
+	const uint64_t carry = from > 0 ? sum >> (64 - from) : 0;
 
-  if (likely((from + length) <= 64 || carry == 0)) {
-    value += inc << from;
-    memcpy(word, &value, sizeof(uint64_t));
-  } else {
-    value = from > 0 ? (value & (-1ULL >> (64 - from))) | (sum << from) : (sum << from);
-    memcpy(word, &value, sizeof(uint64_t));
+	if (likely((from + length) <= 64 || carry == 0)) {
+		value += inc << from;
+		memcpy(word, &value, sizeof(uint64_t));
+	} else {
+		value = from > 0 ? (value & (-1ULL >> (64 - from))) | (sum << from) : (sum << from);
+		memcpy(word, &value, sizeof(uint64_t));
 
-    uint64_t next;
-    memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
-    next += carry;
-    memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
-  }
+		uint64_t next;
+		memcpy(&next, static_cast<uint64_t *>(word) + 1, sizeof(uint64_t));
+		next += carry;
+		memcpy(static_cast<uint64_t *>(word) + 1, &next, sizeof(uint64_t));
+	}
 }
 
 /**
@@ -399,9 +354,7 @@ inline int nu(uint64_t word) { return __builtin_popcountll(word); }
  * @multiple: Power of two to which you want to round @number.
  *
  */
-inline uint64_t mround(uint64_t number, uint64_t multiple) {
-  return ((number - 1) | (multiple - 1)) + 1;
-}
+inline uint64_t mround(uint64_t number, uint64_t multiple) { return ((number - 1) | (multiple - 1)) + 1; }
 
 /**
  * updroot - Grandest grandparent parent of a node in the update tree.
@@ -409,9 +362,7 @@ inline uint64_t mround(uint64_t number, uint64_t multiple) {
  * @n: Size of the Fenwick tree.
  *
  */
-inline size_t updroot(size_t j, size_t n) {
-  return n & (SIZE_MAX << lambda((j ^ n) | mask_rho(j)));
-}
+inline size_t updroot(size_t j, size_t n) { return n & (SIZE_MAX << lambda((j ^ n) | mask_rho(j))); }
 
 /**
  * select64 - Returns the index of the k-th 1-bit in the 64-bit word x.
@@ -433,33 +384,33 @@ inline size_t updroot(size_t j, size_t n) {
  */
 inline uint64_t select64(uint64_t x, uint64_t k) {
 #ifndef __haswell__
-  constexpr uint64_t kOnesStep4 = 0x1111111111111111ULL;
-  constexpr uint64_t kOnesStep8 = 0x0101010101010101ULL;
-  constexpr uint64_t kLAMBDAsStep8 = 0x80ULL * kOnesStep8;
+	constexpr uint64_t kOnesStep4 = 0x1111111111111111ULL;
+	constexpr uint64_t kOnesStep8 = 0x0101010101010101ULL;
+	constexpr uint64_t kLAMBDAsStep8 = 0x80ULL * kOnesStep8;
 
-  auto s = x;
-  s = s - ((s & 0xA * kOnesStep4) >> 1);
-  s = (s & 0x3 * kOnesStep4) + ((s >> 2) & 0x3 * kOnesStep4);
-  s = (s + (s >> 4)) & 0xF * kOnesStep8;
-  uint64_t byteSums = s * kOnesStep8;
+	auto s = x;
+	s = s - ((s & 0xA * kOnesStep4) >> 1);
+	s = (s & 0x3 * kOnesStep4) + ((s >> 2) & 0x3 * kOnesStep4);
+	s = (s + (s >> 4)) & 0xF * kOnesStep8;
+	uint64_t byteSums = s * kOnesStep8;
 
-  uint64_t kStep8 = k * kOnesStep8;
-  uint64_t geqKStep8 = (((kStep8 | kLAMBDAsStep8) - byteSums) & kLAMBDAsStep8);
-  uint64_t place = nu(geqKStep8) * 8;
-  uint64_t byteRank = k - (((byteSums << 8) >> place) & uint64_t(0xFF));
-  return place + kSelectInByte[((x >> place) & 0xFF) | (byteRank << 8)];
+	uint64_t kStep8 = k * kOnesStep8;
+	uint64_t geqKStep8 = (((kStep8 | kLAMBDAsStep8) - byteSums) & kLAMBDAsStep8);
+	uint64_t place = nu(geqKStep8) * 8;
+	uint64_t byteRank = k - (((byteSums << 8) >> place) & uint64_t(0xFF));
+	return place + kSelectInByte[((x >> place) & 0xFF) | (byteRank << 8)];
 #elif defined(__GNUC__) || defined(__clang__)
-  // GCC and Clang won't inline the intrinsics.
-  uint64_t result = uint64_t(1) << k;
+	// GCC and Clang won't inline the intrinsics.
+	uint64_t result = uint64_t(1) << k;
 
-  asm("pdep %1, %0, %0\n\t"
-      "tzcnt %0, %0"
-      : "+r"(result)
-      : "r"(x));
+	asm("pdep %1, %0, %0\n\t"
+		"tzcnt %0, %0"
+		: "+r"(result)
+		: "r"(x));
 
-  return result;
+	return result;
 #else
-  return _tzcnt_u64(_pdep_u64(1ULL << k, x));
+	return _tzcnt_u64(_pdep_u64(1ULL << k, x));
 #endif
 }
 
@@ -468,12 +419,12 @@ inline uint64_t select64(uint64_t x, uint64_t k) {
  *
  */
 bool inline is_big_endian(void) {
-  union {
-    uint32_t i;
-    char c[4];
-  } bint = {0x01020304};
+	union {
+		uint32_t i;
+		char c[4];
+	} bint = {0x01020304};
 
-  return bint.c[0] == 1;
+	return bint.c[0] == 1;
 }
 
 /**
@@ -486,26 +437,22 @@ bool inline is_little_endian(void) { return !is_big_endian(); }
  * @value: Integral value (sizeof 1, 2, 4 or 8 bytes)
  *
  */
-template <class T>
-typename std::enable_if<std::is_integral<T>::value, T>::type swap_endian(T value) {
-  switch (sizeof(T)) {
-  case 1:
-    return value;
-  case 2:
-    return ((uint16_t)swap_endian<std::uint8_t>(value & 0x00ff) << 8) |
-           (uint16_t)swap_endian<std::uint8_t>(value >> 8);
-  case 4:
-    return ((uint32_t)swap_endian<std::uint16_t>(value & 0x0000ffff) << 16) |
-           (uint32_t)swap_endian<std::uint16_t>(value >> 16);
-  case 8:
+template <class T> typename std::enable_if<std::is_integral<T>::value, T>::type swap_endian(T value) {
+	switch (sizeof(T)) {
+	case 1:
+		return value;
+	case 2:
+		return ((uint16_t)swap_endian<std::uint8_t>(value & 0x00ff) << 8) | (uint16_t)swap_endian<std::uint8_t>(value >> 8);
+	case 4:
+		return ((uint32_t)swap_endian<std::uint16_t>(value & 0x0000ffff) << 16) | (uint32_t)swap_endian<std::uint16_t>(value >> 16);
+	case 8:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wshift-count-overflow"
-    return ((uint64_t)swap_endian<std::uint32_t>(value & 0x00000000ffffffffULL) << 32) |
-           (uint64_t)swap_endian<std::uint32_t>(value >> 32);
+		return ((uint64_t)swap_endian<std::uint32_t>(value & 0x00000000ffffffffULL) << 32) | (uint64_t)swap_endian<std::uint32_t>(value >> 32);
 #pragma GCC diagnostic pop
-  default:
-    assert(false && "unsupported size");
-  }
+	default:
+		assert(false && "unsupported size");
+	}
 }
 
 /**

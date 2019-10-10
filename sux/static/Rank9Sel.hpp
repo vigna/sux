@@ -27,22 +27,21 @@
 namespace sux {
 
 class Rank9Sel : public Rank, public Select {
-private:
-  const size_t num_bits;
-  const uint64_t *bits;
-  uint64_t *counts, *inventory, *subinventory;
-  uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory,
-      num_ones;
+  private:
+	const size_t num_bits;
+	const uint64_t *bits;
+	uint64_t *counts, *inventory, *subinventory;
+	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
 
-public:
-  Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
-  ~Rank9Sel();
+  public:
+	Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
+	~Rank9Sel();
 
-  uint64_t rank(const size_t pos) const;
-  size_t select(const uint64_t rank) const;
-  size_t size() const;
+	uint64_t rank(const size_t pos) const;
+	size_t select(const uint64_t rank) const;
+	size_t size() const;
 
-  uint64_t bitCount();
+	uint64_t bitCount();
 };
 
 } // namespace sux

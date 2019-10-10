@@ -27,21 +27,21 @@ namespace sux {
 using namespace std;
 
 class SimpleSelectZeroHalf {
-private:
-  const uint64_t *bits;
-  int64_t *inventory;
+  private:
+	const uint64_t *bits;
+	int64_t *inventory;
 
-  uint64_t num_words, inventory_size, num_ones;
+	uint64_t num_words, inventory_size, num_ones;
 
-public:
-  SimpleSelectZeroHalf();
-  SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
-  ~SimpleSelectZeroHalf();
-  uint64_t selectZero(const uint64_t rank);
-  uint64_t selectZero(const uint64_t rank, uint64_t *const next);
-  // Just for analysis purposes
-  void printCounts();
-  uint64_t bitCount();
+  public:
+	SimpleSelectZeroHalf();
+	SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
+	~SimpleSelectZeroHalf();
+	uint64_t selectZero(const uint64_t rank);
+	uint64_t selectZero(const uint64_t rank, uint64_t *const next);
+	// Just for analysis purposes
+	void printCounts();
+	uint64_t bitCount();
 };
 
 } // namespace sux

@@ -32,129 +32,121 @@ enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE };
 
 template <typename T, PageType PT = TRANSHUGE> class Vector {
 
-public:
-  static constexpr int PROT = PROT_READ | PROT_WRITE;
-  static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (PT == HUGETLBPAGE ? MAP_HUGETLB : 0);
+  public:
+	static constexpr int PROT = PROT_READ | PROT_WRITE;
+	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (PT == HUGETLBPAGE ? MAP_HUGETLB : 0);
 
-private:
-  size_t Size = 0, Capacity = 0;
-  T *Data = nullptr;
+  private:
+	size_t Size = 0, Capacity = 0;
+	T *Data = nullptr;
 
-public:
-  Vector<T, PT>() = default;
+  public:
+	Vector<T, PT>() = default;
 
-  explicit Vector<T, PT>(size_t size) { resize(size); }
+	explicit Vector<T, PT>(size_t size) { resize(size); }
 
-  ~Vector<T, PT>() {
-    if (Data) {
-      int result = munmap(Data, Capacity);
-      assert(result == 0 && "mmunmap failed");
-    }
-  }
+	~Vector<T, PT>() {
+		if (Data) {
+			int result = munmap(Data, Capacity);
+			assert(result == 0 && "mmunmap failed");
+		}
+	}
 
-  Vector(Vector<T, PT> &&oth)
-      : Size(std::exchange(oth.Size, 0)), Capacity(std::exchange(oth.Capacity, 0)),
-        Data(std::exchange(oth.Data, nullptr)) {}
+	Vector(Vector<T, PT> &&oth) : Size(std::exchange(oth.Size, 0)), Capacity(std::exchange(oth.Capacity, 0)), Data(std::exchange(oth.Data, nullptr)) {}
 
-  Vector<T, PT> &operator=(Vector<T, PT> &&oth) {
-    swap(*this, oth);
-    return *this;
-  }
+	Vector<T, PT> &operator=(Vector<T, PT> &&oth) {
+		swap(*this, oth);
+		return *this;
+	}
 
-  void reserve(size_t size) {
-    if (size * sizeof(T) > Capacity)
-      remap(size);
-  }
+	void reserve(size_t size) {
+		if (size * sizeof(T) > Capacity) remap(size);
+	}
 
-  void resize(size_t size) {
-    if (size * sizeof(T) > Capacity)
-      reserve(1ULL << (lambda(size) + 1));
-    Size = size;
-  }
+	void resize(size_t size) {
+		if (size * sizeof(T) > Capacity) reserve(1ULL << (lambda(size) + 1));
+		Size = size;
+	}
 
-  void shrink(size_t size) {
-    if (size * sizeof(T) < Capacity)
-      remap(size);
-  }
+	void shrink(size_t size) {
+		if (size * sizeof(T) < Capacity) remap(size);
+	}
 
-  // TODO: perfect forwarding or something?
-  void pushBack(T elem) {
-    std::cout << "Pushing Back" << std::endl;
-    if (++Size > Capacity)
-      reserve(Capacity != 0 ? Capacity * 2 : 32);
+	// TODO: perfect forwarding or something?
+	void pushBack(T elem) {
+		std::cout << "Pushing Back" << std::endl;
+		if (++Size > Capacity) reserve(Capacity != 0 ? Capacity * 2 : 32);
 
-    Data[Size] = elem;
-  }
+		Data[Size] = elem;
+	}
 
-  T popBack() { return Data[--Size]; }
+	T popBack() { return Data[--Size]; }
 
-  friend void swap(Vector<T, PT> &first, Vector<T, PT> &second) noexcept {
-    std::swap(first.Size, second.Size);
-    std::swap(first.Capacity, second.Capacity);
-    std::swap(first.Data, second.Data);
-  }
+	friend void swap(Vector<T, PT> &first, Vector<T, PT> &second) noexcept {
+		std::swap(first.Size, second.Size);
+		std::swap(first.Capacity, second.Capacity);
+		std::swap(first.Data, second.Data);
+	}
 
-  inline T *get() const { return Data; }
+	inline T *get() const { return Data; }
 
-  inline T &operator[](size_t i) const { return Data[i]; };
+	inline T &operator[](size_t i) const { return Data[i]; };
 
-  inline size_t size() const { return Size; }
+	inline size_t size() const { return Size; }
 
-  inline size_t capacity() const { return Capacity; }
+	inline size_t capacity() const { return Capacity; }
 
-  size_t bitCount() const { return sizeof(Vector<T, PT>) * 8 + Capacity * 8; }
+	size_t bitCount() const { return sizeof(Vector<T, PT>) * 8 + Capacity * 8; }
 
-private:
-  static size_t page_aligned(size_t size) {
-    if (PT == HUGETLBPAGE)
-      return ((2 * 1024 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
-    else
-      return ((4 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
-  }
+  private:
+	static size_t page_aligned(size_t size) {
+		if (PT == HUGETLBPAGE)
+			return ((2 * 1024 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
+		else
+			return ((4 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
+	}
 
-  void remap(size_t size) {
-    if (size == 0)
-      return;
+	void remap(size_t size) {
+		if (size == 0) return;
 
-    size_t space = page_aligned(size);
-    void *mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0)
-                              : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
-    assert(mem != MAP_FAILED && "mmap failed");
+		size_t space = page_aligned(size);
+		void *mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
+		assert(mem != MAP_FAILED && "mmap failed");
 
-    if (PT == TRANSHUGE) {
-      int adv = madvise(mem, space, MADV_HUGEPAGE);
-      assert(adv == 0 && "madvise failed");
-    }
+		if (PT == TRANSHUGE) {
+			int adv = madvise(mem, space, MADV_HUGEPAGE);
+			assert(adv == 0 && "madvise failed");
+		}
 
-    Capacity = space;
-    Data = static_cast<T *>(mem);
-  }
+		Capacity = space;
+		Data = static_cast<T *>(mem);
+	}
 
-  friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {
-    const uint64_t nsize = hton(static_cast<uint64_t>(vector.Size));
-    os.write((char *)&nsize, sizeof(uint64_t));
+	friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {
+		const uint64_t nsize = hton(static_cast<uint64_t>(vector.Size));
+		os.write((char *)&nsize, sizeof(uint64_t));
 
-    for (size_t i = 0; i < vector.Size; ++i) {
-      const T value = hton(vector[i]);
-      os.write((char *)&value, sizeof(T));
-    }
+		for (size_t i = 0; i < vector.Size; ++i) {
+			const T value = hton(vector[i]);
+			os.write((char *)&value, sizeof(T));
+		}
 
-    return os;
-  }
+		return os;
+	}
 
-  friend std::istream &operator>>(std::istream &is, Vector<T, PT> &vector) {
-    uint64_t nsize;
-    is.read((char *)&nsize, sizeof(uint64_t));
+	friend std::istream &operator>>(std::istream &is, Vector<T, PT> &vector) {
+		uint64_t nsize;
+		is.read((char *)&nsize, sizeof(uint64_t));
 
-    vector = Vector<T, PT>(ntoh(nsize));
+		vector = Vector<T, PT>(ntoh(nsize));
 
-    for (size_t i = 0; i < vector.size(); ++i) {
-      is.read((char *)&vector[i], sizeof(T));
-      vector[i] = ntoh(vector[i]);
-    }
+		for (size_t i = 0; i < vector.size(); ++i) {
+			is.read((char *)&vector[i], sizeof(T));
+			vector[i] = ntoh(vector[i]);
+		}
 
-    return is;
-  }
+		return is;
+	}
 };
 
 } // namespace sux
