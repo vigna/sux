@@ -103,7 +103,7 @@ template <size_t BOUND> class ByteL : public FenwickTree {
 
 			idx <<= 1;
 
-			if (pos + isize >= Tree[height].size()) continue;
+			if (pos >= Tree[height].size()) continue;
 
 			const uint64_t value = byteread(&Tree[height][pos], isize);
 
@@ -127,7 +127,7 @@ template <size_t BOUND> class ByteL : public FenwickTree {
 
 			idx <<= 1;
 
-			if (pos + isize >= Tree[height].size()) continue;
+			if (pos >= Tree[height].size()) continue;
 
 			const uint64_t value = (BOUND << height) - byteread(&Tree[height][pos], isize);
 

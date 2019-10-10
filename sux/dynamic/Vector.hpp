@@ -72,11 +72,8 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 		if (size * sizeof(T) < Capacity) remap(size);
 	}
 
-	// TODO: perfect forwarding or something?
 	void pushBack(T elem) {
-		std::cout << "Pushing Back" << std::endl;
-		if (++Size > Capacity) reserve(Capacity != 0 ? Capacity * 2 : 32);
-
+		resize(++Size);
 		Data[Size] = elem;
 	}
 
