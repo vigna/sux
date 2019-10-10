@@ -6,7 +6,7 @@ bin/dynamic: test/dynamic/*
 
 bin/static: test/static/* 
 	@mkdir -p bin
-	$(CC) test/static/test.cpp sux/static/Rank9.cpp sux/static/Rank9Sel.cpp sux/static/SimpleSelect.cpp sux/static/SimpleSelectZero.cpp sux/static/SimpleSelectHalf.cpp sux/static/SimpleSelectZeroHalf.cpp sux/static/EliasFano.cpp sux/static/BalParen.cpp -o bin/static
+	$(CC) test/static/test.cpp sux/static/Rank9.cpp sux/static/Rank9Sel.cpp sux/static/SimpleSelect.cpp sux/static/SimpleSelectZero.cpp sux/static/SimpleSelectHalf.cpp sux/static/SimpleSelectZeroHalf.cpp sux/static/EliasFano.cpp -o bin/static
 
 test: bin/static bin/dynamic
 	./bin/static --gtest_color=yes

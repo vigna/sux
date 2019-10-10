@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <random>
-#include "sux/static/RiceBitCector.hpp"
+#include "sux/static/RiceBitvector.hpp"
 
 using namespace std;
 

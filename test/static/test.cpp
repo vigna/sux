@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "../xoroshiro128pp.hpp"
-#include "balparen.hpp"
 #include "rankselect.hpp"
 #include "ricebitvector.hpp"
 #include "recsplit.hpp"

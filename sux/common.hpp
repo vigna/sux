@@ -235,7 +235,7 @@ inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_c
  *
  */
 inline uint64_t clear_rho(uint64_t word) {
-#ifndef __haswell__
+#ifdef __haswell__
   return _blsr_u64(word);
 #else
   return word & (word - 1);
