@@ -32,10 +32,6 @@
 #define LOG2_ONES_PER_INVENTORY (9)
 #define INVENTORY_MASK (ONES_PER_INVENTORY - 1)
 
-#ifdef COUNTS
-uint64_t single, one_level, two_levels, shorts, longs, longlongs;
-#endif
-
 using namespace sux;
 
 Rank9Sel::Rank9Sel(const uint64_t *const bits, const uint64_t num_bits)
@@ -227,9 +223,6 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     printf("Single span; rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", rank_in_block,
            block_left);
 #endif
-#ifdef COUNTS
-    single++;
-#endif
   } else if (span < 16) {
     block_left &= ~7;
     count_left = block_left / 4 & ~1;
@@ -256,9 +249,6 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     printf("Found where (1): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where,
            rank_in_block, block_left);
     printf("supercounts: %016" PRIx64 " %016" PRIx64 "\n", s[0], s[1]);
-#endif
-#ifdef COUNTS
-    one_level++;
 #endif
   } else if (span < 128) {
     block_left &= ~7;
@@ -287,23 +277,11 @@ size_t Rank9Sel::select(const uint64_t rank) const {
     printf("Found where (2): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where1,
            rank_in_block, block_left);
 #endif
-#ifdef COUNTS
-    two_levels++;
-#endif
   } else if (span < 256) {
-#ifdef COUNTS
-    shorts++;
-#endif
     return ((uint16_t *)s)[rank % ONES_PER_INVENTORY] + inventory_left;
   } else if (span < 512) {
-#ifdef COUNTS
-    longs++;
-#endif
     return ((uint32_t *)s)[rank % ONES_PER_INVENTORY] + inventory_left;
   } else {
-#ifdef COUNTS
-    longlongs++;
-#endif
     return s[rank % ONES_PER_INVENTORY];
   }
 
