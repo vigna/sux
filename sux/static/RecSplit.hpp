@@ -219,6 +219,14 @@ static constexpr array<uint8_t, MAX_LEAF_SIZE> fill_bij_midstop() {
 #define skip_bits(m) (memo[m] & 0xFFFF)
 #define skip_nodes(m) ((memo[m] >> 16) & 0x7FF)
 
+/**
+ *
+ * A class for storing minimal perfect hash functions. The template
+ * parameter decides how large a leaf will be. Larger leaves imply
+ * slower construction, but less space and faster evaluation. 
+ *
+ */
+
 template <size_t LEAF_SIZE> class RecSplit {
 	using SplitStrat = SplittingStrategy<LEAF_SIZE>;
 
