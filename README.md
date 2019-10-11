@@ -1,7 +1,7 @@
 Sux
 ===
 
-Welcome to the C++ part of the sux project.
+Welcome to the C++ part of the [sux](http://sux.di.unimi.it/) project.
 
 Available classes
 -----------------
