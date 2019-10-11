@@ -1,4 +1,4 @@
-<CC = g++ -g -std=c++17 -Wall -Wextra -O0 -march=native -lgtest -I./ -fsanitize=address -fsanitize=undefined
+CC = g++ -g -std=c++17 -Wall -Wextra -O0 -march=native -l gtest -I./ -fsanitize=address -fsanitize=undefined
 
 bin/dynamic: test/dynamic/* 
 	@mkdir -p bin

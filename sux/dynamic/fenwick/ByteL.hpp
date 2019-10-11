@@ -97,7 +97,7 @@ template <size_t BOUND> class ByteL : public FenwickTree {
 	virtual size_t find(uint64_t *val) const {
 		size_t node = 0, idx = 0;
 
-		for (int height = Levels - 1; height != SIZE_MAX; height--) {
+		for (size_t height = Levels - 1; height != SIZE_MAX; height--) {
 			const size_t isize = heightsize(height);
 			const size_t pos = idx * heightsize(height);
 
