@@ -45,8 +45,8 @@ half-almost-empty-half-almost-full arrays.
 
 For RecSplit, we provide dump/load binaries which dump on disk a minimal
 perfect hash function, and test it. The standard version uses a keys file for
-the keys, whereas the `128` uses 128-bit random keys. We suggest the latter for
-benchmarking as in any case the first step in RecSplit construction is mapping
-to 128-bit hashes.
+the keys, whereas the “128” version uses 128-bit random keys. We suggest the
+latter for benchmarking as in any case the first step in RecSplit construction
+is mapping to 128-bit hashes.
 
 seba (<mailto:sebastiano.vigna@unimi.it>)
