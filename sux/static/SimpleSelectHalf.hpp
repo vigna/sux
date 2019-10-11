@@ -20,8 +20,6 @@
 
 #pragma once
 
-using namespace std;
-
 #include "../Select.hpp"
 #include <cstdint>
 
