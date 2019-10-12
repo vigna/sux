@@ -277,6 +277,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 
   public:
 	/** Builds a RecSplit instance using a given list of keys and bucket size.
+	 *
+	 * **Warning**: duplicate keys will cause this method to never return.
+	 *
 	 * @param keys a vector of strings.
 	 * @param bucket_size the desired bucket size.
 	 */
@@ -293,6 +296,8 @@ template <size_t LEAF_SIZE> class RecSplit {
 
 	/** Builds a RecSplit instance using a given list of 128-bit hashes and bucket size.
 	 *
+	 * **Warning**: duplicate keys will cause this method to never return.
+	 *
 	 * Note that this constructor is mainly useful for benchmarking.
 	 * @param keys a vector of 128-bit hashes.
 	 * @param bucket_size the desired bucket size.
@@ -304,6 +309,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 	}
 
 	/** Builds a RecSplit instance using a list of keys returned by a file and bucket size.
+	 *
+	 * **Warning**: duplicate keys will cause this method to never return.
+	 *
 	 * @param keys_hp an open file returning a list of keys, one per line.
 	 * @param bucket_size the desired bucket size.
 	 */
