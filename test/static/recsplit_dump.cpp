@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 	auto begin = chrono::high_resolution_clock::now();
 	sux::RecSplit<LEAF> rs(keys_fp, bucket_size);
 	auto elapsed = chrono::duration_cast<std::chrono::nanoseconds>(chrono::high_resolution_clock::now() - begin).count();
-	printf("Construction time: %.3f s, %.0f ns/key\n", elapsed * 1E-9, elapsed / (double)rs.get_keycount());
+	printf("Construction time: %.3f s, %.0f ns/key\n", elapsed * 1E-9, elapsed / (double)rs.size());
 
 	FILE *fp = fopen(argv[3], "w");
 	rs.dump(fp);

@@ -59,6 +59,12 @@ uint64_t inline remix(uint64_t z) {
 	return z ^ (z >> 31);
 }
 
+/** 128-bit hashes.
+ * Keys are replaced with instances of this class using SpookyHash, first thing).
+ * Moreover, it is possible to build and query RecSplit instance using 128-bit
+ * random hashes only (mainly for benchmarking purposes).
+ */
+
 typedef struct __hash128_t {
 	uint64_t first, second;
 	bool operator<(const __hash128_t &o) const { return first < o.first || second < o.second; }
@@ -68,14 +74,17 @@ typedef struct __hash128_t {
 	}
 } hash128_t;
 
-hash128_t spooky(const void *data, const size_t length, const uint64_t seed) {
+// Convenience method hashing a key a returning a __hash128_t
+
+hash128_t inline spooky(const void *data, const size_t length, const uint64_t seed) {
 	uint64_t h0 = seed, h1 = seed;
 	SpookyHash::Hash128(data, length, &h0, &h1);
 	return {h1, h0};
 }
 
-static constexpr inline uint64_t min(int64_t x, int64_t y) { return y + ((x - y) & ((x - y) >> 63)); }
+// Quick replacements for min/max on not-so-large integers.
 
+static constexpr inline uint64_t min(int64_t x, int64_t y) { return y + ((x - y) & ((x - y) >> 63)); }
 static constexpr inline uint64_t max(int64_t x, int64_t y) { return x - ((x - y) & ((x - y) >> 63)); }
 
 // Optimal Golomb-Rice parameters for leaves.
@@ -87,6 +96,12 @@ static constexpr uint64_t bij_memo_golomb[] = {0,        0,        1,         3,
 											   1910,     4954,     12902,     33714,     88350,      232110,     611118,      1612087,     4259803,    11273253,
 											   29874507, 79265963, 210551258, 559849470, 1490011429, 3968988882, 10580669970, 28226919646, 75354118356};
 #endif
+
+/** A class emboding the splitting strategy described in the paper.
+ *
+ *  Note that this class is used _for statistics only_. The splitting strategy is embedded
+ *  into rec_split(), which uses only the public fields lower_aggr and upper_aggr.
+ */
 
 template <size_t LEAF_SIZE> class SplittingStrategy {
 	static constexpr size_t _leaf = LEAF_SIZE;
@@ -103,13 +118,13 @@ template <size_t LEAF_SIZE> class SplittingStrategy {
 	static constexpr size_t upper_aggr = lower_aggr * (_leaf < 7 ? 2 : ceil(0.21 * _leaf + 9. / 10));
 
 	static inline constexpr void split_params(const size_t m, size_t &fanout, size_t &unit) {
-		if (m > upper_aggr) {
+		if (m > upper_aggr) { // High-level aggregation (fanout 2)
 			unit = upper_aggr * (uint16_t(m / 2 + upper_aggr - 1) / upper_aggr);
 			fanout = 2;
-		} else if (m > lower_aggr) {
+		} else if (m > lower_aggr) { // Second-level aggregation
 			unit = lower_aggr;
 			fanout = uint16_t(m + lower_aggr - 1) / lower_aggr;
-		} else {
+		} else { // First-level aggregation
 			unit = _leaf;
 			fanout = uint16_t(m + _leaf - 1) / _leaf;
 		}
@@ -151,6 +166,11 @@ template <size_t LEAF_SIZE> class SplittingStrategy {
 	inline size_t fanout() { return this->_fanout; }
 };
 
+// Generates the precomputed table of 32-bit values holding the Golomb-Rice code
+// of a splitting (upper 5 bits), the number of nodes in the associated subtree
+// (following 11 bits) and the sum of the Golomb-Rice codelengths in the same
+// subtree (lower 16 bits).
+
 template <size_t LEAF_SIZE> static constexpr void _fill_golomb_rice(const int m, array<uint32_t, MAX_BUCKET_SIZE> *memo) {
 	array<int, MAX_FANOUT> k{0};
 
@@ -172,7 +192,7 @@ template <size_t LEAF_SIZE> static constexpr void _fill_golomb_rice(const int m,
 	assert(golomb_rice_length <= 0x1F); // Golomb-Rice code, stored in the 5 upper bits
 	(*memo)[m] = golomb_rice_length << 27;
 	for (size_t i = 0; i < fanout; ++i) golomb_rice_length += (*memo)[k[i]] & 0xFFFF;
-	assert(golomb_rice_length <= 0xFFFF); // Sum of Golomb-Rice codes in the subtree, stored in the lower 16 bits
+	assert(golomb_rice_length <= 0xFFFF); // Sum of Golomb-Rice codeslengths in the subtree, stored in the lower 16 bits
 	(*memo)[m] |= golomb_rice_length;
 
 	uint32_t nodes = 1;
@@ -188,6 +208,8 @@ template <size_t LEAF_SIZE> static constexpr array<uint32_t, MAX_BUCKET_SIZE> fi
 	for (; s < MAX_BUCKET_SIZE; ++s) _fill_golomb_rice<LEAF_SIZE>(s, &memo);
 	return memo;
 }
+
+// Computes the Golomb modulu of a splitting (for statistics purposes only)
 
 template <size_t LEAF_SIZE> static constexpr uint64_t split_golomb_b(const int m) {
 	array<int, MAX_FANOUT> k{0};
@@ -208,6 +230,9 @@ template <size_t LEAF_SIZE> static constexpr uint64_t split_golomb_b(const int m
 	return ceil(-log(2 - p) / log1p(-p)); // Golomb modulus
 }
 
+// Computes the point at which one should stop to test whether
+// bijection extraction failed (around the square root of the leaf size).
+
 static constexpr array<uint8_t, MAX_LEAF_SIZE> fill_bij_midstop() {
 	array<uint8_t, MAX_LEAF_SIZE> memo{0};
 	for (int s = 0; s < MAX_LEAF_SIZE; ++s) memo[s] = s < (int)ceil(2 * sqrt(s)) ? s : (int)ceil(2 * sqrt(s));
@@ -223,7 +248,7 @@ static constexpr array<uint8_t, MAX_LEAF_SIZE> fill_bij_midstop() {
  *
  * A class for storing minimal perfect hash functions. The template
  * parameter decides how large a leaf will be. Larger leaves imply
- * slower construction, but less space and faster evaluation. 
+ * slower construction, but less space and faster evaluation.
  *
  */
 
@@ -245,12 +270,16 @@ template <size_t LEAF_SIZE> class RecSplit {
 	RiceBitvector descriptors;
 	DoubleEF *ef;
 
-	void rec_split(std::vector<uint64_t> &bucket, std::vector<uint32_t> &unary, const int level = 0);
+	void rec_split(std::vector<uint64_t> &bucket, std::vector<uint32_t> &unary);
 	void rec_split(std::vector<uint64_t> &bucket, std::vector<uint64_t> &temp, size_t start, size_t end, std::vector<uint32_t> &unary, const int level = 0);
 	void hash_gen(hash128_t *keys);
 	inline uint64_t hash128_to_bucket(const hash128_t &hash) const;
 
   public:
+	/** Builds a RecSplit instance using a given list of keys and bucket size.
+	 * @param keys a vector of strings.
+	 * @param bucket_size the desired bucket size.
+	 */
 	RecSplit(const std::vector<std::string> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		this->keys_count = keys.size();
@@ -262,19 +291,28 @@ template <size_t LEAF_SIZE> class RecSplit {
 		free(h);
 	}
 
+	/** Builds a RecSplit instance using a given list of 128-bit hashes and bucket size.
+	 *
+	 * Note that this constructor is mainly useful for benchmarking.
+	 * @param keys a vector of 128-bit hashes.
+	 * @param bucket_size the desired bucket size.
+	 */
 	RecSplit(std::vector<hash128_t> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		this->keys_count = keys.size();
 		hash_gen(&keys[0]);
 	}
 
+	/** Builds a RecSplit instance using a list of keys returned by a file and bucket size.
+	 * @param keys_hp an open file returning a list of keys, one per line.
+	 * @param bucket_size the desired bucket size.
+	 */
 	RecSplit(FILE *keys_fp, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		std::vector<hash128_t> h;
 		char *key = NULL;
 		size_t bsize = 0;
 		for (ssize_t key_len; (key_len = getline(&key, &bsize, keys_fp)) != -1;) {
-			printf("%lld\n", key_len);
 			h.push_back(first_hash(key, key_len));
 		}
 		if (key) free(key);
@@ -290,20 +328,42 @@ template <size_t LEAF_SIZE> class RecSplit {
 
 	~RecSplit() { delete ef; }
 
-	inline size_t get_keycount() { return this->keys_count; }
+	/** Returns the number of keys used to build this RecSplit instance. */
+	inline size_t size() { return this->keys_count; }
 
+	/** Returns the value associated with the given 128-bit hash.
+	 *
+	 * Note that this method is mainly useful for benchmarking.
+	 * @param key a 128-bit hash.
+	 * @return the associated value.
+	 */
 	size_t apply(const hash128_t &key);
+	/** Returns the value associated with the given keys.
+	 * @param key a key.
+	 * @return the associated value.
+	 */
 	size_t apply(const std::string &key);
+	/** Serializes this RecSplit instance.
+	 * @param fp a file open for writing.
+	 */
 	int dump(FILE *fp) const;
+	/** Deserializes a RecSplit instance.
+	 *
+	 * Note that reading an instance with code with a different
+	 * template parameter will cause an `abort()`.
+	 * @param fp a file open for reading.
+	 */
 	void load(FILE *fp);
 };
 
+// Maps a 128-bit to a bucket using the first 64-bit half.
 template <size_t LEAF_SIZE> inline uint64_t RecSplit<LEAF_SIZE>::hash128_to_bucket(const hash128_t &hash) const { return remap128(hash.first, nbuckets); }
 
-template <size_t LEAF_SIZE> void RecSplit<LEAF_SIZE>::rec_split(vector<uint64_t> &bucket, vector<uint32_t> &unary, const int level) {
+// Computes and stores the splittings and bijections of a bucket.
+template <size_t LEAF_SIZE> void RecSplit<LEAF_SIZE>::rec_split(vector<uint64_t> &bucket, vector<uint32_t> &unary) {
 	const auto m = bucket.size();
 	vector<uint64_t> temp(m);
-	rec_split(bucket, temp, 0, bucket.size(), unary, level);
+	rec_split(bucket, temp, 0, bucket.size(), unary, 0);
 }
 
 template <size_t LEAF_SIZE> void RecSplit<LEAF_SIZE>::rec_split(vector<uint64_t> &bucket, vector<uint64_t> &temp, size_t start, size_t end, vector<uint32_t> &unary, const int level) {

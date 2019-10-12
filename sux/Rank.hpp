@@ -24,7 +24,7 @@
 
 namespace sux {
 
-/** An interface specifying ranking primitives. 
+/** An interface specifying ranking primitives.
  *
  * This inferface specifies primitives both on ones and on zeroes because ranking on
  * ones automatically makes it possible ranking on zeros, and viceversa. This interface
@@ -70,5 +70,4 @@ class Rank {
 	virtual size_t size() const = 0;
 };
 
-}
- // namespace sux
+} // namespace sux
