@@ -24,16 +24,21 @@
 
 namespace sux {
 
+/** An interface specifying selection primitives on zeros. 
+ *
+ *  Note that this interface is separate from Select because it is not
+ *  in general possible to select zeros using a structure for selecting ones.
+ */
+
 class SelectZero {
   public:
 	virtual ~SelectZero() = default;
 
-	/**
-	 * selectZero() - Index of the 0-bit with a given rank.
-	 * @rank: Number of 0-bits before the returned index.
+	/** Returns the position of the zero with given rank.
 	 *
-	 * This method returns SIZE_MAX if no sucn an index exists.
+	 * @param The desired rank (index) of a zero in the bit vector.
 	 *
+	 * @return The return value is undefined if no zero of the given rank exists.
 	 */
 	virtual size_t selectZero(uint64_t rank) const = 0;
 };

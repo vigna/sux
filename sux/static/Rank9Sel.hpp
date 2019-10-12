@@ -26,6 +26,13 @@
 
 namespace sux {
 
+/**
+ *  A class implementing a combination of Rank9 for ranking and Select9 for selection.
+ *  Select9 uses 25%-37.5% additional space (beside the 25% due to Rank9), depending on density,
+ *  and provides constant-time selection.
+ */
+
+
 class Rank9Sel : public Rank, public Select {
   private:
 	const size_t num_bits;

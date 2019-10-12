@@ -25,6 +25,10 @@
 
 namespace sux {
 
+/**
+ *  A class implementing Rank9, a ranking structure using 25% additional space and providing very fast ranking.
+ */
+
 class Rank9 : public Rank {
   private:
 	const size_t num_bits;

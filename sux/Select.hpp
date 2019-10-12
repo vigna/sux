@@ -24,16 +24,17 @@
 
 namespace sux {
 
+/** An interface specifying selection primitives on ones. */
+
 class Select {
   public:
 	virtual ~Select() = default;
 
-	/**
-	 * select() - Index of the 1-bit with a given rank.
-	 * @rank: Number of 1-bits before the returned index.
+	/** Returns the position of the one with given rank.
 	 *
-	 * This method returns SIZE_MAX if no such an index exists.
+	 * @param rank The desired rank (index) of a one in the bit vector.
 	 *
+	 * @return The return value is undefined if no one of the given rank exists.
 	 */
 	virtual size_t select(uint64_t rank) const = 0;
 };
