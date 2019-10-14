@@ -22,7 +22,9 @@ The classes we provide fall into three categories:
 All classes are heavily asserted. For testing speed, remember to use `-DNDEBUG`.
 
 We do not provide libraries: you are invited to include the sources with your
-code.
+code. Note that in some cases you might need to include additional files (e.g.,
+sux::function::RecSplit is a template but it needs sux::function::DoubleEF
+and sux::function::RiceBitVector to work).
 
 Examples
 --------
@@ -82,6 +84,6 @@ Examples
 
         sux::function::RecSplit<16> rs(keys, 2000)
 
-  The class RecSplit implements the operator
+  The class sux::function::RecSplit implements the operator
   sux::function::RecSplit::operator()(const std::string &key), so you
   can obtain the number associated with a string key `k` with `rs(k)`.
