@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <vector>
+#include <iostream>
 #include "../support/common.hpp"
 
 using namespace std;
@@ -31,7 +32,7 @@ namespace sux::function {
 
 #define DEFAULT_VECTSIZE (1 << 2)
 
-class RiceBitvector {
+class RiceBitVector {
   private:
 	uint64_t *data;
 	std::size_t data_bytes;
@@ -43,8 +44,8 @@ class RiceBitvector {
 	int valid_lower_bits_unary;
 
   public:
-	RiceBitvector(const size_t alloc_words = DEFAULT_VECTSIZE);
-	~RiceBitvector();
+	RiceBitVector(const size_t alloc_words = DEFAULT_VECTSIZE);
+	~RiceBitVector();
 	uint64_t read_next(const int log2golomb);
 	void skip_subtree(const size_t nodes, const size_t fixed_len);
 	void read_reset(const size_t bit_pos = 0, const size_t unary_offset = 0);
@@ -53,8 +54,28 @@ class RiceBitvector {
 	size_t get_bits() const;
 	void fit_data();
 	void print_bits() const;
-	int dump(FILE *fp) const;
-	void load(FILE *fp);
+
+  private:
+	friend std::ostream &operator<<(std::ostream &os, const RiceBitVector &rbv) {
+		os.write((char *)&rbv.bit_count, sizeof(rbv.bit_count));
+		os.write((char *)&rbv.data_bytes, sizeof(rbv.data_bytes));
+		os.write((char *)rbv.data, rbv.data_bytes);
+		return os;
+	}
+
+	friend std::istream &operator>>(std::istream &is, RiceBitVector &rbv) {
+		rbv.curr_window_unary = 0;
+		rbv.valid_lower_bits_unary = 0;
+
+		is.read((char *)&rbv.bit_count, sizeof(rbv.bit_count));
+		is.read((char *)&rbv.data_bytes, sizeof(rbv.data_bytes));
+	
+		if (rbv.data) free(rbv.data);
+		rbv.data = (uint64_t *)malloc(rbv.data_bytes);
+		is.read((char *)rbv.data, rbv.data_bytes);
+		rbv.curr_ptr_unary = rbv.data;
+		return is;
+	}
 };
 
 } // namespace sux

@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 #include <sux/function/RecSplit.hpp>
 
 using namespace std;
@@ -24,9 +26,11 @@ int main(int argc, char **argv) {
 	auto elapsed = chrono::duration_cast<std::chrono::nanoseconds>(chrono::high_resolution_clock::now() - begin).count();
 	printf("Construction time: %.3f s, %.0f ns/key\n", elapsed * 1E-9, elapsed / (double)n);
 
-	FILE *fp = fopen(argv[3], "w");
-	rs.dump(fp);
-	fclose(fp);
+	fstream fs;
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(argv[3], fstream::out | fstream::binary | fstream::trunc);
+	fs << rs;
+	fs.close();
 
 	return 0;
 }

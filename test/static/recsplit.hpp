@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstring>
 #include <random>
+#include <fstream>
 
 using namespace std;
 using namespace sux;
@@ -17,7 +18,7 @@ template <class RS, typename T> static void recsplit_unit_test(RS &rs, const vec
 	uint64_t *recsplit_check = (uint64_t *)calloc(keys.size(), sizeof(uint64_t));
 	uint64_t i = 0;
 	for (const auto &k : keys) {
-		uint64_t h = rs.apply(k);
+		uint64_t h = rs(k);
 		ASSERT_EQ(0, recsplit_check[h]) << "ERROR: h(key#" << recsplit_check[h] - 1 << ") = h(key#" << i << ") = " << h << endl;
 		recsplit_check[h] = ++i;
 	}
@@ -31,7 +32,7 @@ template <class RS> static void recsplit_unit_test(RS &rs, FILE *keys_fp) {
 	size_t key_len, bsize = 0;
 	while ((key_len = getline(&key, &bsize, keys_fp)) != size_t(-1)) {
 		string str(key);
-		uint64_t h = rs.apply(str);
+		uint64_t h = rs(str);
 		ASSERT_EQ(0, recsplit_check[h]) << "ERROR: h(key#" << recsplit_check[h] - 1 << ") = h(key#" << i << ") = " << h << endl;
 		recsplit_check[h] = ++i;
 	}
@@ -60,19 +61,25 @@ TEST(recsplit_test, random_hash128) {
 
 TEST(recsplit_test, dump_and_load) {
 	vector<hash128_t> keys;
+	const char *filename = "test/test_dump";
 	for (size_t i = 0; i < NKEYS_TEST; ++i) {
 		keys.push_back(hash128_t(next(), next()));
 	}
 
 	RecSplit2 rs_dump(keys, BUCKET_SIZE_TEST);
-	FILE *fp = fopen("test/test_dump", "w");
-	rs_dump.dump(fp);
-	fclose(fp);
+
+	fstream fs;
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(filename, fstream::out | fstream::binary | fstream::trunc);
+	fs << rs_dump;
+	fs.close();
 
 	RecSplit2 rs_load;
-	fp = fopen("test/test_dump", "r");
-	rs_load.load(fp);
-	fclose(fp);
+	fs.open(filename, std::fstream::in | std::fstream::binary);
+	fs >> rs_load;
+	fs.close();
+
+	for(size_t i = 0; i < rs_load.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
 	recsplit_unit_test(rs_load, keys);
-	remove("test/test_dump");
+	remove(filename);
 }

@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <fstream>
 #include <random>
+#include <iostream>
+#include <fstream>
 #include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)
@@ -49,10 +51,13 @@ int main(int argc, char **argv) {
 	while (getline(fin, str)) keys.push_back(str);
 	fin.close();
 
-	FILE *fp = fopen(argv[2], "r");
+	fstream fs;
 	RecSplit<LEAF> rs;
-	rs.load(fp);
-	fclose(fp);
+
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(argv[2], std::fstream::in | std::fstream::binary);
+	fs >> rs;
+	fs.close();
 
 	benchmark(rs, keys);
 

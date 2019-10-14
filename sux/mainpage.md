@@ -39,13 +39,13 @@ Examples
   using a fixed-size Fenwick tree in classical Fenwick layout over
   strides of sixteen words you must use
 
-        sux::bits::Stride<sux::util::FixedF, 16>(v, n)
+        sux::bits::StrideDynRankSel<sux::util::FixedF, 16>(v, n)
 
   Such a structure is ideal if ranking is the most common operation. If selection
   is the most common operation a structure based on a byte-compressed level-order
   tree is faster:
 
-        sux::bits::Stride<sux::util::ByteL, 16>(v, n)
+        sux::bits::StrideDynRankSel<sux::util::ByteL, 16>(v, n)
 
   In general, by modifying the two template parameters you can use a
   different stride or a different Fenwick tree structure. A stride is
@@ -53,7 +53,7 @@ Examples
   appearing at the border of each stride. Structures with single-word
   strides should be allocated as follows:
 
-        sux::bits::Word<sux::util::FixedF>(v, n)
+        sux::bits::WordDynRankSel<sux::util::FixedF>(v, n)
 
 - Similary, if `v` is a list of `n` values bounded by 10000 a fixed-size
   Fenwick tree in classical Fenwick layout can be created by

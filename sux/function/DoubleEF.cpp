@@ -26,7 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
+#include <fstream>
 
 using namespace sux::function;
 
@@ -202,55 +202,4 @@ DoubleEF::~DoubleEF() {
 	delete[] upper_bits_cum_keys;
 	delete[] lower_bits;
 	delete[] jump;
-}
-
-int DoubleEF::dump(FILE *fp) const {
-	fwrite(&num_buckets, sizeof(num_buckets), (size_t)1, fp);
-	fwrite(&u_cum_keys, sizeof(u_cum_keys), (size_t)1, fp);
-	fwrite(&u_position, sizeof(u_position), (size_t)1, fp);
-	fwrite(&cum_keys_min_delta, sizeof(cum_keys_min_delta), (size_t)1, fp);
-	fwrite(&min_diff, sizeof(min_diff), (size_t)1, fp);
-	fwrite(&bits_per_key_fixed_point, sizeof(bits_per_key_fixed_point), (size_t)1, fp);
-
-	const uint64_t words_lower_bits = lower_bits_size_words();
-	fwrite(lower_bits, sizeof(uint64_t), (size_t)words_lower_bits, fp);
-	const uint64_t words_cum_keys = cum_keys_size_words();
-	fwrite(upper_bits_cum_keys, sizeof(uint64_t), (size_t)words_cum_keys, fp);
-	const uint64_t words_position = position_size_words();
-	fwrite(upper_bits_position, sizeof(uint64_t), (size_t)words_position, fp);
-
-	const uint64_t jump_words = jump_size_words();
-	fwrite(jump, sizeof(uint64_t), (size_t)jump_words, fp);
-
-	return 1;
-}
-
-void DoubleEF::load(FILE *fp) {
-	fread(&num_buckets, sizeof(num_buckets), (size_t)1, fp);
-	fread(&u_cum_keys, sizeof(u_cum_keys), (size_t)1, fp);
-	fread(&u_position, sizeof(u_position), (size_t)1, fp);
-	fread(&cum_keys_min_delta, sizeof(cum_keys_min_delta), (size_t)1, fp);
-	fread(&min_diff, sizeof(min_diff), (size_t)1, fp);
-	fread(&bits_per_key_fixed_point, sizeof(bits_per_key_fixed_point), (size_t)1, fp);
-
-	l_position = u_position / (num_buckets + 1) == 0 ? 0 : lambda(u_position / (num_buckets + 1));
-	l_cum_keys = u_cum_keys / (num_buckets + 1) == 0 ? 0 : lambda(u_cum_keys / (num_buckets + 1));
-	assert(l_cum_keys * 2 + l_position <= 56);
-
-	lower_bits_mask_cum_keys = (UINT64_C(1) << l_cum_keys) - 1;
-	lower_bits_mask_position = (UINT64_C(1) << l_position) - 1;
-
-	const uint64_t words_lower_bits = lower_bits_size_words();
-	lower_bits = new uint64_t[words_lower_bits];
-	fread(lower_bits, sizeof(uint64_t), (size_t)words_lower_bits, fp);
-	const uint64_t words_cum_keys = cum_keys_size_words();
-	upper_bits_cum_keys = new uint64_t[words_cum_keys]();
-	fread(upper_bits_cum_keys, sizeof(uint64_t), (size_t)words_cum_keys, fp);
-	const uint64_t words_position = position_size_words();
-	upper_bits_position = new uint64_t[words_position]();
-	fread(upper_bits_position, sizeof(uint64_t), (size_t)words_position, fp);
-
-	const uint64_t jump_words = jump_size_words();
-	jump = new uint64_t[jump_words];
-	fread(jump, sizeof(uint64_t), (size_t)jump_words, fp);
 }

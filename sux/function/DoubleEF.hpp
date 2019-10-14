@@ -25,6 +25,7 @@
 #include <cstring>
 #include <limits>
 #include <vector>
+#include <iostream>
 
 #ifndef LOG2Q
 #define LOG2Q 8
@@ -79,8 +80,58 @@ class DoubleEF {
 	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &cum_keys_next, uint64_t &position);
 	uint64_t bit_count_cum_keys();
 	uint64_t bit_count_position();
-	int dump(FILE *fp) const;
-	void load(FILE *fp);
+
+  private:
+	friend std::ostream &operator<<(std::ostream &os, DoubleEF &ef) {
+		os.write((char *)&ef.num_buckets, sizeof(ef.num_buckets));
+		os.write((char *)&ef.u_cum_keys, sizeof(ef.u_cum_keys));
+		os.write((char *)&ef.u_position, sizeof(ef.u_position));
+		os.write((char *)&ef.cum_keys_min_delta, sizeof(ef.cum_keys_min_delta));
+		os.write((char *)&ef.min_diff, sizeof(ef.min_diff));
+		os.write((char *)&ef.bits_per_key_fixed_point, sizeof(ef.bits_per_key_fixed_point));
+	
+		const uint64_t words_lower_bits = ef.lower_bits_size_words();
+		os.write((char *)ef.lower_bits, sizeof(uint64_t) * (size_t)words_lower_bits);
+		const uint64_t words_cum_keys = ef.cum_keys_size_words();
+		os.write((char *)ef.upper_bits_cum_keys, sizeof(uint64_t) * (size_t)words_cum_keys);
+		const uint64_t words_position = ef.position_size_words();
+		os.write((char *)ef.upper_bits_position, sizeof(uint64_t) * (size_t)words_position);
+	
+		const uint64_t jump_words = ef.jump_size_words();
+		os.write((char *)ef.jump, sizeof(uint64_t) * (size_t)jump_words);
+		return os;
+	}
+
+	friend std::istream &operator>>(std::istream &is, DoubleEF &ef) {
+		is.read((char *)&ef.num_buckets, sizeof(ef.num_buckets));
+		is.read((char *)&ef.u_cum_keys, sizeof(ef.u_cum_keys));
+		is.read((char *)&ef.u_position, sizeof(ef.u_position));
+		is.read((char *)&ef.cum_keys_min_delta, sizeof(ef.cum_keys_min_delta));
+		is.read((char *)&ef.min_diff, sizeof(ef.min_diff));
+		is.read((char *)&ef.bits_per_key_fixed_point, sizeof(ef.bits_per_key_fixed_point));
+
+		ef.l_position = ef.u_position / (ef.num_buckets + 1) == 0 ? 0 : lambda(ef.u_position / (ef.num_buckets + 1));
+		ef.l_cum_keys = ef.u_cum_keys / (ef.num_buckets + 1) == 0 ? 0 : lambda(ef.u_cum_keys / (ef.num_buckets + 1));
+		assert(ef.l_cum_keys * 2 + ef.l_position <= 56);
+
+		ef.lower_bits_mask_cum_keys = (UINT64_C(1) << ef.l_cum_keys) - 1;
+		ef.lower_bits_mask_position = (UINT64_C(1) << ef.l_position) - 1;
+
+		const uint64_t words_lower_bits = ef.lower_bits_size_words();
+		ef.lower_bits = new uint64_t[words_lower_bits];
+		is.read((char *)ef.lower_bits, sizeof(uint64_t) * (size_t)words_lower_bits);
+		const uint64_t words_cum_keys = ef.cum_keys_size_words();
+		ef.upper_bits_cum_keys = new uint64_t[words_cum_keys];
+		is.read((char *)ef.upper_bits_cum_keys, sizeof(uint64_t) * (size_t)words_cum_keys);
+		const uint64_t words_position = ef.position_size_words();
+		ef.upper_bits_position = new uint64_t[words_position];
+		is.read((char *)ef.upper_bits_position, sizeof(uint64_t) * (size_t)words_position);
+
+		const uint64_t jump_words = ef.jump_size_words();
+		ef.jump = new uint64_t[jump_words];
+		is.read((char *)ef.jump, sizeof(uint64_t) * (size_t)jump_words);
+		return is;
+	}
 };
 
 } // namespace sux::function

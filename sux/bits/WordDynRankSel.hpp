@@ -35,7 +35,7 @@ namespace sux::bits {
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  */
 
-template <template <size_t> class T> class Word : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t> class T> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUNDSIZE = 64;
 	size_t Size;
@@ -48,7 +48,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Word(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
+	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
 		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
 	}
 
@@ -57,7 +57,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Word(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
+	WordDynRankSel(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.get(); }
 
@@ -130,7 +130,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(Word<T>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
+	virtual size_t bitCount() const { return sizeof(WordDynRankSel<T>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {
@@ -147,14 +147,14 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 		return tree;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const Word<T> &bv) {
+	friend std::ostream &operator<<(std::ostream &os, const WordDynRankSel<T> &bv) {
 		const uint64_t nsize = htol((uint64_t)bv.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << bv.Fenwick << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, Word<T> &bv) {
+	friend std::istream &operator>>(std::istream &is, WordDynRankSel<T> &bv) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		bv.Size = ltoh(nsize);

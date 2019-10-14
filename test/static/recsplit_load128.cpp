@@ -3,6 +3,8 @@
 #include <chrono>
 #include <cstdio>
 #include <random>
+#include <iostream>
+#include <fstream>
 #include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)
@@ -40,10 +42,13 @@ int main(int argc, char **argv) {
 
 	const uint64_t n = strtoll(argv[1], NULL, 0);
 
-	FILE *fp = fopen(argv[2], "r");
-	RecSplit<LEAF> rs;
-	rs.load(fp);
-	fclose(fp);
+	fstream fs;
+	RecSplit <LEAF> rs;
+
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(argv[2], fstream::in | fstream::binary);
+	fs >> rs;
+	fs.close();
 
 	benchmark(rs, n);
 

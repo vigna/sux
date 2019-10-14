@@ -35,7 +35,7 @@ namespace sux::bits {
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  * @tparam WORDS length (in words) of the linear search stride.
  */
-template <template <size_t> class T, size_t WORDS> class Stride : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t> class T, size_t WORDS> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;
@@ -48,7 +48,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Stride(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::DArray<uint64_t>(divRoundup(size, 64))) {
+	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::DArray<uint64_t>(divRoundup(size, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
 	}
 
@@ -57,7 +57,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Stride(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
+	StrideDynRankSel(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.get(); }
 
@@ -149,7 +149,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(Stride<T, WORDS>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
+	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<T, WORDS>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {
@@ -166,14 +166,14 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 		return tree;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const Stride<T, WORDS> &bv) {
+	friend std::ostream &operator<<(std::ostream &os, const StrideDynRankSel<T, WORDS> &bv) {
 		const uint64_t nsize = htol((uint64_t)bv.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << bv.Fenwick << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, Stride<T, WORDS> &bv) {
+	friend std::istream &operator>>(std::istream &is, StrideDynRankSel<T, WORDS> &bv) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		bv.Size = ltoh(nsize);
