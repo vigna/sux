@@ -27,6 +27,13 @@
 namespace sux::bits {
 using namespace std;
 
+/** A simple SelectZero implementation based on a two-level inventory, 
+ *  and wired for approximately the same number of zeros and ones.
+ *
+ * This implementation has been specifically developed to be used
+ * with EliasFano.
+ */
+
 class SimpleSelectZeroHalf {
   private:
 	const uint64_t *bits;
@@ -36,6 +43,11 @@ class SimpleSelectZeroHalf {
 
   public:
 	SimpleSelectZeroHalf();
+	/** Creates a new instance using a given bit vector.
+	 *
+	 * @param bitvector a bit vector of 64-bit words.
+	 * @param size the length (in bits) of the bit vector.
+	 */
 	SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
 	~SimpleSelectZeroHalf();
 	uint64_t selectZero(const uint64_t rank);

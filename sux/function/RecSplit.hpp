@@ -116,6 +116,7 @@ static constexpr uint64_t bij_memo_golomb[] = {0,        0,        1,         3,
 											   29874507, 79265963, 210551258, 559849470, 1490011429, 3968988882, 10580669970, 28226919646, 75354118356};
 #endif
 
+
 /** A class emboding the splitting strategy described in the paper.
  *
  *  Note that this class is used _for statistics only_. The splitting strategy is embedded

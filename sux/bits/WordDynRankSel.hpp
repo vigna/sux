@@ -43,7 +43,7 @@ template <template <size_t> class T> class WordDynRankSel : public DynamicBitVec
 	util::DArray<uint64_t> Vector;
 
   public:
-	/** Creates a new instance with given vector od values
+	/** Creates a new instance using a given bit vector.
 	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
@@ -52,7 +52,7 @@ template <template <size_t> class T> class WordDynRankSel : public DynamicBitVec
 		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
 	}
 
-	/** Creates a new instance with given vector od values
+	/** Creates a new instance using a given bit vector.
 	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.

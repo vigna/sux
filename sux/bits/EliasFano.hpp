@@ -29,6 +29,14 @@
 
 namespace sux::bits {
 
+/** An implementation of selection and ranking based on the Elias-Fano representation 
+  * of monotone sequences.
+  *
+  * Instances of this class can be built using a bit vector or an explicit list of
+  * positions for the ones in a vector. In every case, the bit vector or the list
+  * are not necessary after construction.
+  */
+
 class EliasFano : public Rank, public Select {
   private:
 	uint64_t *lower_bits, *upper_bits;
@@ -73,7 +81,24 @@ class EliasFano : public Rank, public Select {
 	}
 
   public:
+	/** Creates a new instance using a given bit vector.
+	 *
+	 * @param bits a bit vector of 64-bit words.
+	 * @param num_bits the length (in bits) of the bit vector.
+	 */
 	EliasFano(const uint64_t *const bits, const uint64_t num_bits);
+
+	/** Creates a new instance using an 
+	 *  explicit list of positions for the ones in a bit vector.
+	 *
+	 *  Note that in practice this constructor builds an Elias-Fano
+	 *  representation of the given list. select(const uint64_t rank) will retrieve
+	 *  an element of the list, and rank(const size_t pos) will return how many
+	 *  element of the list are smaller than the argument.
+	 *
+	 * @param pos a list of positions of the ones in a bit vector.
+	 * @param num_bits the length (in bits) of the bit vector.
+	 */
 	EliasFano(const std::vector<uint64_t> pos, const uint64_t num_bits);
 	~EliasFano();
 	size_t select(const uint64_t rank);

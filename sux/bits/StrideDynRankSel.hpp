@@ -43,7 +43,7 @@ template <template <size_t> class T, size_t WORDS> class StrideDynRankSel : publ
 	util::DArray<uint64_t> Vector;
 
   public:
-	/** Creates a new instance with given vector od values
+	/** Creates a new instance using a given bit vector.
 	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
@@ -52,7 +52,7 @@ template <template <size_t> class T, size_t WORDS> class StrideDynRankSel : publ
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
 	}
 
-	/** Creates a new instance with given vector od values
+	/** Creates a new instance using a given bit vector.
 	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.

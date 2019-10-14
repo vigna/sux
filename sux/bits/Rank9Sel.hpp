@@ -41,6 +41,11 @@ class Rank9Sel : public Rank, public Select {
 	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
 
   public:
+	/** Creates a new instance using a given bit vector.
+	 *
+	 * @param bits a bit vector of 64-bit words.
+	 * @param num_bits the length (in bits) of the bit vector.
+	 */
 	Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
 	~Rank9Sel();
 

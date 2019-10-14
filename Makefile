@@ -19,14 +19,14 @@ test: bin/bits bin/util bin/function
 
 LEAF?=8
 
-recsplit: test/static/recsplit_*
+recsplit: test/function/recsplit_*
 	@mkdir -p bin
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/function/recsplit_dump.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/function/recsplit_dump128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/function/recsplit_load.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/function/recsplit_load128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
 
-ranksel: test/static/ranksel_*
+ranksel: test/bits/ranksel_*
 	@mkdir -p bin
 	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=0 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel0
 	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=1 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel1

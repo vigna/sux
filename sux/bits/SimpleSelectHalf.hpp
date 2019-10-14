@@ -26,6 +26,13 @@
 
 namespace sux::bits {
 
+/** A simple Select implementation based on a two-level inventory, 
+ *  and wired for approximately the same number of zeros and ones.
+ *
+ * This implementation has been specifically developed to be used
+ * with EliasFano.
+ */
+
 class SimpleSelectHalf {
   private:
 	const uint64_t *bits;
@@ -35,6 +42,11 @@ class SimpleSelectHalf {
 
   public:
 	SimpleSelectHalf();
+	/** Creates a new instance using a given bit vector.
+	 *
+	 * @param bits a bit vector of 64-bit words.
+	 * @param num_bits the length (in bits) of the bit vector.
+	 */
 	SimpleSelectHalf(const uint64_t *const bits, const uint64_t num_bits);
 	~SimpleSelectHalf();
 	uint64_t select(const uint64_t rank);

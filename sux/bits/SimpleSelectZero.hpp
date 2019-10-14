@@ -27,6 +27,13 @@
 namespace sux::bits {
 using namespace std;
 
+/** A simple SelectZero implementation based on a two-level inventory, a spill list and broadword bit search.
+ *
+ * This implementation uses around 13.75% additional space on evenly distributed bit arrays, and,
+ * under the same conditions, provide very fast selects. For very unevenly distributed arrays
+ * the space occupancy will grow significantly, and access time might vary wildly.
+ */
+
 class SimpleSelectZero {
   private:
 	const uint64_t *bits;
@@ -39,6 +46,13 @@ class SimpleSelectZero {
 
   public:
 	SimpleSelectZero();
+	/** Creates a new instance using a given bit vector.
+	 *
+	 * @param bits a bit vector of 64-bit words.
+	 * @param num_bits the length (in bits) of the bit vector.
+	 * @param max_log2_longwords_per_subinventory the number of words per subinventory:
+	 * a larger value yields a faster map that uses more space; typical values are between 0 and 3.
+	 */
 	SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory);
 	~SimpleSelectZero();
 	uint64_t selectZero(const uint64_t rank);
