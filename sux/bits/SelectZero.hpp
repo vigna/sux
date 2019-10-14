@@ -36,9 +36,10 @@ class SelectZero {
 
 	/** Returns the position of the zero with given rank.
 	 *
-	 * @param The desired rank (index) of a zero in the bit vector.
+	 * @param rank the desired rank (index) of a zero in the bit vector.
 	 *
-	 * @return The return value is undefined if no zero of the given rank exists.
+	 * @return the position of the zero with given rank; 
+	 * the result is undefined if no zero of the given rank exists.
 	 */
 	virtual std::size_t selectZero(uint64_t rank) = 0;
 };

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "SearchablePrefixSum.hpp"
+#include "SearchablePrefixSums.hpp"
 #include "Vector.hpp"
 
 namespace sux::util {
@@ -29,7 +29,7 @@ namespace sux::util {
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
-template <size_t BOUND> class ByteF : public SearchablePrefixSum {
+template <size_t BOUND> class ByteF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -77,7 +77,7 @@ template <size_t BOUND> class ByteF : public SearchablePrefixSum {
 		}
 	}
 
-	using SearchablePrefixSum::find;
+	using SearchablePrefixSums::find;
 	virtual size_t find(uint64_t *val) {
 		size_t node = 0;
 
@@ -95,7 +95,7 @@ template <size_t BOUND> class ByteF : public SearchablePrefixSum {
 		return node;
 	}
 
-	using SearchablePrefixSum::compFind;
+	using SearchablePrefixSums::compFind;
 	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0;
 
@@ -130,7 +130,7 @@ template <size_t BOUND> class ByteF : public SearchablePrefixSum {
 
 	virtual void reserve(size_t space) { Tree.reserve(pos(space) + 8); }
 
-	using SearchablePrefixSum::trimToFit;
+	using SearchablePrefixSums::trimToFit;
 	virtual void trim(size_t space) { Tree.trim(pos(space) + 8); };
 
 	virtual size_t size() const { return Size; }

@@ -82,4 +82,6 @@ Examples
 
         sux::function::RecSplit<16> rs(keys, 2000)
 
-  The class RecSplit implements the operator sux::function::RecSplit::operator().
+  The class RecSplit implements the operator
+  sux::function::RecSplit::operator()(const std::string &key), so you
+  can obtain the number associated with a string key `k` with `rs(k)`.

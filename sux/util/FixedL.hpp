@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "SearchablePrefixSum.hpp"
+#include "SearchablePrefixSums.hpp"
 #include "Vector.hpp"
 
 namespace sux::util {
@@ -30,7 +30,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
 
-template <size_t BOUND> class FixedL : public SearchablePrefixSum {
+template <size_t BOUND> class FixedL : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -93,7 +93,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSum {
 		}
 	}
 
-	using SearchablePrefixSum::find;
+	using SearchablePrefixSums::find;
 	virtual size_t find(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
@@ -115,7 +115,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSum {
 		return min(node, Size);
 	}
 
-	using SearchablePrefixSum::compFind;
+	using SearchablePrefixSums::compFind;
 	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
@@ -163,7 +163,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSum {
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve((space + (1ULL << (i - 1))) / (1ULL << i));
 	}
 
-	using SearchablePrefixSum::trimToFit;
+	using SearchablePrefixSums::trimToFit;
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim((space + (1ULL << (i - 1))) / (1ULL << i));

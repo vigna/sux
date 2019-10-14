@@ -30,9 +30,9 @@ namespace sux::util {
  *
  * Note that node indices start from 1 and end at size() (included).
  *
- * Each SearchablePrefixSum is serializable and deserializable with:
- * - friend std::ostream &operator<<(std::ostream &os, const SearchablePrefixSum &ft);
- * - friend std::istream &operator>>(std::istream &is, SearchablePrefixSum &ft);
+ * Each SearchablePrefixSums is serializable and deserializable with:
+ * - friend std::ostream &operator<<(std::ostream &os, const SearchablePrefixSums &ft);
+ * - friend std::istream &operator>>(std::istream &is, SearchablePrefixSums &ft);
  *
  * The data is stored and loaded in little-endian byte order to guarantee
  * compatibility on different architectures.
@@ -41,9 +41,9 @@ namespace sux::util {
  * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
  * very same data with a ByteL).
  */
-class SearchablePrefixSum {
+class SearchablePrefixSums {
   public:
-	virtual ~SearchablePrefixSum() = default;
+	virtual ~SearchablePrefixSums() = default;
 
 	/** Compute the prefix sum.
 	 *
@@ -110,7 +110,7 @@ class SearchablePrefixSum {
 	 *
 	 * Nothing happens if the requested space is already reserved.
 	 */
-	virtual void reserve(size_t space) = 0;
+	virtual void reserve(size_t size) = 0;
 
 	/** Trim the the memory allocated for the tree to the given size, if possible.
 	 *

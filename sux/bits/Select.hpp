@@ -32,9 +32,10 @@ class Select {
 
 	/** Returns the position of the one with given rank.
 	 *
-	 * @param rank The desired rank (index) of a one in the bit vector.
+	 * @param rank the desired rank (index) of a one in the bit vector.
 	 *
-	 * @return The return value is undefined if no one of the given rank exists.
+	 * @return the position of the zero with given rank; 
+	 * the result is undefined if no zero of the given rank exists.
 	 */
 	virtual std::size_t select(uint64_t rank) = 0;
 };

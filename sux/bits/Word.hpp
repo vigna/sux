@@ -28,9 +28,11 @@
 
 namespace sux::bits {
 
-/** Ranking and selection through a fenwick tree and linear searches on a single word.
+/** Ranking and selection in a dynamic bit vector by means
+ *  of a searchable prefix-sum data structure and linear 
+ *  searches on a single word.
  *
- * @tparam T: Underlying Fenwick tree implementation (e.g., BitF, BitL, ByteF, ByteL, FixedF, FixedL).
+ * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  */
 
 template <template <size_t> class T> class Word : public DynamicBitVector, public Rank, public Select, public SelectZero {

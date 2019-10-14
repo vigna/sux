@@ -331,7 +331,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 *
 	 * **Warning**: duplicate keys will cause this method to never return.
 	 *
-	 * @param keys_hp an open file returning a list of keys, one per line.
+	 * @param keys_fp an open file returning a list of keys, one per line.
 	 * @param bucket_size the desired bucket size.
 	 */
 	RecSplit(FILE *keys_fp, const size_t bucket_size) {
