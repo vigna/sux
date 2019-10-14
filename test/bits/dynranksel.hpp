@@ -3,7 +3,7 @@
 #include <sux/bits/StrideDynRankSel.hpp>
 #include <sux/bits/WordDynRankSel.hpp>
 
-TEST(rankselect, all_ones) {
+TEST(dynranksel, all_ones) {
 	using namespace sux;
 	constexpr size_t ELEMS = 16;
 	constexpr size_t BITELEMS = ELEMS * 64;
@@ -98,7 +98,7 @@ TEST(rankselect, all_ones) {
 	}
 }
 
-TEST(rankselect, all_zeroes) {
+TEST(dynranksel, all_zeroes) {
 	using namespace sux;
 	constexpr size_t ELEMS = 16;
 	constexpr size_t BITELEMS = ELEMS * 64;
@@ -192,7 +192,7 @@ TEST(rankselect, all_zeroes) {
 	}
 }
 
-template <std::size_t S> void run_rankselect(std::size_t size) {
+template <std::size_t S> void run_dynranksel(std::size_t size) {
 	using namespace sux;
 	const size_t words = size / 64 + ((size % 64 != 0) ? 1 : 0);
 
@@ -396,26 +396,26 @@ template <std::size_t S> void run_rankselect(std::size_t size) {
 	delete[] bitvect;
 }
 
-TEST(rankselect, small_large) {
-	run_rankselect<8>(1);
-	run_rankselect<16>(512 * 1024);
+TEST(dynranksel, small_large) {
+	run_dynranksel<8>(1);
+	run_dynranksel<16>(512 * 1024);
 }
 
-TEST(rankselect, stride) {
+TEST(dynranksel, stride) {
 	for (size_t i = 1000; i < 2000; i += 100) {
-		run_rankselect<1>(i);
-		run_rankselect<2>(i);
-		run_rankselect<3>(i);
-		run_rankselect<4>(i);
-		run_rankselect<5>(i);
+		run_dynranksel<1>(i);
+		run_dynranksel<2>(i);
+		run_dynranksel<3>(i);
+		run_dynranksel<4>(i);
+		run_dynranksel<5>(i);
 
-		run_rankselect<8>(i);
-		run_rankselect<16>(i);
-		run_rankselect<32>(i);
-		run_rankselect<64>(i);
-		run_rankselect<128>(i);
-		run_rankselect<256>(i);
-		run_rankselect<512>(i);
-		run_rankselect<1024>(i);
+		run_dynranksel<8>(i);
+		run_dynranksel<16>(i);
+		run_dynranksel<32>(i);
+		run_dynranksel<64>(i);
+		run_dynranksel<128>(i);
+		run_dynranksel<256>(i);
+		run_dynranksel<512>(i);
+		run_dynranksel<1024>(i);
 	}
 }

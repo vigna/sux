@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include "../xoroshiro128pp.hpp"
+#include <sux/util/BitF.hpp>
+#include <sux/util/BitL.hpp>
+#include <sux/util/ByteF.hpp>
+#include <sux/util/ByteL.hpp>
+#include <sux/util/FixedF.hpp>
+#include <sux/util/FixedL.hpp>
 #include "rankselect.hpp"
 #include "dynranksel.hpp"
-
-#define LEAF 4
-#define NKEYS_TEST 1000000
-#include "recsplit.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
