@@ -20,7 +20,9 @@
 
 #pragma once
 
+#include "../support/common.hpp"
 #include "Rank.hpp"
+
 #include <cstdint>
 
 namespace sux::bits {

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace sux {
 
 /** An interface specifying selection primitives on ones. */
@@ -34,7 +36,7 @@ class Select {
 	 *
 	 * @return The return value is undefined if no one of the given rank exists.
 	 */
-	virtual size_t select(uint64_t rank) = 0;
+	virtual std::size_t select(uint64_t rank) = 0;
 };
 
 } // namespace sux

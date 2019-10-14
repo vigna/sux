@@ -35,6 +35,7 @@ using namespace std;
 #define REPEATS 10
 
 using namespace sux;
+using namespace sux::bits;
 
 int main(int argc, char *argv[]) {
 	if (argc < 4) {

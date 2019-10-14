@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace sux {
 
 /** An interface specifying selection primitives on zeros.
@@ -38,7 +40,7 @@ class SelectZero {
 	 *
 	 * @return The return value is undefined if no zero of the given rank exists.
 	 */
-	virtual size_t selectZero(uint64_t rank) = 0;
+	virtual std::size_t selectZero(uint64_t rank) = 0;
 };
 
 } // namespace sux

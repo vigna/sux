@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "../support/common.hpp"
 #include "Rank.hpp"
 #include "Select.hpp"
 #include <cstdint>
