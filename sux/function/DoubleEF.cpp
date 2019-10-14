@@ -193,9 +193,9 @@ void DoubleEF::get(const uint64_t i, uint64_t &cum_keys, uint64_t &position) {
 		((curr_word_position * 64 + select64(window_position, delta_position) - i) << l_position | (lower & lower_bits_mask_position)) + bit_delta + int64_t(bits_per_key_fixed_point * cum_keys >> 20);
 }
 
-uint64_t DoubleEF::bit_count_cum_keys() { return (num_buckets + 1) * l_cum_keys + num_buckets + 1 + (u_cum_keys >> l_cum_keys) + jump_size_words() / 2; }
+uint64_t DoubleEF::bitCountCumKeys() { return (num_buckets + 1) * l_cum_keys + num_buckets + 1 + (u_cum_keys >> l_cum_keys) + jump_size_words() / 2; }
 
-uint64_t DoubleEF::bit_count_position() { return (num_buckets + 1) * l_position + num_buckets + 1 + (u_position >> l_position) + jump_size_words() / 2; }
+uint64_t DoubleEF::bitCountPosition() { return (num_buckets + 1) * l_position + num_buckets + 1 + (u_position >> l_position) + jump_size_words() / 2; }
 
 DoubleEF::~DoubleEF() {
 	delete[] upper_bits_position;

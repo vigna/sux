@@ -83,8 +83,8 @@ class DoubleEF {
 	~DoubleEF();
 	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &position);
 	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &cum_keys_next, uint64_t &position);
-	uint64_t bit_count_cum_keys();
-	uint64_t bit_count_position();
+	uint64_t bitCountCumKeys();
+	uint64_t bitCountPosition();
 
   private:
 	friend std::ostream &operator<<(std::ostream &os, DoubleEF &ef) {

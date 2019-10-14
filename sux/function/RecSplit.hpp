@@ -378,46 +378,46 @@ template <size_t LEAF_SIZE> class RecSplit {
 		// Number of keys in this bucket
 		size_t m = cum_keys_next - cum_keys;
 
-		descriptors.read_reset(bit_pos, skip_bits(m));
+		descriptors.readReset(bit_pos, skip_bits(m));
 		int level = 0;
 
 		while (m > upper_aggr) { // fanout = 2
-			const auto d = descriptors.read_next(golomb_param(m));
+			const auto d = descriptors.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const uint32_t split = ((uint16_t(m / 2 + upper_aggr - 1) / upper_aggr)) * upper_aggr;
 			if (hmod < split) {
 				m = split;
 			} else {
-				descriptors.skip_subtree(skip_nodes(split), skip_bits(split));
+				descriptors.skipSubtree(skip_nodes(split), skip_bits(split));
 				m -= split;
 				cum_keys += split;
 			}
 			level++;
 		}
 		if (m > lower_aggr) {
-			const auto d = descriptors.read_next(golomb_param(m));
+			const auto d = descriptors.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const int part = uint16_t(hmod) / lower_aggr;
 			m = min(lower_aggr, m - part * lower_aggr);
 			cum_keys += lower_aggr * part;
-			if (part) descriptors.skip_subtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
+			if (part) descriptors.skipSubtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
 			level++;
 		}
 
 		if (m > _leaf) {
-			const auto d = descriptors.read_next(golomb_param(m));
+			const auto d = descriptors.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const int part = uint16_t(hmod) / _leaf;
 			m = min(_leaf, m - part * _leaf);
 			cum_keys += _leaf * part;
-			if (part) descriptors.skip_subtree(part, skip_bits(_leaf) * part);
+			if (part) descriptors.skipSubtree(part, skip_bits(_leaf) * part);
 			level++;
 		}
 
-		const auto b = descriptors.read_next(golomb_param(m));
+		const auto b = descriptors.readNext(golomb_param(m));
 		return cum_keys + remap16(remix(hash.second + b + start_seed[level]), m);
 	}
 
@@ -436,13 +436,13 @@ template <size_t LEAF_SIZE> class RecSplit {
 	inline uint64_t hash128_to_bucket(const hash128_t &hash) const { return remap128(hash.first, nbuckets); }
 
 	// Computes and stores the splittings and bijections of a bucket.
-	void rec_split(vector<uint64_t> &bucket, vector<uint32_t> &unary) {
+	void recSplit(vector<uint64_t> &bucket, vector<uint32_t> &unary) {
 		const auto m = bucket.size();
 		vector<uint64_t> temp(m);
-		rec_split(bucket, temp, 0, bucket.size(), unary, 0);
+		recSplit(bucket, temp, 0, bucket.size(), unary, 0);
 	}
 
-	void rec_split(vector<uint64_t> &bucket, vector<uint64_t> &temp, size_t start, size_t end, vector<uint32_t> &unary, const int level) {
+	void recSplit(vector<uint64_t> &bucket, vector<uint64_t> &temp, size_t start, size_t end, vector<uint32_t> &unary, const int level) {
 		const auto m = end - start;
 		assert(m > 1);
 		uint64_t x = start_seed[level];
@@ -488,7 +488,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 #endif
 			x -= start_seed[level];
 			const auto log2golomb = golomb_param(m);
-			descriptors.append_fixed(x, log2golomb);
+			descriptors.appendFixed(x, log2golomb);
 			unary.push_back(x >> log2golomb);
 #ifdef MORESTATS
 			bij_count[m]++;
@@ -534,14 +534,14 @@ template <size_t LEAF_SIZE> class RecSplit {
 				x -= start_seed[level];
 
 				const auto log2golomb = golomb_param(m);
-				descriptors.append_fixed(x, log2golomb);
+				descriptors.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
 				time_split[min(MAX_LEVEL_TIME, level)] += duration_cast<nanoseconds>(high_resolution_clock::now() - start_time).count();
 #endif
-				rec_split(bucket, temp, start, start + split, unary, level + 1);
-				if (m - split > 1) rec_split(bucket, temp, start + split, end, unary, level + 1);
+				recSplit(bucket, temp, start, start + split, unary, level + 1);
+				if (m - split > 1) recSplit(bucket, temp, start + split, end, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -571,7 +571,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 
 				x -= start_seed[level];
 				const auto log2golomb = golomb_param(m);
-				descriptors.append_fixed(x, log2golomb);
+				descriptors.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
@@ -579,9 +579,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 #endif
 				size_t i;
 				for (i = 0; i < m - lower_aggr; i += lower_aggr) {
-					rec_split(bucket, temp, start + i, start + i + lower_aggr, unary, level + 1);
+					recSplit(bucket, temp, start + i, start + i + lower_aggr, unary, level + 1);
 				}
-				if (m - i > 1) rec_split(bucket, temp, start + i, end, unary, level + 1);
+				if (m - i > 1) recSplit(bucket, temp, start + i, end, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -610,7 +610,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 
 				x -= start_seed[level];
 				const auto log2golomb = golomb_param(m);
-				descriptors.append_fixed(x, log2golomb);
+				descriptors.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
@@ -618,9 +618,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 #endif
 				size_t i;
 				for (i = 0; i < m - _leaf; i += _leaf) {
-					rec_split(bucket, temp, start + i, start + i + _leaf, unary, level + 1);
+					recSplit(bucket, temp, start + i, start + i + _leaf, unary, level + 1);
 				}
-				if (m - i > 1) rec_split(bucket, temp, start + i, end, unary, level + 1);
+				if (m - i > 1) recSplit(bucket, temp, start + i, end, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -695,10 +695,10 @@ template <size_t LEAF_SIZE> class RecSplit {
 			bucket_size_acc[i + 1] = bucket_size_acc[i] + s;
 			if (bucket.size() > 1) {
 				vector<uint32_t> unary;
-				rec_split(bucket, unary);
-				descriptors.append_unary_all(unary);
+				recSplit(bucket, unary);
+				descriptors.appendUnaryAll(unary);
 			}
-			bucket_pos_acc[i + 1] = descriptors.get_bits();
+			bucket_pos_acc[i + 1] = descriptors.getBits();
 #ifdef MORESTATS
 			auto upper_leaves = (s + _leaf - 1) / _leaf;
 			auto upper_height = ceil(log(upper_leaves) / log(2)); // TODO: check
@@ -710,18 +710,18 @@ template <size_t LEAF_SIZE> class RecSplit {
 			maxsize = max(maxsize, s);
 #endif
 		}
-		descriptors.append_fixed(1, 1); // Sentinel (avoids checking for parts of size 1)
-		descriptors.fit_data();
+		descriptors.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
+		descriptors.fitData();
 
 		ef = new DoubleEF(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
 
 #ifdef STATS
 		// Evaluation purposes only
-		double ef_sizes = (double)ef->bit_count_cum_keys() / keys_count;
-		double ef_bits = (double)ef->bit_count_position() / keys_count;
-		double rice_desc = (double)descriptors.get_bits() / keys_count;
-		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef->bit_count_cum_keys() / nbuckets);
-		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef->bit_count_position() / nbuckets);
+		double ef_sizes = (double)ef->bitCountCumKeys() / keys_count;
+		double ef_bits = (double)ef->bitCountPosition() / keys_count;
+		double rice_desc = (double)descriptors.getBits() / keys_count;
+		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef->bitCountCumKeys() / nbuckets);
+		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef->bitCountPosition() / nbuckets);
 		printf("Elias-Fano cumul sizes:  %f bits/key\n", ef_sizes);
 		printf("Elias-Fano cumul bits:   %f bits/key\n", ef_bits);
 		printf("Rice-Golomb descriptors: %f bits/key\n", rice_desc);

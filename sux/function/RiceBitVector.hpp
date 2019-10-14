@@ -51,14 +51,14 @@ class RiceBitVector {
   public:
 	RiceBitVector(const size_t alloc_words = DEFAULT_VECTSIZE);
 	~RiceBitVector();
-	uint64_t read_next(const int log2golomb);
-	void skip_subtree(const size_t nodes, const size_t fixed_len);
-	void read_reset(const size_t bit_pos = 0, const size_t unary_offset = 0);
-	void append_fixed(const uint64_t v, const int log2golomb);
-	void append_unary_all(const vector<uint32_t> unary);
-	size_t get_bits() const;
-	void fit_data();
-	void print_bits() const;
+	uint64_t readNext(const int log2golomb);
+	void skipSubtree(const size_t nodes, const size_t fixed_len);
+	void readReset(const size_t bit_pos = 0, const size_t unary_offset = 0);
+	void appendFixed(const uint64_t v, const int log2golomb);
+	void appendUnaryAll(const vector<uint32_t> unary);
+	size_t getBits() const;
+	void fitData();
+	void printBits() const;
 
   private:
 	friend std::ostream &operator<<(std::ostream &os, const RiceBitVector &rbv) {

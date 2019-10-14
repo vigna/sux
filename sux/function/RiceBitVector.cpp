@@ -44,7 +44,7 @@ RiceBitVector::~RiceBitVector() {
 	}
 }
 
-uint64_t RiceBitVector::read_next(const int log2golomb) {
+uint64_t RiceBitVector::readNext(const int log2golomb) {
 	uint64_t result = 0;
 
 	if (curr_window_unary == 0) {
@@ -73,7 +73,7 @@ uint64_t RiceBitVector::read_next(const int log2golomb) {
 	return result;
 }
 
-void RiceBitVector::skip_subtree(const size_t nodes, const size_t fixed_len) {
+void RiceBitVector::skipSubtree(const size_t nodes, const size_t fixed_len) {
 	assert(nodes > 0);
 	size_t missing = nodes, cnt;
 	while ((cnt = nu(curr_window_unary)) < missing) {
@@ -89,7 +89,7 @@ void RiceBitVector::skip_subtree(const size_t nodes, const size_t fixed_len) {
 	curr_fixed_offset += fixed_len;
 }
 
-void RiceBitVector::read_reset(const size_t bit_pos, const size_t unary_offset) {
+void RiceBitVector::readReset(const size_t bit_pos, const size_t unary_offset) {
 	// assert(bit_pos < bit_count);
 	curr_fixed_offset = bit_pos;
 	size_t unary_pos = bit_pos + unary_offset;
@@ -98,7 +98,7 @@ void RiceBitVector::read_reset(const size_t bit_pos, const size_t unary_offset) 
 	valid_lower_bits_unary = 64 - (unary_pos & 63);
 }
 
-void RiceBitVector::append_fixed(const uint64_t v, const int log2golomb) {
+void RiceBitVector::appendFixed(const uint64_t v, const int log2golomb) {
 	const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
 	int used_bits = bit_count & 63;
 
@@ -123,7 +123,7 @@ void RiceBitVector::append_fixed(const uint64_t v, const int log2golomb) {
 	bit_count += log2golomb;
 }
 
-void RiceBitVector::append_unary_all(const std::vector<uint32_t> unary) {
+void RiceBitVector::appendUnaryAll(const std::vector<uint32_t> unary) {
 	size_t bit_inc = 0;
 	for (const auto &u : unary) {
 		bit_inc += u + 1;
@@ -145,15 +145,15 @@ void RiceBitVector::append_unary_all(const std::vector<uint32_t> unary) {
 	}
 }
 
-size_t RiceBitVector::get_bits() const { return bit_count; }
+size_t RiceBitVector::getBits() const { return bit_count; }
 
-void RiceBitVector::fit_data() {
+void RiceBitVector::fitData() {
 	data_bytes = (bit_count + 63) / 64 * sizeof(uint64_t) + 7;
 	data = (uint64_t *)realloc(data, data_bytes);
 	curr_ptr_unary = data;
 }
 
-void RiceBitVector::print_bits() const {
+void RiceBitVector::printBits() const {
 	std::size_t size = bit_count;
 	for (uint64_t *p = data; p <= data + bit_count / 64; ++p) {
 		for (std::size_t i = 0; i < std::min(size, size_t(64)); ++i) {
