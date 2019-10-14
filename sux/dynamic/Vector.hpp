@@ -128,11 +128,11 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {
-		const uint64_t nsize = hton(static_cast<uint64_t>(vector.Size));
+		const uint64_t nsize = static_cast<uint64_t>(vector.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		for (size_t i = 0; i < vector.Size; ++i) {
-			const T value = hton(vector[i]);
+			const T value = vector[i];
 			os.write((char *)&value, sizeof(T));
 		}
 
@@ -143,12 +143,10 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 		uint64_t nsize;
 		is.read((char *)&nsize, sizeof(uint64_t));
 
-		vector = Vector<T, PT>(ntoh(nsize));
+		vector = Vector<T, PT>(nsize);
 
-		for (size_t i = 0; i < vector.size(); ++i) {
+		for (size_t i = 0; i < vector.size(); ++i)
 			is.read((char *)&vector[i], sizeof(T));
-			vector[i] = ntoh(vector[i]);
-		}
 
 		return is;
 	}

@@ -28,82 +28,58 @@
 
 namespace sux::ranking {
 
-/**
- * RankSelect - Dynamic rank & select data structure interface.
- * @bitvector: A bit vector of 64-bit words.
- * @length: The length (in words) of the bitvector.
- * @T: Underlining Fenwick tree of an ungiven <size_t> bound.
+/** An interface for all classes implementating dynamic bitvectors.
  *
- * This data structure indices starts from 0 and ends in @length-1.
+ * Each RankSelect is serializable and deserializable with:
+ * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
+ * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
  *
+ * The data is stored and loaded in little-endian byte order to guarantee
+ * compatibility on different architectures.
+ *
+ * The serialized data follows the compression and node ordering of the specific Fenwick tree
+ * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
+ * very same data with a ByteL).
  */
 class RankSelect : public Rank, public Select, public SelectZero {
   public:
 	virtual ~RankSelect() = default;
 
-	/**
-	 * bitvector() - Returns the bit vector.
-	 *
-	 * It's a constant, so you can't change the junk inside unless you
-	 * explicitly cast away the constness (at your own risk).
-	 *
-	 */
+	/** Returns the bit vector. */
 	virtual const uint64_t *bitvector() const = 0;
-	/**
-	 * update() - Replace a given word in the bitvector.
-	 * @index: index (in words) in the bitvector.
-	 * @word: new value for @bitvector[@index]
-	 *
-	 * This method returns the replaced word.
+
+	/** Replace a given word in the bitvector.
+	 * @param index index (in words) in the bitvector.
+	 * @param word new value for `bitvector[index]`
+	 * @return the replaced word
 	 *
 	 */
 	virtual uint64_t update(size_t index, uint64_t word) = 0;
 
-	/**
-	 * set() - Set (set to 1) a given bit in the bitvector.
-	 * @index: Index (in bits) in the bitvector.
-	 *
-	 * This method returns the previous value of such a bit.
+	/** Set (set to 1) a given bit in the bitvector.
+	 * @param index index (in bits) in the bitvector.
+	 * @return the previous value of such a bit.
 	 *
 	 */
 	virtual bool set(size_t index) = 0;
 
-	/**
-	 * clear() - Clear (set to 0) a given bit in the bitvector.
-	 * @index: Index (in bits) in the bitvector.
-	 *
-	 * This method returns the previous value of such a bit.
+	/** Clear (set to 0) a given bit in the bitvector.
+	 * @param index index (in bits) in the bitvector.
+	 * @return: the previous value of such a bit.
 	 *
 	 */
 	virtual bool clear(size_t index) = 0;
 
-	/**
-	 * toggle() - Change the value of a given bit in the bitvector.
-	 * @index: Index (in bits) in the bitvector.
-	 *
-	 * This method returns the previous value of such a bit.
+	/** Change the value of a given bit in the bitvector.
+	 * @param index index (in bits) in the bitvector.
+	 * @return: the previous value of such a bit.
 	 *
 	 */
 	virtual bool toggle(size_t index) = 0;
 
-	/**
-	 * bitCount() - Estimation of the size (in bits) of this structure.
-	 *
-	 */
+	/** Returns an estimate of the size (in bits) of this structure. */
 	virtual size_t bitCount() const = 0;
 
-	/**
-	 * Each RankSelect is serializable and deserializable with:
-	 * - friend std::ostream &operator<<(std::ostream &os, const RankSelect &bv);
-	 * - friend std::istream &operator>>(std::istream &is, RankSelect &bv);
-	 *
-	 * The data is stored and loaded with the network (big-endian) byte order to guarantee
-	 * compatibility on different architectures.
-	 *
-	 * The serialized data follows the compression and node ordering of the specific underlying
-	 * data structures without any compatibility layer.
-	 *
-	 */
 };
 
 } // namespace sux::ranking

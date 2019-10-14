@@ -200,14 +200,14 @@ template <size_t BOUND> class ByteL : public FenwickTree {
 	static inline size_t heightsize(size_t height) { return ((height + BOUNDSIZE - 1) >> 3) + 1; }
 
 	friend std::ostream &operator<<(std::ostream &os, const ByteL<BOUND> &ft) {
-		const uint64_t nsize = hton((uint64_t)ft.Size);
+		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
-		const uint64_t nlevels = hton((uint64_t)ft.Levels);
+		const uint64_t nlevels = htol((uint64_t)ft.Levels);
 		os.write((char *)&nlevels, sizeof(uint64_t));
 
 		for (size_t i = 0; i < ft.Levels; ++i) {
-			const uint64_t nlevel = hton((uint64_t)ft.Level[i]);
+			const uint64_t nlevel = htol((uint64_t)ft.Level[i]);
 			os.write((char *)&nlevel, sizeof(uint64_t));
 		}
 
@@ -219,17 +219,17 @@ template <size_t BOUND> class ByteL : public FenwickTree {
 	friend std::istream &operator>>(std::istream &is, ByteL<BOUND> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
-		ft.Size = ntoh(nsize);
+		ft.Size = ltoh(nsize);
 
 		uint64_t nlevels;
 		is.read((char *)&nlevels, sizeof(uint64_t));
-		ft.Levels = ntoh(nlevels);
+		ft.Levels = ltoh(nlevels);
 
 		ft.Level = make_unique<size_t[]>(ft.Levels);
 		for (size_t i = 0; i < ft.Levels; ++i) {
 			uint64_t nlevel;
 			is.read((char *)&nlevel, sizeof(uint64_t));
-			ft.Level[i] = ntoh(nlevel);
+			ft.Level[i] = ltoh(nlevel);
 		}
 
 		for (size_t i = 0; i < 64; i++) is >> ft.Tree[i];

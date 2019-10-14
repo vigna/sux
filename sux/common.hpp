@@ -404,7 +404,7 @@ bool inline is_big_endian(void) {
 /** Check if the architecture is little endian */
 bool inline is_little_endian(void) { return !is_big_endian(); }
 
-/* Transform from big-endian to little-endian and vice versa
+/** Transform from big-endian to little-endian and vice versa
  * @param value integral value (sizeof 1, 2, 4 or 8 bytes)
  *
  */
@@ -426,7 +426,7 @@ template <class T> typename std::enable_if<std::is_integral<T>::value, T>::type 
 	}
 }
 
-/** * Host to network endianness converter
+/** Host to network endianness converter
  * @param value integral value
  *
  */
@@ -437,5 +437,17 @@ template <class T> T hton(T value) { return is_little_endian() ? swap_endian<T>(
  *
  */
 template <class T> T ntoh(T value) { return hton(value); }
+
+/** Little endian to host endianness converter
+ * @param value integral value
+ *
+ */
+template <class T> T ltoh(T value) { return is_big_endian() ? swap_endian<T>(value) : value; }
+
+/** Host endianness to little endian converter
+ * @param value integral value
+ *
+ */
+template <class T> T htol(T value) { return ltoh(value); }
 
 } // namespace sux

@@ -115,11 +115,11 @@ template <typename T> class DArray {
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const DArray<T> &darray) {
-		const uint64_t nsize = hton(static_cast<uint64_t>(darray.Size));
+		const uint64_t nsize = static_cast<uint64_t>(darray.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		for (size_t i = 0; i < darray.Size; ++i) {
-			const T value = hton(darray[i]);
+			const T value = darray[i];
 			os.write((char *)&value, sizeof(T));
 		}
 
@@ -130,12 +130,10 @@ template <typename T> class DArray {
 		uint64_t nsize;
 		is.read((char *)&nsize, sizeof(uint64_t));
 
-		darray = DArray<T>(ntoh(nsize));
+		darray = DArray<T>(nsize);
 
-		for (size_t i = 0; i < darray.size(); ++i) {
+		for (size_t i = 0; i < darray.size(); ++i)
 			is.read((char *)&darray[i], sizeof(T));
-			darray[i] = ntoh(darray[i]);
-		}
 
 		return is;
 	}

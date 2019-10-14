@@ -34,17 +34,18 @@ namespace sux::ranking {
 template <template <size_t> class T> class Word : public RankSelect {
   private:
 	static constexpr size_t BOUNDSIZE = 64;
+  size_t Size;
 	T<BOUNDSIZE> Fenwick;
 	DArray<uint64_t> Vector;
 
   public:
-	Word(uint64_t bitvector[], size_t size) : Fenwick(buildFenwick(bitvector, size)), Vector(DArray<uint64_t>(size)) { std::copy_n(bitvector, size, Vector.get()); }
+	Word(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
+		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
+	}
 
-	Word(DArray<uint64_t> bitvector, size_t size) : Fenwick(buildFenwick(bitvector.get(), size)), Vector(std::move(bitvector)) {}
+	Word(DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
 
 	virtual const uint64_t *bitvector() const { return Vector.get(); }
-
-	virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
 
 	using Rank::rank;
 	using Rank::rankZero;
@@ -113,9 +114,16 @@ template <template <size_t> class T> class Word : public RankSelect {
 		return was_set;
 	}
 
+  virtual size_t size() const { return Size; }
+
 	virtual size_t bitCount() const { return sizeof(Word<T>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
   private:
+  static size_t divRoundup(size_t x, size_t y) {
+    if (y > x) return 1;
+    return (x / y) + ((x % y != 0) ? 1 : 0);
+  }
+
 	T<BOUNDSIZE> buildFenwick(const uint64_t bitvector[], size_t size) {
 		uint64_t *sequence = new uint64_t[size];
 		for (size_t i = 0; i < size; i++) sequence[i] = nu(bitvector[i]);
@@ -125,9 +133,20 @@ template <template <size_t> class T> class Word : public RankSelect {
 		return tree;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const Word<T> &bv) { return os << bv.Fenwick << bv.Vector; }
+	friend std::ostream &operator<<(std::ostream &os, const Word<T> &bv) {
+		const uint64_t nsize = htol((uint64_t)bv.Size);
+		os.write((char *)&nsize, sizeof(uint64_t));
+    
+    return os << bv.Fenwick << bv.Vector;
+  }
 
-	friend std::istream &operator>>(std::istream &is, Word<T> &bv) { return is >> bv.Fenwick >> bv.Vector; }
+	friend std::istream &operator>>(std::istream &is, Word<T> &bv) {
+		uint64_t nsize;
+		is.read((char *)(&nsize), sizeof(uint64_t));
+		bv.Size = ltoh(nsize);
+
+    return is >> bv.Fenwick >> bv.Vector;
+  }
 };
 
 } // namespace sux::ranking

@@ -26,26 +26,28 @@ namespace sux::ranking {
 
 /**
  * Stride - Linear search on many words.
- * @bitvector: A bitvector of 64-bit words.
- * @size: The length (in words) of the bitvector.
- * @T: Underlining Fenwick tree with an ungiven <size_t> bound.
- * @WORDS: Length (in words) of the linear search stride.
+ * @param bitvector a bitvector of 64-bit words.
+ * @param size the length (in words) of the bitvector.
+ * @tparam T underlining Fenwick tree with an ungiven <size_t> bound.
+ * @tparam WORDS length (in words) of the linear search stride.
  *
  */
 template <template <size_t> class T, size_t WORDS> class Stride : public RankSelect {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
+  size_t Size;
 	T<BOUND> Fenwick;
 	DArray<uint64_t> Vector;
 
   public:
-	Stride(uint64_t bitvector[], size_t size) : Fenwick(buildFenwick(bitvector, size)), Vector(DArray<uint64_t>(size)) { std::copy_n(bitvector, size, Vector.get()); }
+	Stride(uint64_t bitvector[], size_t size)
+		: Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(DArray<uint64_t>(divRoundup(size, 64))) {
+		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
+	}
 
-	Stride(DArray<uint64_t> bitvector, size_t size) : Fenwick(buildFenwick(bitvector.get(), size)), Vector(std::move(bitvector)) {}
+  Stride(DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
 
 	virtual const uint64_t *bitvector() const { return Vector.get(); }
-
-	virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
 
 	virtual uint64_t rank(size_t pos) {
 		size_t idx = pos / (64 * WORDS);
@@ -133,21 +135,39 @@ template <template <size_t> class T, size_t WORDS> class Stride : public RankSel
 		return was_set;
 	}
 
+  virtual size_t size() const { return Size; }
+
 	virtual size_t bitCount() const { return sizeof(Stride<T, WORDS>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
   private:
+  static size_t divRoundup(size_t x, size_t y) {
+    if (y > x) return 1;
+    return (x / y) + ((x % y != 0) ? 1 : 0);
+  }
+
 	static T<BOUND> buildFenwick(const uint64_t bitvector[], size_t size) {
-		uint64_t *sequence = new uint64_t[size / WORDS + 1]();
+		uint64_t *sequence = new uint64_t[divRoundup(size, WORDS)]();
 		for (size_t i = 0; i < size; i++) sequence[i / WORDS] += nu(bitvector[i]);
 
-		T<BOUND> tree(sequence, size / WORDS + 1);
+		T<BOUND> tree(sequence, divRoundup(size, WORDS));
 		delete[] sequence;
 		return tree;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const Stride<T, WORDS> &bv) { return os << bv.Fenwick << bv.Vector; }
+	friend std::ostream &operator<<(std::ostream &os, const Stride<T, WORDS> &bv) {
+		const uint64_t nsize = htol((uint64_t)bv.Size);
+		os.write((char *)&nsize, sizeof(uint64_t));
+    
+    return os << bv.Fenwick << bv.Vector;
+  }
 
-	friend std::istream &operator>>(std::istream &is, Stride<T, WORDS> &bv) { return is >> bv.Fenwick >> bv.Vector; }
+	friend std::istream &operator>>(std::istream &is, Stride<T, WORDS> &bv) {
+		uint64_t nsize;
+		is.read((char *)(&nsize), sizeof(uint64_t));
+		bv.Size = ltoh(nsize);
+
+    return is >> bv.Fenwick >> bv.Vector;
+  }
 };
 
 } // namespace sux::ranking

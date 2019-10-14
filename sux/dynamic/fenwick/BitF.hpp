@@ -173,7 +173,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const BitF<BOUND> &ft) {
-		const uint64_t nsize = hton((uint64_t)ft.Size);
+		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
@@ -182,7 +182,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	friend std::istream &operator>>(std::istream &is, BitF<BOUND> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
-		ft.Size = ntoh(nsize);
+		ft.Size = ltoh(nsize);
 
 		return is >> ft.Tree;
 	}

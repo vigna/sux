@@ -139,7 +139,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 	static inline size_t pos(size_t idx) { return idx + holes(idx); }
 
 	friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND> &ft) {
-		uint64_t nsize = hton((uint64_t)ft.Size);
+		uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
@@ -149,7 +149,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 
-		ft.Size = ntoh(nsize);
+		ft.Size = ltoh(nsize);
 		return is >> ft.Tree;
 	}
 };
