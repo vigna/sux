@@ -138,4 +138,4 @@ template <typename T> class DArray {
 	}
 };
 
-} 
+} // namespace sux::util

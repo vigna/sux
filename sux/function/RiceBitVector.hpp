@@ -20,11 +20,11 @@
 
 #pragma once
 
+#include "../support/common.hpp"
 #include <cstdint>
 #include <cstdio>
-#include <vector>
 #include <iostream>
-#include "../support/common.hpp"
+#include <vector>
 
 using namespace std;
 
@@ -69,7 +69,7 @@ class RiceBitVector {
 
 		is.read((char *)&rbv.bit_count, sizeof(rbv.bit_count));
 		is.read((char *)&rbv.data_bytes, sizeof(rbv.data_bytes));
-	
+
 		if (rbv.data) free(rbv.data);
 		rbv.data = (uint64_t *)malloc(rbv.data_bytes);
 		is.read((char *)rbv.data, rbv.data_bytes);
@@ -78,4 +78,4 @@ class RiceBitVector {
 	}
 };
 
-} // namespace sux
+} // namespace sux::function

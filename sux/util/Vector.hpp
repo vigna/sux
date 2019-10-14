@@ -150,4 +150,4 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 	}
 };
 
-} 
+} // namespace sux::util

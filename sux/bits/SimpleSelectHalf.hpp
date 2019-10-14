@@ -44,4 +44,4 @@ class SimpleSelectHalf {
 	uint64_t bitCount();
 };
 
-} // namespace sux
+} // namespace sux::bits

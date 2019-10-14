@@ -219,4 +219,4 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSums {
 	}
 };
 
-} 
+} // namespace sux::util

@@ -72,4 +72,4 @@ class DynamicBitVector {
 	virtual size_t bitCount() const = 0;
 };
 
-} // namespace sux::ranking
+} // namespace sux::bits

@@ -2,9 +2,8 @@
 #include <chrono>
 #include <cstdio>
 #include <fstream>
-#include <random>
 #include <iostream>
-#include <fstream>
+#include <random>
 #include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)

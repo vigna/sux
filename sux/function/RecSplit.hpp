@@ -297,7 +297,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 * @param keys a vector of strings.
 	 * @param bucket_size the desired bucket size.
 	 */
-	RecSplit(const std::vector<std::string> &keys, const size_t bucket_size) {
+	RecSplit(const vector<string> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		this->keys_count = keys.size();
 		hash128_t *h = (hash128_t *)malloc(this->keys_count * sizeof(hash128_t));
@@ -316,7 +316,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 * @param keys a vector of 128-bit hashes.
 	 * @param bucket_size the desired bucket size.
 	 */
-	RecSplit(std::vector<hash128_t> &keys, const size_t bucket_size) {
+	RecSplit(vector<hash128_t> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		this->keys_count = keys.size();
 		hash_gen(&keys[0]);
@@ -331,7 +331,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 */
 	RecSplit(FILE *keys_fp, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
-		std::vector<hash128_t> h;
+		vector<hash128_t> h;
 		char *key = NULL;
 		size_t bsize = 0;
 		for (ssize_t key_len; (key_len = getline(&key, &bsize, keys_fp)) != -1;) {
@@ -350,9 +350,72 @@ template <size_t LEAF_SIZE> class RecSplit {
 
 	~RecSplit() { delete ef; }
 
+	/** Returns the value associated with the given 128-bit hash.
+	 *
+	 * Note that this method is mainly useful for benchmarking.
+	 * @param hash a 128-bit hash.
+	 * @return the associated value.
+	 */
+	size_t operator()(const hash128_t &hash) {
+		const size_t bucket = hash128_to_bucket(hash);
+		uint64_t cum_keys, cum_keys_next, bit_pos;
+		ef->get(bucket, cum_keys, cum_keys_next, bit_pos);
+
+		// Number of keys in this bucket
+		size_t m = cum_keys_next - cum_keys;
+
+		descriptors.read_reset(bit_pos, skip_bits(m));
+		int level = 0;
+
+		while (m > upper_aggr) { // fanout = 2
+			const auto d = descriptors.read_next(golomb_param(m));
+			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
+
+			const uint32_t split = ((uint16_t(m / 2 + upper_aggr - 1) / upper_aggr)) * upper_aggr;
+			if (hmod < split) {
+				m = split;
+			} else {
+				descriptors.skip_subtree(skip_nodes(split), skip_bits(split));
+				m -= split;
+				cum_keys += split;
+			}
+			level++;
+		}
+		if (m > lower_aggr) {
+			const auto d = descriptors.read_next(golomb_param(m));
+			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
+
+			const int part = uint16_t(hmod) / lower_aggr;
+			m = min(lower_aggr, m - part * lower_aggr);
+			cum_keys += lower_aggr * part;
+			if (part) descriptors.skip_subtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
+			level++;
+		}
+
+		if (m > _leaf) {
+			const auto d = descriptors.read_next(golomb_param(m));
+			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
+
+			const int part = uint16_t(hmod) / _leaf;
+			m = min(_leaf, m - part * _leaf);
+			cum_keys += _leaf * part;
+			if (part) descriptors.skip_subtree(part, skip_bits(_leaf) * part);
+			level++;
+		}
+
+		const auto b = descriptors.read_next(golomb_param(m));
+		return cum_keys + remap16(remix(hash.second + b + start_seed[level]), m);
+	}
+
+	/** Returns the value associated with the given key.
+	 *
+	 * @param key a key.
+	 * @return the associated value.
+	 */
+	size_t operator()(const string &key) { return operator()(first_hash(key.c_str(), key.size())); }
+
 	/** Returns the number of keys used to build this RecSplit instance. */
 	inline size_t size() { return this->keys_count; }
-
 
   private:
 	// Maps a 128-bit to a bucket using the first 64-bit half.
@@ -581,71 +644,6 @@ template <size_t LEAF_SIZE> class RecSplit {
 		}
 	}
 
-  public:
-	/** Returns the value associated with the given 128-bit hash.
-	 *
-	 * Note that this method is mainly useful for benchmarking.
-	 * @param key a 128-bit hash.
-	 * @return the associated value.
-	 */
-	size_t operator()(const hash128_t &hash) {
-		const size_t bucket = hash128_to_bucket(hash);
-		uint64_t cum_keys, cum_keys_next, bit_pos;
-		ef->get(bucket, cum_keys, cum_keys_next, bit_pos);
-
-		// Number of keys in this bucket
-		size_t m = cum_keys_next - cum_keys;
-
-		descriptors.read_reset(bit_pos, skip_bits(m));
-		int level = 0;
-
-		while (m > upper_aggr) { // fanout = 2
-			const auto d = descriptors.read_next(golomb_param(m));
-			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
-
-			const uint32_t split = ((uint16_t(m / 2 + upper_aggr - 1) / upper_aggr)) * upper_aggr;
-			if (hmod < split) {
-				m = split;
-			} else {
-				descriptors.skip_subtree(skip_nodes(split), skip_bits(split));
-				m -= split;
-				cum_keys += split;
-			}
-			level++;
-		}
-		if (m > lower_aggr) {
-			const auto d = descriptors.read_next(golomb_param(m));
-			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
-
-			const int part = uint16_t(hmod) / lower_aggr;
-			m = min(lower_aggr, m - part * lower_aggr);
-			cum_keys += lower_aggr * part;
-			if (part) descriptors.skip_subtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
-			level++;
-		}
-
-		if (m > _leaf) {
-			const auto d = descriptors.read_next(golomb_param(m));
-			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
-
-			const int part = uint16_t(hmod) / _leaf;
-			m = min(_leaf, m - part * _leaf);
-			cum_keys += _leaf * part;
-			if (part) descriptors.skip_subtree(part, skip_bits(_leaf) * part);
-			level++;
-		}
-
-		const auto b = descriptors.read_next(golomb_param(m));
-		return cum_keys + remap16(remix(hash.second + b + start_seed[level]), m);
-	}
-
-	/** Returns the value associated with the given keys.
-	 * @param key a key.
-	 * @return the associated value.
-	 */
-	size_t operator()(const string &key) { return operator()(first_hash(key.c_str(), key.size())); }
-
-  private:
 	void hash_gen(hash128_t *hashes) {
 #ifdef MORESTATS
 		time_bij = 0;
@@ -788,7 +786,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 #endif
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const RecSplit<LEAF_SIZE> &rs) {
+	friend ostream &operator<<(ostream &os, const RecSplit<LEAF_SIZE> &rs) {
 		const size_t leaf_size = LEAF_SIZE;
 		os.write((char *)&leaf_size, sizeof(leaf_size));
 		os.write((char *)&rs.bucket_size, sizeof(rs.bucket_size));
@@ -798,7 +796,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, RecSplit<LEAF_SIZE> &rs) {
+	friend istream &operator>>(istream &is, RecSplit<LEAF_SIZE> &rs) {
 		size_t leaf_size;
 		is.read((char *)&leaf_size, sizeof(leaf_size));
 		if (leaf_size != LEAF_SIZE) {

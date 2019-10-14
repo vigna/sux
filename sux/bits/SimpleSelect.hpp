@@ -47,4 +47,4 @@ class SimpleSelect : public Select {
 	uint64_t bitCount();
 };
 
-} // namespace sux
+} // namespace sux::bits

@@ -51,4 +51,4 @@ class Rank9 : public Rank {
 	uint64_t bitCount();
 };
 
-} // namespace sux
+} // namespace sux::bits

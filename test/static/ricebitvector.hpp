@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sux/function/RiceBitVector.hpp>
 #include <random>
+#include <sux/function/RiceBitVector.hpp>
 #include <vector>
 
 using namespace std;

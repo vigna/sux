@@ -23,9 +23,9 @@
 #include "../support/common.hpp"
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <limits>
 #include <vector>
-#include <iostream>
 
 #ifndef LOG2Q
 #define LOG2Q 8
@@ -89,14 +89,14 @@ class DoubleEF {
 		os.write((char *)&ef.cum_keys_min_delta, sizeof(ef.cum_keys_min_delta));
 		os.write((char *)&ef.min_diff, sizeof(ef.min_diff));
 		os.write((char *)&ef.bits_per_key_fixed_point, sizeof(ef.bits_per_key_fixed_point));
-	
+
 		const uint64_t words_lower_bits = ef.lower_bits_size_words();
 		os.write((char *)ef.lower_bits, sizeof(uint64_t) * (size_t)words_lower_bits);
 		const uint64_t words_cum_keys = ef.cum_keys_size_words();
 		os.write((char *)ef.upper_bits_cum_keys, sizeof(uint64_t) * (size_t)words_cum_keys);
 		const uint64_t words_position = ef.position_size_words();
 		os.write((char *)ef.upper_bits_position, sizeof(uint64_t) * (size_t)words_position);
-	
+
 		const uint64_t jump_words = ef.jump_size_words();
 		os.write((char *)ef.jump, sizeof(uint64_t) * (size_t)jump_words);
 		return os;

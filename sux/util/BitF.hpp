@@ -189,4 +189,4 @@ template <size_t BOUND> class BitF : public SearchablePrefixSums {
 	}
 };
 
-} 
+} // namespace sux::util

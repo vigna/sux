@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sux/bits/WordDynRankSel.hpp>
 #include <sux/bits/StrideDynRankSel.hpp>
+#include <sux/bits/WordDynRankSel.hpp>
 
 TEST(rankselect, all_ones) {
 	using namespace sux;
@@ -209,12 +209,12 @@ template <std::size_t S> void run_rankselect(std::size_t size) {
 	const size_t zeros = size - ones;
 
 	// word
-  bits::WordDynRankSel<util::FixedF> fixedf(bitvect, size);
-  bits::WordDynRankSel<util::FixedL> fixedl(bitvect, size);
-  bits::WordDynRankSel<util::BitF> bit(bitvect, size);
-  bits::WordDynRankSel<util::BitL> bitl(bitvect, size);
-  bits::WordDynRankSel<util::ByteF> byte(bitvect, size);
-  bits::WordDynRankSel<util::ByteL> bytel(bitvect, size);
+	bits::WordDynRankSel<util::FixedF> fixedf(bitvect, size);
+	bits::WordDynRankSel<util::FixedL> fixedl(bitvect, size);
+	bits::WordDynRankSel<util::BitF> bit(bitvect, size);
+	bits::WordDynRankSel<util::BitL> bitl(bitvect, size);
+	bits::WordDynRankSel<util::ByteF> byte(bitvect, size);
+	bits::WordDynRankSel<util::ByteL> bytel(bitvect, size);
 
 	// line
 	bits::StrideDynRankSel<util::FixedF, S> fixedfS(bitvect, size);

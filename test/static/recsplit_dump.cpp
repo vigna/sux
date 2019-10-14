@@ -1,7 +1,7 @@
 #include <chrono>
 #include <cstdio>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <sux/function/RecSplit.hpp>
 
 using namespace std;

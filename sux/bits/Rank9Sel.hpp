@@ -51,4 +51,4 @@ class Rank9Sel : public Rank, public Select {
 	uint64_t bitCount();
 };
 
-} // namespace sux
+} // namespace sux::bits

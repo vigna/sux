@@ -239,4 +239,4 @@ template <size_t BOUND> class ByteL : public SearchablePrefixSums {
 	}
 };
 
-} 
+} // namespace sux::util

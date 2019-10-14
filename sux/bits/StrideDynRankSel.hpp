@@ -20,16 +20,16 @@
 
 #pragma once
 
+#include "../util/DArray.hpp"
 #include "DynamicBitVector.hpp"
 #include "Rank.hpp"
 #include "Select.hpp"
 #include "SelectZero.hpp"
-#include "../util/DArray.hpp"
 
 namespace sux::bits {
 
 /** Ranking and selection in a dynamic bit vector by means
- *  of a searchable prefix-sum data structure and linear 
+ *  of a searchable prefix-sum data structure and linear
  *  searches on a sequence of words of given length.
  *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
@@ -40,7 +40,7 @@ template <template <size_t> class T, size_t WORDS> class StrideDynRankSel : publ
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;
 	T<BOUND> Fenwick;
-  util::DArray<uint64_t> Vector;
+	util::DArray<uint64_t> Vector;
 
   public:
 	/** Creates a new instance with given vector od values
@@ -182,4 +182,4 @@ template <template <size_t> class T, size_t WORDS> class StrideDynRankSel : publ
 	}
 };
 
-} // namespace sux::ranking
+} // namespace sux::bits

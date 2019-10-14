@@ -45,4 +45,4 @@ class SimpleSelectZeroHalf {
 	uint64_t bitCount();
 };
 
-} // namespace sux
+} // namespace sux::bits

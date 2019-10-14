@@ -1,11 +1,11 @@
 #pragma once
 
-#include <sux/function/RecSplit.hpp>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <random>
 #include <fstream>
+#include <random>
+#include <sux/function/RecSplit.hpp>
 
 using namespace std;
 using namespace sux;
@@ -79,7 +79,7 @@ TEST(recsplit_test, dump_and_load) {
 	fs >> rs_load;
 	fs.close();
 
-	for(size_t i = 0; i < rs_load.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
+	for (size_t i = 0; i < rs_load.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
 	recsplit_unit_test(rs_load, keys);
 	remove(filename);
 }

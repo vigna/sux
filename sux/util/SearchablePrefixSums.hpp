@@ -128,4 +128,4 @@ class SearchablePrefixSums {
 	virtual size_t bitCount() const = 0;
 };
 
-} 
+} // namespace sux::util

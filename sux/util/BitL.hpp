@@ -230,4 +230,4 @@ template <size_t BOUND> class BitL : public SearchablePrefixSums {
 	}
 };
 
-} 
+} // namespace sux::util

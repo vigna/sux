@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
-#include <random>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <random>
 #include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 	const uint64_t n = strtoll(argv[1], NULL, 0);
 
 	fstream fs;
-	RecSplit <LEAF> rs;
+	RecSplit<LEAF> rs;
 
 	fs.exceptions(fstream::failbit | fstream::badbit);
 	fs.open(argv[2], fstream::in | fstream::binary);
