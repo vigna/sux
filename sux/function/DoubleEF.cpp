@@ -254,5 +254,3 @@ void DoubleEF::load(FILE *fp) {
 	jump = new uint64_t[jump_words];
 	fread(jump, sizeof(uint64_t), (size_t)jump_words, fp);
 }
-
-} // namespace sux

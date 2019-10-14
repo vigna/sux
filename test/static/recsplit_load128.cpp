@@ -3,14 +3,14 @@
 #include <chrono>
 #include <cstdio>
 #include <random>
-#include <sux/static/RecSplit.hpp>
+#include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)
 
 using namespace std;
-using namespace sux;
+using namespace sux::function;
 
-void benchmark(sux::RecSplit<LEAF> &rs, const uint64_t n) {
+void benchmark(RecSplit<LEAF> &rs, const uint64_t n) {
 	printf("Benchmarking...\n");
 
 	uint64_t sample[SAMPLES];
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 	const uint64_t n = strtoll(argv[1], NULL, 0);
 
 	FILE *fp = fopen(argv[2], "r");
-	sux::RecSplit<LEAF> rs;
+	RecSplit<LEAF> rs;
 	rs.load(fp);
 	fclose(fp);
 

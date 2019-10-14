@@ -3,13 +3,14 @@
 #include <cstdio>
 #include <fstream>
 #include <random>
-#include <sux/static/RecSplit.hpp>
+#include <sux/function/RecSplit.hpp>
 
 #define SAMPLES (11)
 
 using namespace std;
+using namespace sux::function;
 
-template <typename T> void benchmark(sux::RecSplit<LEAF> &rs, const vector<T> &keys) {
+template <typename T> void benchmark(RecSplit<LEAF> &rs, const vector<T> &keys) {
 	printf("Benchmarking...\n");
 
 	uint64_t sample[SAMPLES];
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
 	fin.close();
 
 	FILE *fp = fopen(argv[2], "r");
-	sux::RecSplit<LEAF> rs;
+	RecSplit<LEAF> rs;
 	rs.load(fp);
 	fclose(fp);
 

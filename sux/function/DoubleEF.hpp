@@ -83,4 +83,4 @@ class DoubleEF {
 	void load(FILE *fp);
 };
 
-} // namespace sux
+} // namespace sux::function

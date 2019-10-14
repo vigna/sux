@@ -187,5 +187,3 @@ void RiceBitvector::load(FILE *fp) {
 	fread(data, data_bytes, (size_t)1, fp);
 	curr_ptr_unary = data;
 }
-
-} // namespace sux

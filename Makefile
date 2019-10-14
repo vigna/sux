@@ -6,7 +6,7 @@ bin/dynamic: test/dynamic/*
 
 bin/static: test/static/* 
 	@mkdir -p bin
-	$(CC) test/static/test.cpp sux/static/Rank9.cpp sux/static/Rank9Sel.cpp sux/static/SimpleSelect.cpp sux/static/SimpleSelectZero.cpp sux/static/SimpleSelectHalf.cpp sux/static/SimpleSelectZeroHalf.cpp sux/static/EliasFano.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/static
+	$(CC) test/static/test.cpp sux/bits/Rank9.cpp sux/bits/Rank9Sel.cpp sux/bits/SimpleSelect.cpp sux/bits/SimpleSelectZero.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp sux/function/DoubleEF.cpp sux/function/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/static
 
 test: bin/static bin/dynamic
 	./bin/static --gtest_color=yes
@@ -16,10 +16,10 @@ LEAF?=8
 
 recsplit: test/static/recsplit_*
 	@mkdir -p bin
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump128.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load128.cpp sux/static/DoubleEF.cpp sux/static/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump.cpp sux/function/DoubleEF.cpp sux/function/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_dump128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load.cpp sux/function/DoubleEF.cpp sux/function/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) test/static/recsplit_load128.cpp sux/function/DoubleEF.cpp sux/function/RiceBitvector.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
 
 ranksel: test/static/ranksel_*
 	@mkdir -p bin

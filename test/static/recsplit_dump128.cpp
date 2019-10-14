@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
-#include <sux/static/RecSplit.hpp>
+#include <sux/function/RecSplit.hpp>
 
 using namespace std;
-using namespace sux;
+using namespace sux::function;
 
 int main(int argc, char **argv) {
 	if (argc < 4) {
