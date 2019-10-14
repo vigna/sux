@@ -1,5 +1,5 @@
-Sux
-===
+Sux 1.0
+=======
 
 Welcome to the C++ part of the [Sux](http://sux.di.unimi.it/) project.
 
