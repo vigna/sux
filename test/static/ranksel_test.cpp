@@ -25,10 +25,10 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <sux/static/EliasFano.hpp>
-#include <sux/static/Rank9Sel.hpp>
-#include <sux/static/SimpleSelect.hpp>
-#include <sux/static/SimpleSelectHalf.hpp>
+#include <sux/bits/EliasFano.hpp>
+#include <sux/bits/Rank9Sel.hpp>
+#include <sux/bits/SimpleSelect.hpp>
+#include <sux/bits/SimpleSelectHalf.hpp>
 
 using namespace std;
 
