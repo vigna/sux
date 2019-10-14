@@ -1,11 +1,11 @@
 #pragma once
 
-#include "sux/static/RiceBitvector.hpp"
+#include <sux/function/RiceBitvector.hpp>
 #include <random>
 #include <vector>
 
 using namespace std;
-using namespace sux;
+using namespace sux::function;
 
 static const size_t rice_test_nkeys = 256;
 static const size_t rice_test_ntrees = 100000;

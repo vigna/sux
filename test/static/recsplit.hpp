@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sux/static/RecSplit.hpp"
+#include <sux/function/RecSplit.hpp>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>

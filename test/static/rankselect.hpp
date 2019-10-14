@@ -1,14 +1,14 @@
 #pragma once
 
-#include <sux/static/EliasFano.hpp>
-#include <sux/static/Rank9Sel.hpp>
-#include <sux/static/SimpleSelect.hpp>
-#include <sux/static/SimpleSelectHalf.hpp>
-#include <sux/static/SimpleSelectZero.hpp>
-#include <sux/static/SimpleSelectZeroHalf.hpp>
+#include <sux/bits/EliasFano.hpp>
+#include <sux/bits/Rank9Sel.hpp>
+#include <sux/bits/SimpleSelect.hpp>
+#include <sux/bits/SimpleSelectHalf.hpp>
+#include <sux/bits/SimpleSelectZero.hpp>
+#include <sux/bits/SimpleSelectZeroHalf.hpp>
 
 TEST(rankselect, all_ones) {
-	using namespace sux;
+	using namespace sux::bits;
 
 	for (size_t size = 0; size <= 2049; size++) {
 		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
@@ -44,7 +44,7 @@ TEST(rankselect, all_ones) {
 }
 
 TEST(rankselect, all_zeroes) {
-	using namespace sux;
+	using namespace sux::bits;
 
 	for (size_t size = 0; size <= 2049; size++) {
 		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
@@ -77,7 +77,7 @@ TEST(rankselect, all_zeroes) {
 }
 
 static void run_rankselect(std::size_t size) {
-	using namespace sux;
+	using namespace sux::bits;
 	const size_t words = size / 64 + 1;
 
 	uint64_t *bitvect = new uint64_t[words];
