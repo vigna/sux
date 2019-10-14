@@ -132,8 +132,7 @@ template <typename T> class DArray {
 
 		darray = DArray<T>(nsize);
 
-		for (size_t i = 0; i < darray.size(); ++i)
-			is.read((char *)&darray[i], sizeof(T));
+		for (size_t i = 0; i < darray.size(); ++i) is.read((char *)&darray[i], sizeof(T));
 
 		return is;
 	}

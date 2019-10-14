@@ -32,7 +32,6 @@ namespace sux {
  *  and provides constant-time selection.
  */
 
-
 class Rank9Sel : public Rank, public Select {
   private:
 	const size_t num_bits;

@@ -28,42 +28,38 @@
 
 namespace sux::ranking {
 
-/** An interface for all classes implementating dynamic bitvectors.
+/** An interface for all classes implementating dynamic bit vectors.
  *
- * Each RankSelect is serializable and deserializable with:
+ * We suggest to make every implementation of this interface
+ * serializable and deserializable with:
  * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
  * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
  *
- * The data is stored and loaded in little-endian byte order to guarantee
+ * The data should be stored and loaded in little-endian byte order to guarantee
  * compatibility on different architectures.
- *
- * The serialized data follows the compression and node ordering of the specific Fenwick tree
- * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
- * very same data with a ByteL).
  */
-class RankSelect : public Rank, public Select, public SelectZero {
+class DynamicBitVector {
   public:
-	virtual ~RankSelect() = default;
-
-	/** Returns the bit vector. */
-	virtual const uint64_t *bitvector() const = 0;
+	virtual ~DynamicBitVector() = default;
 
 	/** Replace a given word in the bitvector.
+	 *
 	 * @param index index (in words) in the bitvector.
-	 * @param word new value for `bitvector[index]`
-	 * @return the replaced word
+	 * @param word new value for `bitvector[index]`.
+	 * @return the replaced word.
 	 *
 	 */
 	virtual uint64_t update(size_t index, uint64_t word) = 0;
 
 	/** Set (set to 1) a given bit in the bitvector.
+	 *
 	 * @param index index (in bits) in the bitvector.
 	 * @return the previous value of such a bit.
-	 *
 	 */
 	virtual bool set(size_t index) = 0;
 
 	/** Clear (set to 0) a given bit in the bitvector.
+	 *
 	 * @param index index (in bits) in the bitvector.
 	 * @return: the previous value of such a bit.
 	 *
@@ -71,6 +67,7 @@ class RankSelect : public Rank, public Select, public SelectZero {
 	virtual bool clear(size_t index) = 0;
 
 	/** Change the value of a given bit in the bitvector.
+	 *
 	 * @param index index (in bits) in the bitvector.
 	 * @return: the previous value of such a bit.
 	 *
@@ -79,7 +76,6 @@ class RankSelect : public Rank, public Select, public SelectZero {
 
 	/** Returns an estimate of the size (in bits) of this structure. */
 	virtual size_t bitCount() const = 0;
-
 };
 
 } // namespace sux::ranking

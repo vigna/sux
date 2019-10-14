@@ -46,7 +46,7 @@ class FenwickTree {
 	virtual ~FenwickTree() = default;
 
 	/** Compute the prefix sum.
-     *
+	 *
 	 * @param length length of the prefix sum (from 0 to size(), included).
 	 * @return the sum of the elements in the range `(0 .. length]`.
 	 */
@@ -91,7 +91,7 @@ class FenwickTree {
 	size_t compFind(uint64_t val) { return compFind(&val); }
 
 	/** Append a value to the sequence
-	 * 
+	 *
 	 * @param val: value to append.
 	 *
 	 * Append a new value to the sequence and update the tree.
@@ -126,7 +126,6 @@ class FenwickTree {
 
 	/** Returns an estimate of the size (in bits) of this structure. */
 	virtual size_t bitCount() const = 0;
-
 };
 
 } // namespace sux::fenwick

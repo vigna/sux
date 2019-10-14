@@ -144,8 +144,7 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 
 		vector = Vector<T, PT>(nsize);
 
-		for (size_t i = 0; i < vector.size(); ++i)
-			is.read((char *)&vector[i], sizeof(T));
+		for (size_t i = 0; i < vector.size(); ++i) is.read((char *)&vector[i], sizeof(T));
 
 		return is;
 	}

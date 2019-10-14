@@ -24,7 +24,7 @@
 
 namespace sux {
 
-/** An interface specifying selection primitives on zeros. 
+/** An interface specifying selection primitives on zeros.
  *
  *  Note that this interface is separate from Select because it is not
  *  in general possible to select zeros using a structure for selecting ones.
