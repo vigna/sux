@@ -24,11 +24,8 @@
 
 namespace sux::ranking {
 
-/**
- * Word - Linear search on a single word.
- * @bitvector: A bitvector of 64-bit words.
- * @size: The length (in words) of the bitvector.
- * @T: Underlining Fenwick tree with an ungiven <size_t> bound.
+/** Ranking and selection through a fenwick tree and linear searches on a single word.
+ * @tparam T: Underlining Fenwick tree with an ungiven <size_t> bound.
  *
  */
 template <template <size_t> class T> class Word : public RankSelect {
@@ -39,6 +36,12 @@ template <template <size_t> class T> class Word : public RankSelect {
 	DArray<uint64_t> Vector;
 
   public:
+
+  /** Create a new instance with given vector ov values
+   * @bitvector: A bitvector of 64-bit words.
+   * @size: The length (in bits) of the bitvector.
+   *
+   */
 	Word(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
 		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
 	}

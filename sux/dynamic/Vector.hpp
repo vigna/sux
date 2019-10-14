@@ -29,7 +29,6 @@
 namespace sux {
 
 /** Possible types of memory paging. */
-
 enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE };
 
 /** An expandable DArray with settable type of memory paging.

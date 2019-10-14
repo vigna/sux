@@ -24,11 +24,8 @@
 
 namespace sux::ranking {
 
-/**
- * Stride - Linear search on many words.
- * @param bitvector a bitvector of 64-bit words.
- * @param size the length (in words) of the bitvector.
- * @tparam T underlining Fenwick tree with an ungiven <size_t> bound.
+/** Ranking and selection through a fenwick tree and linear searches over many words.
+ * @tparam T: Underlining Fenwick tree with an ungiven <size_t> bound.
  * @tparam WORDS length (in words) of the linear search stride.
  *
  */
@@ -40,6 +37,12 @@ template <template <size_t> class T, size_t WORDS> class Stride : public RankSel
 	DArray<uint64_t> Vector;
 
   public:
+
+  /** Create a new instance with given vector ov values
+   * @bitvector: A bitvector of 64-bit words.
+   * @size: The length (in bits) of the bitvector.
+   *
+   */
 	Stride(uint64_t bitvector[], size_t size)
 		: Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(DArray<uint64_t>(divRoundup(size, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
