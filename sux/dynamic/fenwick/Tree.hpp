@@ -74,7 +74,7 @@ class FenwickTree {
 	 *
 	 */
 	virtual size_t find(uint64_t *val) = 0;
-	size_t find(uint64_t val) const { return find(&val); }
+	size_t find(uint64_t val) { return find(&val); }
 
 	/** Search the length of the longest prefix whose complemented sum is less than or equal to a given bound.
 	 *
@@ -88,7 +88,7 @@ class FenwickTree {
 	 *
 	 */
 	virtual size_t compFind(uint64_t *val) = 0;
-	size_t compFind(uint64_t val) const { return compFind(&val); }
+	size_t compFind(uint64_t val) { return compFind(&val); }
 
 	/** Append a value to the sequence
 	 * 
@@ -119,7 +119,7 @@ class FenwickTree {
 	virtual void trim(size_t size) = 0;
 
 	/** Trim the tree to the smallest possible size. */
-	void trimToFit() { shrink(0); };
+	void trimToFit() { trim(0); };
 
 	/** Returns the length of the sequence (i.e., the size of the tree). */
 	virtual size_t size() const = 0;

@@ -65,14 +65,13 @@ using std::uint32_t;
 using std::uint64_t;
 using std::uint8_t;
 
-/**
- * Aliased unsigned integers
+/** Aliased unsigned integers
  *
  * Strict aliasing rule: it's illegal to access the same memory location with data of different
  * types. If you have two pointers T* and a U*, the compiler can assume they are not pointing the
  * same data. Accessing such a data invokes undefined behavior.
  *
- * GCC __may_alias__ attribute is basically the opposite of the C ``restrict'' keywoard: it prevents
+ * GCC __may_alias__ attribute is basically the opposite of the C `restrict` keyword: it prevents
  * the compiler to make strict aliasing assumptions. With these aliased types is now valid to access
  * aliased pointers. [1]
  *
@@ -84,22 +83,13 @@ using auint32_t = std::uint32_t __attribute__((__may_alias__));
 using auint16_t = std::uint16_t __attribute__((__may_alias__));
 using auint8_t = std::uint8_t __attribute__((__may_alias__));
 
-/**
- * Bitmask array used in fenwick::ByteL and fenwick::ByteF
- *
- */
+// Bitmask array used in fenwick::ByteL and fenwick::ByteF
 static constexpr uint64_t BYTE_MASK[] = {0x0ULL, 0xFFULL, 0xFFFFULL, 0xFFFFFFULL, 0xFFFFFFFFULL, 0xFFFFFFFFFFULL, 0xFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
 
-/**
- * ceil_log2_plus1() - Static (i.e. computed in compile time) 1 + log2 rounded up.
- *
- */
+/** Static (i.e. computed in compile time) 1 + log2 rounded up. */
 constexpr size_t ceil_log2_plus1(size_t n) { return ((n < 2) ? 1 : 1 + ceil_log2_plus1(n / 2)); }
 
-/**
- * ceil_log2() - log2 rounded up.
- *
- */
+/** log2 rounded up. */
 int inline ceil_log2(const uint64_t x) { return x <= 2 ? x - 1 : 64 - __builtin_clzll(x - 1); }
 
 /** Static round up to the next highest power of two.
@@ -156,21 +146,19 @@ constexpr uint8_t kSelectInByte[2048] = {
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 	8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 7};
 
-/**
- * rho - Find the index of the least significant 1-bit in a word.
- * @word: Binary word.
+/** Find the index of the least significant 1-bit in a word.
+ * @param word binary word.
  *
- * The Knuth's ruler function returns the number of trailing 0-bits in @word starting from the least
- * significant position. It returns 0 when @word is 2^0 and it returns 63 when @word is 2^63.
+ * The Knuth's ruler function returns the number of trailing 0-bits in `word` starting from the least
+ * significant position. It returns 0 when `word` is 2^0 and it returns 63 when it is 2^63.
  *
  * The behavior in zero is undefined.
  *
  */
 inline int rho(uint64_t word) { return __builtin_ctzll(word); }
 
-/**
- * lambda - Find the index of the most significant 1-bit in a word.
- * @word: Binary word.
+/** Find the index of the most significant 1-bit in a word.
+ * @param word binary word.
  *
  * The Knuth's lambda function is the dual of the rho function.
  *
@@ -179,9 +167,8 @@ inline int rho(uint64_t word) { return __builtin_ctzll(word); }
  */
 inline int lambda(uint64_t word) { return 63 ^ __builtin_clzll(word); }
 
-/**
- * lambda_safe - Find the index of the most significant 1-bit in a word.
- * @word: Binary word.
+/** Find the index of the most significant 1-bit in a word.
+ * @param word binary word.
  *
  * The Knuth's lambda function is the dual of the rho function.
  *
@@ -190,9 +177,8 @@ inline int lambda(uint64_t word) { return 63 ^ __builtin_clzll(word); }
  */
 inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_clzll(word); }
 
-/**
- * clear_rho - Set to 0 the least significant 1-bit in a word.
- * @word: Binary word.
+/** Set to 0 the least significant 1-bit in a word.
+ * @param word: binary word.
  *
  */
 inline uint64_t clear_rho(uint64_t word) {
@@ -203,31 +189,28 @@ inline uint64_t clear_rho(uint64_t word) {
 #endif
 }
 
-/**
- * mask_rho - Bitmask where only the least significant 1-bit is set.
- * @word: Binary word.
+/** Bitmask where only the least significant 1-bit is set.
+ * @param word: Binary word.
  *
- * Compute 2^rho(word) for any @word that is not zero.
+ * Compute `2^rho(word)` for any `word` that is not zero.
  *
  */
 inline uint64_t mask_rho(uint64_t word) { return word & (-word); }
 
-/**
- * mask_lambda - Bitmask where only the most significant 1-bit is set.
- * @word: Binary word.
+/** Bitmask where only the most significant 1-bit is set.
+ * @param word: Binary word.
  *
- * Undefined behavior when @word is zero.
+ * Undefined behavior when `word` is zero.
  *
  */
 inline uint64_t mask_lambda(uint64_t word) { return 0x8000000000000000ULL >> __builtin_clzll(word); }
 
-/**
- * compact_bitmask - Generate a compact bitmask.
- * @count: Quantity of set bit.
- * @pos: Starting position.
+/** Generate a compact bitmask.
+ * @param count  quantity of set bit.
+ * @param pos starting position.
  *
- * This fucntion returns a bitmask with @count 1-bits: every bit from @pos to @pos+@count is set to
- * one. If @pos is zero the bitmask has its @count least significant bits setted to one.
+ * This fucntion returns a bitmask with `count` 1-bits: every bit from `pos` to `pos+count` is set to
+ * one. If `pos` is zero the bitmask has its `count` least significant bits setted to one.
  *
  */
 inline uint64_t compact_bitmask(size_t count, size_t pos) { return (-(count != 0ULL)) & (UINT64_MAX >> (64 - count)) << pos; }
@@ -247,13 +230,12 @@ static inline uint64_t remap128(uint64_t x, uint64_t n) {
 #endif // __SIZEOF_INT128__
 }
 
-/**
- * bitextract - Extract consecutives bits in a word.
- * @word: Binary word.
- * @from: Starting index (up to 63).
- * @length: Length of the word (up to 64).
+/** Extract consecutives bits in a word.
+ * @param word binary word.
+ * @param from starting index (up to 63).
+ * @param length length of the word (up to 64).
  *
- * Extracts from @word the bits in the range [@from, @from + @length) and returns them in the
+ * Extracts from `word` the bits in the range `[from, from + length)` and returns them in the
  * least significant bits of the result.
  *
  */
@@ -340,33 +322,29 @@ inline void bitwrite_inc(void *const word, int from, int length, uint64_t inc) {
 	}
 }
 
-/**
- * nu - Count the number of 1-bits in a word.
- * @word: Binary word.
+/** Count the number of 1-bits in a word.
+ * @param word binary word.
  *
  */
 inline int nu(uint64_t word) { return __builtin_popcountll(word); }
 
-/**
- * mround - Returns a number rounded to the desired power of two multiple.
- * @number: Value to round up.
- * @multiple: Power of two to which you want to round @number.
+/** Return a number rounded to the desired power of two multiple.
+ * @param number value to round up.
+ * @param multiple power of two to which you want to round `number`.
  *
  */
 inline uint64_t mround(uint64_t number, uint64_t multiple) { return ((number - 1) | (multiple - 1)) + 1; }
 
-/**
- * updroot - Grandest grandparent parent of a node in the update tree.
- * @j: Index of a node.
- * @n: Size of the Fenwick tree.
+/** Grandest grandparent parent of a node in the update tree.
+ * @param j index of a node.
+ * @param n size of the Fenwick tree.
  *
  */
 inline size_t updroot(size_t j, size_t n) { return n & (SIZE_MAX << lambda((j ^ n) | mask_rho(j))); }
 
-/**
- * select64 - Returns the index of the k-th 1-bit in the 64-bit word x.
- * @x: 64-bit word.
- * @k: 0-based rank (@k = 0 returns the position of the first 1-bit).
+/** Returns the index of the k-th 1-bit in the 64-bit word x.
+ * @param x 64-bit word.
+ * @param k 0-based rank (`k = 0` returns the position of the first 1-bit).
  *
  * Uses the broadword selection algorithm by Vigna [1], improved by Gog and Petri [2] and Vigna [3].
  * Facebook's Folly implementation [4].
@@ -413,10 +391,7 @@ inline uint64_t select64(uint64_t x, uint64_t k) {
 #endif
 }
 
-/**
- * is_big_endian - Check if the architecture is big endian
- *
- */
+/** Check if the architecture is big endian */
 bool inline is_big_endian(void) {
 	union {
 		uint32_t i;
@@ -426,14 +401,11 @@ bool inline is_big_endian(void) {
 	return bint.c[0] == 1;
 }
 
-/**
- * is_big_endian - Check if the architecture is little endian
- *
- */
+/** Check if the architecture is little endian */
 bool inline is_little_endian(void) { return !is_big_endian(); }
 
-/* swap_endian - Transform from big-endian to little-endian and vice versa
- * @value: Integral value (sizeof 1, 2, 4 or 8 bytes)
+/* Transform from big-endian to little-endian and vice versa
+ * @param value integral value (sizeof 1, 2, 4 or 8 bytes)
  *
  */
 template <class T> typename std::enable_if<std::is_integral<T>::value, T>::type swap_endian(T value) {
@@ -454,16 +426,14 @@ template <class T> typename std::enable_if<std::is_integral<T>::value, T>::type 
 	}
 }
 
-/**
- * hton - Host to network endianness converter
- * @value: Integral value
+/** * Host to network endianness converter
+ * @param value integral value
  *
  */
 template <class T> T hton(T value) { return is_little_endian() ? swap_endian<T>(value) : value; }
 
-/**
- * ntoh - Network to host endianness converter
- * @value: Integral value
+/** Network to host endianness converter
+ * @param value integral value
  *
  */
 template <class T> T ntoh(T value) { return hton(value); }

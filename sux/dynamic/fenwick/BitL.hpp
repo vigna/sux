@@ -71,7 +71,7 @@ template <size_t BOUND> class BitL : public FenwickTree {
 		}
 	}
 
-	virtual uint64_t prefix(size_t idx) const {
+	virtual uint64_t prefix(size_t idx) {
 		uint64_t sum = 0;
 
 		while (idx != 0) {
@@ -96,7 +96,7 @@ template <size_t BOUND> class BitL : public FenwickTree {
 	}
 
 	using FenwickTree::find;
-	virtual size_t find(uint64_t *val) const {
+	virtual size_t find(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
 		for (size_t height = Levels - 1; height != SIZE_MAX; height--) {
@@ -119,7 +119,7 @@ template <size_t BOUND> class BitL : public FenwickTree {
 	}
 
 	using FenwickTree::compFind;
-	virtual size_t compFind(uint64_t *val) const {
+	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
 		for (size_t height = Levels - 1; height != SIZE_MAX; height--) {
@@ -141,7 +141,7 @@ template <size_t BOUND> class BitL : public FenwickTree {
 		return min(node, Size);
 	}
 
-	virtual void push(int64_t val) {
+	virtual void push(uint64_t val) {
 		Levels = lambda(++Size) + 1;
 
 		int height = rho(Size);
@@ -173,10 +173,10 @@ template <size_t BOUND> class BitL : public FenwickTree {
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
 	}
 
-	using FenwickTree::shrinkToFit;
-	virtual void shrink(size_t space) {
+	using FenwickTree::trimToFit;
+	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].shrink(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
+		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
 	};
 
 	virtual size_t size() const { return Size; }

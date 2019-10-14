@@ -55,7 +55,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 		}
 	}
 
-	virtual uint64_t prefix(size_t idx) const {
+	virtual uint64_t prefix(size_t idx) {
 		uint64_t sum = 0;
 
 		while (idx != 0) {
@@ -74,7 +74,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 	}
 
 	using FenwickTree::find;
-	virtual size_t find(uint64_t *val) const {
+	virtual size_t find(uint64_t *val) {
 		size_t node = 0;
 
 		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
@@ -92,7 +92,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 	}
 
 	using FenwickTree::compFind;
-	virtual size_t compFind(uint64_t *val) const {
+	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0;
 
 		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
@@ -109,7 +109,7 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 		return node;
 	}
 
-	virtual void push(int64_t val) {
+	virtual void push(uint64_t val) {
 		size_t p = pos(++Size);
 		Tree.resize(p + 1);
 		Tree[p] = val;
@@ -126,8 +126,8 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 
 	virtual void reserve(size_t space) { Tree.reserve(space); }
 
-	using FenwickTree::shrinkToFit;
-	virtual void shrink(size_t space) { Tree.shrink(space); };
+	using FenwickTree::trimToFit;
+	virtual void trim(size_t space) { Tree.trim(space); };
 
 	virtual size_t size() const { return Size; }
 

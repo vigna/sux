@@ -57,7 +57,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 			for (size_t idx = m; idx <= Size; idx += m) addToPartialFrequency(idx, getPartialFrequency(idx - m / 2));
 	}
 
-	virtual uint64_t prefix(size_t idx) const {
+	virtual uint64_t prefix(size_t idx) {
 		uint64_t sum = 0;
 
 		while (idx != 0) {
@@ -76,7 +76,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	}
 
 	using FenwickTree::find;
-	virtual size_t find(uint64_t *val) const {
+	virtual size_t find(uint64_t *val) {
 		size_t node = 0;
 
 		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
@@ -94,7 +94,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	}
 
 	using FenwickTree::compFind;
-	virtual size_t compFind(uint64_t *val) const {
+	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0;
 
 		for (size_t m = mask_lambda(Size); m != 0; m >>= 1) {
@@ -112,7 +112,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 		return node;
 	}
 
-	virtual void push(int64_t val) {
+	virtual void push(uint64_t val) {
 		Tree.resize((first_bit_after(++Size) + END_PADDING + 7) >> 3);
 		addToPartialFrequency(Size, val);
 
@@ -125,8 +125,8 @@ template <size_t BOUND> class BitF : public FenwickTree {
 
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
-	using FenwickTree::shrinkToFit;
-	virtual void shrink(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); };
+	using FenwickTree::trimToFit;
+	virtual void trim(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); };
 
 	virtual size_t size() const { return Size; }
 

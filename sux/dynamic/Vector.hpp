@@ -67,7 +67,7 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 		return *this;
 	}
 
-	void shrink(size_t size) {
+	void trim(size_t size) {
 		if (size * sizeof(T) < Capacity) remap(size);
 	}
 
