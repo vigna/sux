@@ -53,6 +53,7 @@ class Rank9Sel : public Rank, public Select {
 	size_t select(const uint64_t rank);
 	size_t size() const;
 
+	/** Returns an estimate of the size (in bits) of this structure. */
 	uint64_t bitCount();
 };
 

@@ -32,6 +32,11 @@ namespace sux::function {
 
 #define DEFAULT_VECTSIZE (1 << 2)
 
+/** Storage for Golomb-Rice code of a RecSplit bucket.
+ *
+ *  This class exists solely to implement RecSplit.
+ */
+
 class RiceBitVector {
   private:
 	uint64_t *data;

@@ -53,6 +53,7 @@ class SimpleSelectHalf {
 	uint64_t select(const uint64_t rank, uint64_t *const next);
 	// Just for analysis purposes
 	void printCounts();
+	/** Returns an estimate of the size (in bits) of this structure. */
 	uint64_t bitCount();
 };
 

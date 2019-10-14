@@ -45,8 +45,8 @@ class SimpleSelectZeroHalf {
 	SimpleSelectZeroHalf();
 	/** Creates a new instance using a given bit vector.
 	 *
-	 * @param bitvector a bit vector of 64-bit words.
-	 * @param size the length (in bits) of the bit vector.
+	 * @param bits a bit vector of 64-bit words.
+	 * @param num_bits the length (in bits) of the bit vector.
 	 */
 	SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
 	~SimpleSelectZeroHalf();
@@ -54,6 +54,7 @@ class SimpleSelectZeroHalf {
 	uint64_t selectZero(const uint64_t rank, uint64_t *const next);
 	// Just for analysis purposes
 	void printCounts();
+	/** Returns an estimate of the size (in bits) of this structure. */
 	uint64_t bitCount();
 };
 

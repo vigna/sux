@@ -25,9 +25,10 @@ namespace sux::bits {
 /** An interface for all classes implementating dynamic bit vectors.
  *
  * We suggest to make every implementation of this interface
- * serializable and deserializable with:
- * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
- * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
+ * serializable and deserializable by overriding the standard
+ * overloaded operators:
+ * - friend std::ostream &operator<<(std::ostream &os, const TYPE &t);
+ * - friend std::istream &operator>>(std::istream &is, TYPE &t);
  *
  * The data should be stored and loaded in little-endian byte order to guarantee
  * compatibility on different architectures.

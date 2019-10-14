@@ -29,8 +29,8 @@
 namespace sux::bits {
 
 /** Ranking and selection in a dynamic bit vector by means
- *  of a searchable prefix-sum data structure and linear
- *  searches on a single word.
+ *  of a searchable prefix-sum data structure and broadword
+ *  operations on a single word.
  *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  */

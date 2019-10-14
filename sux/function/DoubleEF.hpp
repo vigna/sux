@@ -33,6 +33,11 @@
 
 namespace sux::function {
 
+/** A double Elias-Fano list.
+ *
+ *  This class exists solely to implement RecSplit.
+ */
+
 class DoubleEF {
   private:
 	static constexpr uint64_t log2q = LOG2Q;

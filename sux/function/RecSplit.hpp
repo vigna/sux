@@ -68,9 +68,13 @@ static const uint64_t start_seed[] = {0x106393c187cae21a, 0x6453cec3f7376937, 0x
 									  0x082f20e10092a9a3, 0x2ada2ce68d21defc, 0xe33cb4f3e7c6466b, 0x3980be458c509c59, 0xc466fd9584828e8c, 0x45f0aabe1a61ede6, 0xf6e7b8b33ad9b98d,
 									  0x4ef95e25f4b4983d, 0x81175195173b92d3, 0x4e50927d8dd15978, 0x1ea2099d1fafae7f, 0x425c8a06fbaaa815, 0xcd4216006c74052a};
 
-// David Stafford's (http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html)
-// 13th variant of the 64-bit finalizer function in Austin Appleby's
-// MurmurHash3  (http://code.google.com/p/smhasher/wiki/MurmurHash3).
+/** David Stafford's (http://zimbry.blogspot.com/2011/09/better-bit-mixing-improving-on.html)
+ * 13th variant of the 64-bit finalizer function in Austin Appleby's
+ * MurmurHash3 (https://github.com/aappleby/smhasher).
+ *
+ * @param z a 64-bit integer.
+ * @return a 64-bit integer obtained by mixing the bits of `z`.
+ */ 
 
 uint64_t inline remix(uint64_t z) {
 	z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
@@ -79,8 +83,10 @@ uint64_t inline remix(uint64_t z) {
 }
 
 /** 128-bit hashes.
- * Keys are replaced with instances of this class using SpookyHash, first thing).
- * Moreover, it is possible to build and query RecSplit instance using 128-bit
+ *
+ * In the construction of RecSplit, keys are replaced with instances 
+ * of this class using SpookyHash, first thing.
+ * Moreover, it is possible to build and query RecSplit instances using 128-bit
  * random hashes only (mainly for benchmarking purposes).
  */
 
@@ -93,7 +99,12 @@ typedef struct __hash128_t {
 	}
 } hash128_t;
 
-// Convenience method hashing a key a returning a __hash128_t
+/** Convenience function hashing a key a returning a __hash128_t
+ *
+ * @param data a pointer to the key.
+ * @param length the length in bytes of the key.
+ * @param seed an additional seed.
+ */
 
 hash128_t inline spooky(const void *data, const size_t length, const uint64_t seed) {
 	uint64_t h0 = seed, h1 = seed;
@@ -117,10 +128,10 @@ static constexpr uint64_t bij_memo_golomb[] = {0,        0,        1,         3,
 #endif
 
 
-/** A class emboding the splitting strategy described in the paper.
+/** A class emboding the splitting strategy of RecSplit.
  *
  *  Note that this class is used _for statistics only_. The splitting strategy is embedded
- *  into rec_split(), which uses only the public fields lower_aggr and upper_aggr.
+ *  into the generation code, which uses only the public fields SplittingStrategy::lower_aggr and SplittingStrategy::upper_aggr.
  */
 
 template <size_t LEAF_SIZE> class SplittingStrategy {
@@ -134,7 +145,9 @@ template <size_t LEAF_SIZE> class SplittingStrategy {
 	inline size_t part_size() const { return (curr_index < _fanout - 1) ? unit : last_unit; }
 
   public:
+	/** The lower bound for primary (lower) key aggregation. */
 	static constexpr size_t lower_aggr = _leaf * max(2, ceil(0.35 * _leaf + 1. / 2));
+	/** The lower bound for secondary (upper) key aggregation. */
 	static constexpr size_t upper_aggr = lower_aggr * (_leaf < 7 ? 2 : ceil(0.21 * _leaf + 9. / 10));
 
 	static inline constexpr void split_params(const size_t m, size_t &fanout, size_t &unit) {

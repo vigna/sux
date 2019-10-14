@@ -58,6 +58,7 @@ class SimpleSelectZero {
 	uint64_t selectZero(const uint64_t rank);
 	// Just for analysis purposes
 	void printCounts();
+	/** Returns an estimate of the size (in bits) of this structure. */
 	uint64_t bitCount();
 };
 
