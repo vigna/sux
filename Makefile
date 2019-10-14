@@ -23,13 +23,13 @@ recsplit: test/static/recsplit_*
 
 ranksel: test/static/ranksel_*
 	@mkdir -p bin
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=0 sux/static/Rank9.cpp sux/static/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel0
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=1 sux/static/Rank9.cpp sux/static/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel1
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=2 sux/static/Rank9.cpp sux/static/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel2
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=3 sux/static/Rank9.cpp sux/static/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel3
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelectHalf -DNORANKTEST sux/static/Rank9.cpp sux/static/SimpleSelectHalf.cpp test/static/ranksel_test.cpp -o bin/testsimplehalf
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano sux/static/Rank9.cpp sux/static/SimpleSelectHalf.cpp sux/static/SimpleSelectZeroHalf.cpp sux/static/EliasFano.cpp test/static/ranksel_test.cpp -o bin/testeliasfano
-	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel sux/static/Rank9Sel.cpp test/static/ranksel_test.cpp -o bin/testrank9sel
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=0 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel0
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=1 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel1
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=2 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel2
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=3 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp test/static/ranksel_test.cpp -o bin/testsimplesel3
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelectHalf -DNORANKTEST sux/bits/Rank9.cpp sux/bits/SimpleSelectHalf.cpp test/static/ranksel_test.cpp -o bin/testsimplehalf
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano sux/bits/Rank9.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp test/static/ranksel_test.cpp -o bin/testeliasfano
+	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel sux/bits/Rank9Sel.cpp test/static/ranksel_test.cpp -o bin/testrank9sel
 
 .PHONY: clean
 
