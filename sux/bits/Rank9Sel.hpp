@@ -20,29 +20,33 @@
 
 #pragma once
 
-#include "../Select.hpp"
+#include "Rank.hpp"
+#include "Select.hpp"
 #include <cstdint>
 
-using namespace std;
-namespace sux {
+namespace sux::bits {
 
-class SimpleSelect : public Select {
+/**
+ *  A class implementing a combination of Rank9 for ranking and Select9 for selection.
+ *  Select9 uses 25%-37.5% additional space (beside the 25% due to Rank9), depending on density,
+ *  and provides constant-time selection.
+ */
+
+class Rank9Sel : public Rank, public Select {
   private:
+	const size_t num_bits;
 	const uint64_t *bits;
-	int64_t *inventory;
-	uint64_t *exact_spill;
-	int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64, log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64, longwords_per_subinventory,
-		longwords_per_inventory, ones_per_inventory_mask, ones_per_sub16_mask, ones_per_sub64_mask;
-
-	uint64_t num_words, inventory_size, exact_spill_size, num_ones;
+	uint64_t *counts, *inventory, *subinventory;
+	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
 
   public:
-	SimpleSelect();
-	SimpleSelect(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory);
-	~SimpleSelect();
+	Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
+	~Rank9Sel();
+
+	uint64_t rank(const size_t pos);
 	size_t select(const uint64_t rank);
-	// Just for analysis purposes
-	void printCounts();
+	size_t size() const;
+
 	uint64_t bitCount();
 };
 

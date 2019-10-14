@@ -22,7 +22,7 @@
 
 #include "DynamicBitVector.hpp"
 
-namespace sux::ranking {
+namespace sux::bits {
 
 /** Ranking and selection through a Fenwick tree and linear searches over several words.
  *

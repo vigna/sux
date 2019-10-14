@@ -18,7 +18,7 @@
  *
  */
 
-#include "SimpleSelectZero.hpp"
+#include "SimpleSelect.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -28,20 +28,19 @@
 #define MAX_ONES_PER_INVENTORY (8192)
 
 using namespace std;
-using namespace sux;
+using namespace sux::bits;
 
-SimpleSelectZero::SimpleSelectZero() {}
+SimpleSelect::SimpleSelect() {}
 
-SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory) {
+SimpleSelect::SimpleSelect(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory) {
 	this->bits = bits;
 	num_words = (num_bits + 63) / 64;
 
 	// Init rank/select structure
 	uint64_t c = 0;
-	for (uint64_t i = 0; i < num_words; i++) c += __builtin_popcountll(~bits[i]);
+	for (uint64_t i = 0; i < num_words; i++) c += __builtin_popcountll(bits[i]);
 	num_ones = c;
 
-	if (num_bits % 64 != 0) c -= 64 - num_bits % 64;
 	assert(c <= num_bits);
 
 	ones_per_inventory = num_bits == 0 ? 0 : (c * MAX_ONES_PER_INVENTORY + num_bits - 1) / num_bits;
@@ -50,6 +49,10 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 	ones_per_inventory = 1ULL << log2_ones_per_inventory;
 	ones_per_inventory_mask = ones_per_inventory - 1;
 	inventory_size = (c + ones_per_inventory - 1) / ones_per_inventory;
+
+#ifdef DEBUG
+	printf("Number of ones: %" PRId64 " Number of ones per inventory item: %d\n", c, ones_per_inventory);
+#endif
 
 	log2_longwords_per_subinventory = min(max_log2_longwords_per_subinventory, max(0, log2_ones_per_inventory - 2));
 	longwords_per_subinventory = 1 << log2_longwords_per_subinventory;
@@ -62,7 +65,6 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 	ones_per_sub16_mask = ones_per_sub16 - 1;
 
 #ifdef DEBUG
-	printf("Number of ones: %" PRId64 " Number of ones per inventory item: %d\n", c, ones_per_inventory);
 	printf("Longwords per subinventory: %d Ones per sub 64: %d sub 16: %d\n", longwords_per_subinventory, ones_per_sub64, ones_per_sub16);
 #endif
 
@@ -75,7 +77,7 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 	for (uint64_t i = 0; i < num_words; i++)
 		for (int j = 0; j < 64; j++) {
 			if (i * 64 + j >= num_bits) break;
-			if (~bits[i] & 1ULL << j) {
+			if (bits[i] & 1ULL << j) {
 				if ((d & ones_per_inventory_mask) == 0) inventory[(d >> log2_ones_per_inventory) * longwords_per_inventory] = i * 64 + j;
 				d++;
 			}
@@ -97,7 +99,7 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 			// We estimate the subinventory and exact spill size
 			for (int j = 0; j < 64; j++) {
 				if (i * 64 + j >= num_bits) break;
-				if (~bits[i] & 1ULL << j) {
+				if (bits[i] & 1ULL << j) {
 					if ((d & ones_per_inventory_mask) == 0) {
 						inventory_index = d >> log2_ones_per_inventory;
 						start = inventory[inventory_index * longwords_per_inventory];
@@ -132,7 +134,7 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 		for (uint64_t i = 0; i < num_words; i++)
 			for (int j = 0; j < 64; j++) {
 				if (i * 64 + j >= num_bits) break;
-				if (~bits[i] & 1ULL << j) {
+				if (bits[i] & 1ULL << j) {
 					if ((d & ones_per_inventory_mask) == 0) {
 						inventory_index = d >> log2_ones_per_inventory;
 						start = inventory[inventory_index * longwords_per_inventory];
@@ -173,20 +175,25 @@ SimpleSelectZero::SimpleSelectZero(const uint64_t *const bits, const uint64_t nu
 	}
 
 #ifdef DEBUG
-	printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2], inventory[3]);
+	// printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
+	// inventory[1], inventory[2],
+	//       inventory[3]);
 	// if ( subinventory_size > 0 ) printf("First subinventories: %016" PRIx64 " %016" PRIx64 " %016"
 	// PRIx64 " %016" PRIx64 "\n", subinventory[ 0 ], subinventory[ 1 ], subinventory[ 2 ],
 	// subinventory[ 3 ] );
-	if (exact_spill_size > 0) printf("First spilled entries: %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n", exact_spill[0], exact_spill[1], exact_spill[2], exact_spill[3]);
+	// if (exact_spill_size > 0)
+	//  printf("First spilled entries: %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n",
+	//  exact_spill[0],
+	//         exact_spill[1], exact_spill[2], exact_spill[3]);
 #endif
 }
 
-SimpleSelectZero::~SimpleSelectZero() {
+SimpleSelect::~SimpleSelect() {
 	delete[] inventory;
 	delete[] exact_spill;
 }
 
-uint64_t SimpleSelectZero::selectZero(const uint64_t rank) {
+size_t SimpleSelect::select(const uint64_t rank) {
 #ifdef DEBUG
 	printf("Selecting %" PRId64 "\n...", rank);
 #endif
@@ -226,18 +233,18 @@ uint64_t SimpleSelectZero::selectZero(const uint64_t rank) {
 	if (residual == 0) return start;
 
 	uint64_t word_index = start / 64;
-	uint64_t word = ~bits[word_index] & -1ULL << start % 64;
+	uint64_t word = bits[word_index] & -1ULL << start % 64;
 
 	for (;;) {
 		const int bit_count = __builtin_popcountll(word);
 		if (residual < bit_count) break;
-		word = ~bits[++word_index];
+		word = bits[++word_index];
 		residual -= bit_count;
 	}
 
 	return word_index * 64 + select64(word, residual);
 }
 
-uint64_t SimpleSelectZero::bitCount() { return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64; }
+uint64_t SimpleSelect::bitCount() { return (inventory_size * longwords_per_inventory + 1 + exact_spill_size) * 64; }
 
-void SimpleSelectZero::printCounts() {}
+void SimpleSelect::printCounts() {}

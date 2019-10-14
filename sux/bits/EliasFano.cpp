@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace sux;
+using namespace sux::bits;
 
 EliasFano::EliasFano(const uint64_t *const bits, const uint64_t num_bits) {
 	const uint64_t num_words = (num_bits + 63) / 64;

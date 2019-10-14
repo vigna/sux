@@ -20,30 +20,25 @@
 
 #pragma once
 
-#include "../Rank.hpp"
+#include "SelectZero.hpp"
 #include <cstdint>
 
-namespace sux {
+namespace sux::bits {
+using namespace std;
 
-/**
- *  A class implementing Rank9, a ranking structure using 25% additional space and providing very fast ranking.
- */
-
-class Rank9 : public Rank {
+class SimpleSelectZeroHalf {
   private:
-	const size_t num_bits;
 	const uint64_t *bits;
-	uint64_t *counts, *inventory;
-	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
+	int64_t *inventory;
+
+	uint64_t num_words, inventory_size, num_ones;
 
   public:
-	Rank9(const uint64_t *const bits, const uint64_t num_bits);
-	~Rank9();
-
-	using Rank::rank;
-	uint64_t rank(const size_t pos);
-	size_t size() const;
-
+	SimpleSelectZeroHalf();
+	SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits);
+	~SimpleSelectZeroHalf();
+	uint64_t selectZero(const uint64_t rank);
+	uint64_t selectZero(const uint64_t rank, uint64_t *const next);
 	// Just for analysis purposes
 	void printCounts();
 	uint64_t bitCount();

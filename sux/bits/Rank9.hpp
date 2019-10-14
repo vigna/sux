@@ -20,27 +20,30 @@
 
 #pragma once
 
-#include "../SelectZero.hpp"
+#include "Rank.hpp"
 #include <cstdint>
 
-namespace sux {
-using namespace std;
+namespace sux::bits {
 
-class SimpleSelectZero {
+/**
+ *  A class implementing Rank9, a ranking structure using 25% additional space and providing very fast ranking.
+ */
+
+class Rank9 : public Rank {
   private:
+	const size_t num_bits;
 	const uint64_t *bits;
-	int64_t *inventory;
-	uint64_t *exact_spill;
-	int log2_ones_per_inventory, log2_ones_per_sub16, log2_ones_per_sub64, log2_longwords_per_subinventory, ones_per_inventory, ones_per_sub16, ones_per_sub64, longwords_per_subinventory,
-		longwords_per_inventory, ones_per_inventory_mask, ones_per_sub16_mask, ones_per_sub64_mask;
-
-	uint64_t num_words, inventory_size, exact_spill_size, num_ones;
+	uint64_t *counts, *inventory;
+	uint64_t num_words, num_counts, inventory_size, ones_per_inventory, log2_ones_per_inventory, num_ones;
 
   public:
-	SimpleSelectZero();
-	SimpleSelectZero(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory);
-	~SimpleSelectZero();
-	uint64_t selectZero(const uint64_t rank);
+	Rank9(const uint64_t *const bits, const uint64_t num_bits);
+	~Rank9();
+
+	using Rank::rank;
+	uint64_t rank(const size_t pos);
+	size_t size() const;
+
 	// Just for analysis purposes
 	void printCounts();
 	uint64_t bitCount();
