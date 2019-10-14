@@ -18,8 +18,7 @@
  *
  */
 
-#include "SimpleSelectZeroHalf.hpp"
-#include "../common.hpp"
+#include "SimpleSelectHalf.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -39,20 +38,19 @@
 #define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
 
 using namespace std;
-using namespace sux;
+using namespace sux::bits;
 
-SimpleSelectZeroHalf::SimpleSelectZeroHalf() {}
+SimpleSelectHalf::SimpleSelectHalf() {}
 
-SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uint64_t num_bits) {
+SimpleSelectHalf::SimpleSelectHalf(const uint64_t *const bits, const uint64_t num_bits) {
 	this->bits = bits;
 	num_words = (num_bits + 63) / 64;
 
 	// Init rank/select structure
 	uint64_t c = 0;
-	for (uint64_t i = 0; i < num_words; i++) c += __builtin_popcountll(~bits[i]);
+	for (uint64_t i = 0; i < num_words; i++) c += __builtin_popcountll(bits[i]);
 	num_ones = c;
 
-	if (num_bits % 64 != 0) c -= 64 - num_bits % 64;
 	assert(c <= num_bits);
 
 	inventory_size = (c + ONES_PER_INVENTORY - 1) / ONES_PER_INVENTORY;
@@ -72,7 +70,7 @@ SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uin
 	for (uint64_t i = 0; i < num_words; i++)
 		for (int j = 0; j < 64; j++) {
 			if (i * 64 + j >= num_bits) break;
-			if (~bits[i] & 1ULL << j) {
+			if (bits[i] & 1ULL << j) {
 				if ((d & mask) == 0) inventory[(d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1)] = i * 64 + j;
 				d++;
 			}
@@ -95,7 +93,7 @@ SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uin
 	for (uint64_t i = 0; i < num_words; i++)
 		for (int j = 0; j < 64; j++) {
 			if (i * 64 + j >= num_bits) break;
-			if (~bits[i] & 1ULL << j) {
+			if (bits[i] & 1ULL << j) {
 				if ((d & mask) == 0) {
 					inventory_index = (d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1);
 					start = inventory[inventory_index];
@@ -126,14 +124,15 @@ SimpleSelectZeroHalf::SimpleSelectZeroHalf(const uint64_t *const bits, const uin
 
 #ifdef DEBUG
 		// printf("Exact entries: %" PRId64 "\n", exact);
-		// printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0], inventory[1], inventory[2],
+		// printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
+		// inventory[1], inventory[2],
 		//       inventory[3]);
 #endif
 }
 
-SimpleSelectZeroHalf::~SimpleSelectZeroHalf() { delete[] inventory; }
+SimpleSelectHalf::~SimpleSelectHalf() { delete[] inventory; }
 
-uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank) {
+uint64_t SimpleSelectHalf::select(const uint64_t rank) {
 #ifdef DEBUG
 	printf("Selecting %" PRId64 "\n...", rank);
 #endif
@@ -169,31 +168,31 @@ uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank) {
 	if (residual == 0) return start;
 
 	uint64_t word_index = start / 64;
-	uint64_t word = ~bits[word_index] & -1ULL << start % 64;
+	uint64_t word = bits[word_index] & -1ULL << start % 64;
 
 	for (;;) {
 		const int bit_count = __builtin_popcountll(word);
 		if (residual < bit_count) break;
-		word = ~bits[++word_index];
+		word = bits[++word_index];
 		residual -= bit_count;
 	}
 
 	return word_index * 64 + select64(word, residual);
 }
 
-uint64_t SimpleSelectZeroHalf::selectZero(const uint64_t rank, uint64_t *const next) {
-	const uint64_t s = selectZero(rank);
+uint64_t SimpleSelectHalf::select(const uint64_t rank, uint64_t *const next) {
+	const uint64_t s = select(rank);
 	int curr = s / 64;
 
-	uint64_t window = ~bits[curr] & -1ULL << s;
+	uint64_t window = bits[curr] & -1ULL << s;
 	window &= window - 1;
 
-	while (window == 0) window = ~bits[++curr];
+	while (window == 0) window = bits[++curr];
 	*next = curr * 64 + __builtin_ctzll(window);
 
 	return s;
 }
 
-uint64_t SimpleSelectZeroHalf::bitCount() { return (inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1) * 64; }
+uint64_t SimpleSelectHalf::bitCount() { return (inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1) * 64; }
 
-void SimpleSelectZeroHalf::printCounts() {}
+void SimpleSelectHalf::printCounts() {}

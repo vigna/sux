@@ -22,7 +22,7 @@
 #include <cassert>
 #include <cstring>
 
-using namespace sux;
+using namespace sux::bits;
 
 Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) : num_bits(num_bits), bits(bits) {
 	num_words = (num_bits + 63) / 64;

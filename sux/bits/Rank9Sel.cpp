@@ -32,7 +32,7 @@
 #define LOG2_ONES_PER_INVENTORY (9)
 #define INVENTORY_MASK (ONES_PER_INVENTORY - 1)
 
-using namespace sux;
+using namespace sux::bits;
 
 Rank9Sel::Rank9Sel(const uint64_t *const bits, const uint64_t num_bits) : num_bits(num_bits), bits(bits) {
 

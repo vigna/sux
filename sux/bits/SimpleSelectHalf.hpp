@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "../Select.hpp"
+#include "Select.hpp"
 #include <cstdint>
 
-namespace sux {
+namespace sux::bits {
 
 class SimpleSelectHalf {
   private:

@@ -20,14 +20,14 @@
 
 #pragma once
 
-#include "../Rank.hpp"
-#include "../Select.hpp"
+#include "Rank.hpp"
+#include "Select.hpp"
 #include "SimpleSelectHalf.hpp"
 #include "SimpleSelectZeroHalf.hpp"
 #include <cstdint>
 #include <vector>
 
-namespace sux {
+namespace sux::bits {
 
 class EliasFano : public Rank, public Select {
   private:
