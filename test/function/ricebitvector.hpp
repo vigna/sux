@@ -28,19 +28,19 @@ static RiceBitVector *build_bitvector(const vector<uint64_t> &keys, const int go
 	for (size_t t = 0; t < rice_test_ntrees; ++t) {
 		vector<uint32_t> unary;
 		for (uint64_t k : keys) {
-			r->append_fixed(k, golomb_param);
+			r->appendFixed(k, golomb_param);
 			unary.push_back(k >> golomb_param);
 		}
-		r->append_unary_all(unary);
+		r->appendUnaryAll(unary);
 	}
 	return r;
 }
 
 static void test_rice_trees(RiceBitVector *const r, const vector<uint64_t> &keys, const int golomb_param, const size_t tree_offset) {
 	for (size_t t = 0; t < rice_test_ntrees; ++t) {
-		r->read_reset(t * tree_offset, golomb_param * keys.size());
+		r->readReset(t * tree_offset, golomb_param * keys.size());
 		for (size_t i = 0; i < keys.size(); ++i) {
-			auto k = r->read_next(golomb_param);
+			auto k = r->readNext(golomb_param);
 			ASSERT_EQ(k, keys[i]) << "ERROR: " << k << " != " << keys[i] << endl;
 		}
 	}
