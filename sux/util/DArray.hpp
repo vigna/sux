@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "../common.hpp"
+#include "../support/common.hpp"
 #include <assert.h>
 #include <iostream>
 #include <sys/mman.h>

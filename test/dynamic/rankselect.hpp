@@ -1,6 +1,7 @@
 #pragma once
 
-#include <sux/dynamic/rankselect.hpp>
+#include <sux/bits/Word.hpp>
+#include <sux/bits/Stride.hpp>
 
 TEST(rankselect, all_ones) {
 	using namespace sux;

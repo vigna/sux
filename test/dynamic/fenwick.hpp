@@ -1,15 +1,15 @@
 #pragma once
 
 #include <cmath>
-#include <sux/utils/BitF.hpp>
-#include <sux/utils/BitL.hpp>
-#include <sux/utils/ByteF.hpp>
-#include <sux/utils/ByteL.hpp>
-#include <sux/utils/FixedF.hpp>
-#include <sux/utils/FixedL.hpp>
+#include <sux/util/BitF.hpp>
+#include <sux/util/BitL.hpp>
+#include <sux/util/ByteF.hpp>
+#include <sux/util/ByteL.hpp>
+#include <sux/util/FixedF.hpp>
+#include <sux/util/FixedL.hpp>
 
 template <std::size_t S> void run_fenwick(std::size_t size) {
-	using namespace sux::fenwick;
+	using namespace sux::util;
 
 	std::uint64_t *increments = new std::uint64_t[size];
 	std::int64_t *add_updates = new std::int64_t[size];
