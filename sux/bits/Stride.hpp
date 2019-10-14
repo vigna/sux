@@ -21,6 +21,10 @@
 #pragma once
 
 #include "DynamicBitVector.hpp"
+#include "Rank.hpp"
+#include "Select.hpp"
+#include "SelectZero.hpp"
+#include "../util/DArray.hpp"
 
 namespace sux::bits {
 
@@ -34,7 +38,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;
 	T<BOUND> Fenwick;
-	DArray<uint64_t> Vector;
+  util::DArray<uint64_t> Vector;
 
   public:
 	/** Creates a new instance with given vector od values
@@ -42,7 +46,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Stride(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(DArray<uint64_t>(divRoundup(size, 64))) {
+	Stride(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::DArray<uint64_t>(divRoundup(size, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
 	}
 
@@ -51,7 +55,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public Dynamic
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Stride(DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
+	Stride(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.get(); }
 

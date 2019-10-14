@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "common.hpp"
-
 namespace sux {
 
 /** An interface specifying ranking primitives.

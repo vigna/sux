@@ -21,6 +21,10 @@
 #pragma once
 
 #include "DynamicBitVector.hpp"
+#include "Rank.hpp"
+#include "Select.hpp"
+#include "SelectZero.hpp"
+#include "../util/DArray.hpp"
 
 namespace sux::bits {
 
@@ -34,7 +38,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 	static constexpr size_t BOUNDSIZE = 64;
 	size_t Size;
 	T<BOUNDSIZE> Fenwick;
-	DArray<uint64_t> Vector;
+  util::DArray<uint64_t> Vector;
 
   public:
 	/** Creates a new instance with given vector od values
@@ -42,7 +46,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Word(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
+	Word(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::DArray<uint64_t>(divRoundup(size, BOUNDSIZE))) {
 		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
 	}
 
@@ -51,7 +55,7 @@ template <template <size_t> class T> class Word : public DynamicBitVector, publi
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	Word(DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
+	Word(util::DArray<uint64_t> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.get(); }
 

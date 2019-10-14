@@ -21,6 +21,7 @@
 #pragma once
 
 #include "SearchablePrefixSum.hpp"
+#include "Vector.hpp"
 #include <cstring>
 
 namespace sux::util {

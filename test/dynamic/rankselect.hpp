@@ -10,12 +10,12 @@ TEST(rankselect, all_ones) {
 	uint64_t bitvect[ELEMS] = {UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX,
 							   UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX};
 
-	ranking::Word<fenwick::FixedF> fixedf(bitvect, BITELEMS);
-	ranking::Word<fenwick::FixedL> fixedl(bitvect, BITELEMS);
-	ranking::Word<fenwick::ByteF> bytef(bitvect, BITELEMS);
-	ranking::Word<fenwick::ByteL> bytel(bitvect, BITELEMS);
-	ranking::Word<fenwick::BitF> bitf(bitvect, BITELEMS);
-	ranking::Word<fenwick::BitL> bitl(bitvect, BITELEMS);
+	bits::Word<util::FixedF> fixedf(bitvect, BITELEMS);
+	bits::Word<util::FixedL> fixedl(bitvect, BITELEMS);
+	bits::Word<util::ByteF> bytef(bitvect, BITELEMS);
+	bits::Word<util::ByteL> bytel(bitvect, BITELEMS);
+	bits::Word<util::BitF> bitf(bitvect, BITELEMS);
+	bits::Word<util::BitL> bitl(bitvect, BITELEMS);
 
 	// rank
 	for (size_t i = 0; i <= BITELEMS; i++) {
@@ -104,12 +104,12 @@ TEST(rankselect, all_zeroes) {
 	constexpr size_t BITELEMS = ELEMS * 64;
 	uint64_t bitvect[ELEMS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	ranking::Word<fenwick::FixedF> fixedf(bitvect, BITELEMS);
-	ranking::Word<fenwick::FixedL> fixedl(bitvect, BITELEMS);
-	ranking::Word<fenwick::ByteF> bytef(bitvect, BITELEMS);
-	ranking::Word<fenwick::ByteL> bytel(bitvect, BITELEMS);
-	ranking::Word<fenwick::BitF> bitf(bitvect, BITELEMS);
-	ranking::Word<fenwick::BitL> bitl(bitvect, BITELEMS);
+	bits::Word<util::FixedF> fixedf(bitvect, BITELEMS);
+	bits::Word<util::FixedL> fixedl(bitvect, BITELEMS);
+	bits::Word<util::ByteF> bytef(bitvect, BITELEMS);
+	bits::Word<util::ByteL> bytel(bitvect, BITELEMS);
+	bits::Word<util::BitF> bitf(bitvect, BITELEMS);
+	bits::Word<util::BitL> bitl(bitvect, BITELEMS);
 
 	// rank
 	for (size_t i = 0; i <= BITELEMS; i++) {
@@ -209,20 +209,20 @@ template <std::size_t S> void run_rankselect(std::size_t size) {
 	const size_t zeros = size - ones;
 
 	// word
-	ranking::Word<fenwick::FixedF> fixedf(bitvect, size);
-	ranking::Word<fenwick::FixedL> fixedl(bitvect, size);
-	ranking::Word<fenwick::BitF> bit(bitvect, size);
-	ranking::Word<fenwick::BitL> bitl(bitvect, size);
-	ranking::Word<fenwick::ByteF> byte(bitvect, size);
-	ranking::Word<fenwick::ByteL> bytel(bitvect, size);
+  bits::Word<util::FixedF> fixedf(bitvect, size);
+  bits::Word<util::FixedL> fixedl(bitvect, size);
+  bits::Word<util::BitF> bit(bitvect, size);
+  bits::Word<util::BitL> bitl(bitvect, size);
+  bits::Word<util::ByteF> byte(bitvect, size);
+  bits::Word<util::ByteL> bytel(bitvect, size);
 
 	// line
-	ranking::Stride<fenwick::FixedF, S> fixedfS(bitvect, size);
-	ranking::Stride<fenwick::FixedL, S> fixedlS(bitvect, size);
-	ranking::Stride<fenwick::BitF, S> bitS(bitvect, size);
-	ranking::Stride<fenwick::BitL, S> bitlS(bitvect, size);
-	ranking::Stride<fenwick::ByteF, S> byteS(bitvect, size);
-	ranking::Stride<fenwick::ByteL, S> bytelS(bitvect, size);
+	bits::Stride<util::FixedF, S> fixedfS(bitvect, size);
+	bits::Stride<util::FixedL, S> fixedlS(bitvect, size);
+	bits::Stride<util::BitF, S> bitS(bitvect, size);
+	bits::Stride<util::BitL, S> bitlS(bitvect, size);
+	bits::Stride<util::ByteF, S> byteS(bitvect, size);
+	bits::Stride<util::ByteL, S> bytelS(bitvect, size);
 
 	// rank
 	for (size_t i = 0; i < ones; i++) {
