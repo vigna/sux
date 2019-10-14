@@ -20,10 +20,10 @@ template <typename T> void benchmark(RecSplit<LEAF> &rs, const vector<T> &keys) 
 		auto begin = chrono::high_resolution_clock::now();
 		uint64_t h = 0;
 		for (size_t i = 0; i < keys.size(); i += 2) {
-			h ^= rs.apply(keys[i ^ (h & 1)]);
+			h ^= rs(keys[i ^ (h & 1)]);
 		}
 		for (size_t i = 1; i < keys.size(); i += 2) {
-			h ^= rs.apply(keys[i ^ (h & 1)]);
+			h ^= rs(keys[i ^ (h & 1)]);
 		}
 		auto end = chrono::high_resolution_clock::now();
 		const uint64_t elapsed = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();

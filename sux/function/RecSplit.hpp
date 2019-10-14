@@ -364,12 +364,12 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 * @param key a 128-bit hash.
 	 * @return the associated value.
 	 */
-	size_t apply(const hash128_t &key);
+	size_t operator()(const hash128_t &key);
 	/** Returns the value associated with the given keys.
 	 * @param key a key.
 	 * @return the associated value.
 	 */
-	size_t apply(const std::string &key);
+	size_t operator()(const std::string &key);
 	/** Serializes this RecSplit instance.
 	 * @param fp a file open for writing.
 	 */
@@ -609,7 +609,7 @@ template <size_t LEAF_SIZE> void RecSplit<LEAF_SIZE>::rec_split(vector<uint64_t>
 	}
 }
 
-template <size_t LEAF_SIZE> size_t RecSplit<LEAF_SIZE>::apply(const hash128_t &hash) {
+template <size_t LEAF_SIZE> size_t RecSplit<LEAF_SIZE>::operator()(const hash128_t &hash) {
 	const size_t bucket = hash128_to_bucket(hash);
 	uint64_t cum_keys, cum_keys_next, bit_pos;
 	ef->get(bucket, cum_keys, cum_keys_next, bit_pos);
@@ -660,7 +660,7 @@ template <size_t LEAF_SIZE> size_t RecSplit<LEAF_SIZE>::apply(const hash128_t &h
 	return cum_keys + remap16(remix(hash.second + b + start_seed[level]), m);
 }
 
-template <size_t LEAF_SIZE> size_t RecSplit<LEAF_SIZE>::apply(const string &key) { return apply(first_hash(key.c_str(), key.size())); }
+template <size_t LEAF_SIZE> size_t RecSplit<LEAF_SIZE>::operator()(const string &key) { return operator()(first_hash(key.c_str(), key.size())); }
 
 template <size_t LEAF_SIZE> void RecSplit<LEAF_SIZE>::hash_gen(hash128_t *hashes) {
 #ifdef MORESTATS

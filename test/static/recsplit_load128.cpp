@@ -20,7 +20,7 @@ void benchmark(RecSplit<LEAF> &rs, const uint64_t n) {
 		s[0] = 0x5603141978c51071;
 		s[1] = 0x3bbddc01ebdf4b72;
 		auto begin = chrono::high_resolution_clock::now();
-		for (uint64_t i = 0; i < n; i++) h ^= rs.apply(hash128_t(next(), next() ^ h));
+		for (uint64_t i = 0; i < n; i++) h ^= rs(hash128_t(next(), next() ^ h));
 		auto end = chrono::high_resolution_clock::now();
 		const uint64_t elapsed = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
 		sample[k] = elapsed;

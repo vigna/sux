@@ -82,3 +82,4 @@ Examples
 
         sux::function::RecSplit<16> rs(keys, 2000)
 
+  The class RecSplit implements the operator sux::function::RecSplit::operator().
