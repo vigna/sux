@@ -40,7 +40,7 @@ class SelectZero {
 	 *
 	 * @return The return value is undefined if no zero of the given rank exists.
 	 */
-	virtual size_t selectZero(uint64_t rank) const = 0;
+	virtual size_t selectZero(uint64_t rank) = 0;
 };
 
 } // namespace sux

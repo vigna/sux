@@ -41,7 +41,7 @@ class Rank9 : public Rank {
 	~Rank9();
 
 	using Rank::rank;
-	uint64_t rank(const size_t pos) const;
+	uint64_t rank(const size_t pos);
 	size_t size() const;
 
 	// Just for analysis purposes

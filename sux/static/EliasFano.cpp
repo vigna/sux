@@ -151,7 +151,7 @@ EliasFano::~EliasFano() {
 	delete selectz_upper;
 }
 
-uint64_t EliasFano::rank(const size_t k) const {
+uint64_t EliasFano::rank(const size_t k) {
 	if (num_ones == 0) return 0;
 	if (k >= num_bits) return num_ones;
 #ifdef DEBUG
@@ -243,7 +243,7 @@ uint64_t EliasFano::rank(const size_t k) const {
 #endif
 }
 
-size_t EliasFano::select(const uint64_t rank) const {
+size_t EliasFano::select(const uint64_t rank) {
 #ifdef DEBUG
 	printf("Selecting %lld...\n", rank);
 #endif

@@ -76,8 +76,8 @@ class EliasFano : public Rank, public Select {
 	EliasFano(const uint64_t *const bits, const uint64_t num_bits);
 	EliasFano(const std::vector<uint64_t> pos, const uint64_t num_bits);
 	~EliasFano();
-	size_t select(const uint64_t rank) const;
-	uint64_t rank(const size_t pos) const;
+	size_t select(const uint64_t rank);
+	uint64_t rank(const size_t pos);
 	uint64_t select(const uint64_t rank, uint64_t *const next);
 	size_t size() const;
 	// Just for analysis purposes

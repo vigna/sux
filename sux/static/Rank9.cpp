@@ -49,7 +49,7 @@ Rank9::Rank9(const uint64_t *const bits, const uint64_t num_bits) : num_bits(num
 
 Rank9::~Rank9() { delete[] counts; }
 
-uint64_t Rank9::rank(const size_t k) const {
+uint64_t Rank9::rank(const size_t k) {
 	const uint64_t word = k / 64;
 	const uint64_t block = word / 4 & ~1;
 	const int offset = word % 8 - 1;

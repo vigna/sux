@@ -193,7 +193,7 @@ SimpleSelect::~SimpleSelect() {
 	delete[] exact_spill;
 }
 
-size_t SimpleSelect::select(const uint64_t rank) const {
+size_t SimpleSelect::select(const uint64_t rank) {
 #ifdef DEBUG
 	printf("Selecting %" PRId64 "\n...", rank);
 #endif

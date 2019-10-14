@@ -44,8 +44,8 @@ class Rank9Sel : public Rank, public Select {
 	Rank9Sel(const uint64_t *const bits, const uint64_t num_bits);
 	~Rank9Sel();
 
-	uint64_t rank(const size_t pos) const;
-	size_t select(const uint64_t rank) const;
+	uint64_t rank(const size_t pos);
+	size_t select(const uint64_t rank);
 	size_t size() const;
 
 	uint64_t bitCount();

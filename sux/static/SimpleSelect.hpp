@@ -40,7 +40,7 @@ class SimpleSelect : public Select {
 	SimpleSelect();
 	SimpleSelect(const uint64_t *const bits, const uint64_t num_bits, const int max_log2_longwords_per_subinventory);
 	~SimpleSelect();
-	size_t select(const uint64_t rank) const;
+	size_t select(const uint64_t rank);
 	// Just for analysis purposes
 	void printCounts();
 	uint64_t bitCount();

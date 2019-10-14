@@ -47,7 +47,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public RankSel
 
 	virtual size_t size() const { return Vector.size() * sizeof(uint64_t); }
 
-	virtual uint64_t rank(size_t pos) const {
+	virtual uint64_t rank(size_t pos) {
 		size_t idx = pos / (64 * WORDS);
 		uint64_t value = Fenwick.prefix(idx);
 
@@ -58,9 +58,9 @@ template <template <size_t> class T, size_t WORDS> class Stride : public RankSel
 
 	using Rank::rank;
 	using Rank::rankZero;
-	virtual uint64_t rank(size_t from, size_t to) const { return rank(to) - rank(from); }
+	virtual uint64_t rank(size_t from, size_t to) { return rank(to) - rank(from); }
 
-	virtual size_t select(uint64_t rank) const {
+	virtual size_t select(uint64_t rank) {
 		size_t idx = Fenwick.find(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {
@@ -76,7 +76,7 @@ template <template <size_t> class T, size_t WORDS> class Stride : public RankSel
 		return SIZE_MAX;
 	}
 
-	virtual size_t selectZero(uint64_t rank) const {
+	virtual size_t selectZero(uint64_t rank) {
 		size_t idx = Fenwick.compFind(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {

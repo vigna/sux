@@ -48,9 +48,9 @@ template <template <size_t> class T> class Word : public RankSelect {
 
 	using Rank::rank;
 	using Rank::rankZero;
-	virtual uint64_t rank(size_t pos) const { return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1)); }
+	virtual uint64_t rank(size_t pos) { return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1)); }
 
-	virtual size_t select(uint64_t rank) const {
+	virtual size_t select(uint64_t rank) {
 		size_t idx = Fenwick.find(&rank);
 
 		if (idx >= Vector.size()) return SIZE_MAX;
@@ -61,7 +61,7 @@ template <template <size_t> class T> class Word : public RankSelect {
 		return SIZE_MAX;
 	}
 
-	virtual size_t selectZero(uint64_t rank) const {
+	virtual size_t selectZero(uint64_t rank) {
 		const size_t idx = Fenwick.compFind(&rank);
 
 		if (idx >= Vector.size()) return SIZE_MAX;

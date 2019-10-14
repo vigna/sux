@@ -186,14 +186,14 @@ Rank9Sel::~Rank9Sel() {
 	delete[] subinventory;
 }
 
-uint64_t Rank9Sel::rank(const size_t k) const {
+uint64_t Rank9Sel::rank(const size_t k) {
 	const uint64_t word = k / 64;
 	const uint64_t block = word / 4 & ~1;
 	const int offset = word % 8 - 1;
 	return counts[block] + (counts[block + 1] >> (offset + (offset >> (sizeof offset * 8 - 4) & 0x8)) * 9 & 0x1FF) + __builtin_popcountll(bits[word] & ((1ULL << k % 64) - 1));
 }
 
-size_t Rank9Sel::select(const uint64_t rank) const {
+size_t Rank9Sel::select(const uint64_t rank) {
 	const uint64_t inventory_index_left = rank >> LOG2_ONES_PER_INVENTORY;
 	assert(inventory_index_left <= inventory_size);
 

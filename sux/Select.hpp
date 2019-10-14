@@ -36,7 +36,7 @@ class Select {
 	 *
 	 * @return The return value is undefined if no one of the given rank exists.
 	 */
-	virtual size_t select(uint64_t rank) const = 0;
+	virtual size_t select(uint64_t rank) = 0;
 };
 
 } // namespace sux
