@@ -1,16 +1,21 @@
 CC = g++ -g -std=c++17 -Wall -Wextra -O0 -march=native -l gtest -I./ -fsanitize=address -fsanitize=undefined
 
-bin/dynamic: test/dynamic/* 
+bin/bits: test/bits/* 
 	@mkdir -p bin
-	$(CC) test/dynamic/test.cpp -o bin/dynamic
+	$(CC) test/bits/test.cpp sux/bits/Rank9.cpp sux/bits/Rank9Sel.cpp sux/bits/SimpleSelect.cpp sux/bits/SimpleSelectZero.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp -o bin/bits
 
-bin/static: test/static/* 
+bin/util: test/util/*
 	@mkdir -p bin
-	$(CC) test/static/test.cpp sux/bits/Rank9.cpp sux/bits/Rank9Sel.cpp sux/bits/SimpleSelect.cpp sux/bits/SimpleSelectZero.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/static
+	$(CC) test/util/test.cpp -o bin/util
 
-test: bin/static bin/dynamic
-	./bin/static --gtest_color=yes
-	./bin/dynamic --gtest_color=yes
+bin/function: test/function/*
+	@mkdir -p bin
+	$(CC) test/function/test.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/function
+
+test: bin/bits bin/util bin/function
+	./bin/bits --gtest_color=yes
+	./bin/util --gtest_color=yes
+	./bin/function --gtest_color=yes
 
 LEAF?=8
 
