@@ -1,7 +1,12 @@
 #pragma once
 
 #include <cmath>
-#include <sux/dynamic/fenwick.hpp>
+#include <sux/utils/BitF.hpp>
+#include <sux/utils/BitL.hpp>
+#include <sux/utils/ByteF.hpp>
+#include <sux/utils/ByteL.hpp>
+#include <sux/utils/FixedF.hpp>
+#include <sux/utils/FixedL.hpp>
 
 template <std::size_t S> void run_fenwick(std::size_t size) {
 	using namespace sux::fenwick;

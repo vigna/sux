@@ -25,7 +25,7 @@
 #include <iostream>
 #include <sys/mman.h>
 
-namespace sux {
+namespace sux::util {
 
 /**
  * class DArray - Dinamically-allocated fixed-sized array with hugepages support
@@ -138,4 +138,4 @@ template <typename T> class DArray {
 	}
 };
 
-} // namespace sux
+} 

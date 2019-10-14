@@ -20,16 +20,16 @@
 
 #pragma once
 
-#include "Tree.hpp"
+#include "SearchablePrefixSum.hpp"
 
-namespace sux::fenwick {
+namespace sux::util {
 
 /** A standard (fixed-size) Fenwick tree in level-order layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
 
-template <size_t BOUND> class FixedL : public FenwickTree {
+template <size_t BOUND> class FixedL : public SearchablePrefixSum {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -92,7 +92,7 @@ template <size_t BOUND> class FixedL : public FenwickTree {
 		}
 	}
 
-	using FenwickTree::find;
+	using SearchablePrefixSum::find;
 	virtual size_t find(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
@@ -114,7 +114,7 @@ template <size_t BOUND> class FixedL : public FenwickTree {
 		return min(node, Size);
 	}
 
-	using FenwickTree::compFind;
+	using SearchablePrefixSum::compFind;
 	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0, idx = 0;
 
@@ -162,7 +162,7 @@ template <size_t BOUND> class FixedL : public FenwickTree {
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve((space + (1ULL << (i - 1))) / (1ULL << i));
 	}
 
-	using FenwickTree::trimToFit;
+	using SearchablePrefixSum::trimToFit;
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim((space + (1ULL << (i - 1))) / (1ULL << i));
@@ -218,4 +218,4 @@ template <size_t BOUND> class FixedL : public FenwickTree {
 	}
 };
 
-} // namespace sux::fenwick
+} 

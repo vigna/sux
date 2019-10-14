@@ -20,16 +20,16 @@
 
 #pragma once
 
-#include "Tree.hpp"
+#include "SearchablePrefixSum.hpp"
 #include <cstring>
 
-namespace sux::fenwick {
+namespace sux::util {
 
 /** A bit-compressed Fenwick tree in classical layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
-template <size_t BOUND> class BitF : public FenwickTree {
+template <size_t BOUND> class BitF : public SearchablePrefixSum {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static constexpr size_t STARTING_OFFSET = 1;
@@ -75,7 +75,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 		}
 	}
 
-	using FenwickTree::find;
+	using SearchablePrefixSum::find;
 	virtual size_t find(uint64_t *val) {
 		size_t node = 0;
 
@@ -93,7 +93,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 		return node;
 	}
 
-	using FenwickTree::compFind;
+	using SearchablePrefixSum::compFind;
 	virtual size_t compFind(uint64_t *val) {
 		size_t node = 0;
 
@@ -125,7 +125,7 @@ template <size_t BOUND> class BitF : public FenwickTree {
 
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
-	using FenwickTree::trimToFit;
+	using SearchablePrefixSum::trimToFit;
 	virtual void trim(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); };
 
 	virtual size_t size() const { return Size; }
@@ -188,4 +188,4 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	}
 };
 
-} // namespace sux::fenwick
+} 

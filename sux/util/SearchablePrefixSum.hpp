@@ -20,19 +20,19 @@
 
 #pragma once
 
-#include "../../common.hpp"
-#include "../DArray.hpp"
-#include "../Vector.hpp"
+#include "common.hpp"
+#include "DArray.hpp"
+#include "Vector.hpp"
 
-namespace sux::fenwick {
+namespace sux::util {
 
 /** An interface for all classes implementating Fenwick trees.
  *
  * Note that node indices start from 1 and end at size() (included).
  *
- * Each FenwickTree is serializable and deserializable with:
- * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
- * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
+ * Each SearchablePrefixSum is serializable and deserializable with:
+ * - friend std::ostream &operator<<(std::ostream &os, const SearchablePrefixSum &ft);
+ * - friend std::istream &operator>>(std::istream &is, SearchablePrefixSum &ft);
  *
  * The data is stored and loaded in little-endian byte order to guarantee
  * compatibility on different architectures.
@@ -41,9 +41,9 @@ namespace sux::fenwick {
  * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
  * very same data with a ByteL).
  */
-class FenwickTree {
+class SearchablePrefixSum {
   public:
-	virtual ~FenwickTree() = default;
+	virtual ~SearchablePrefixSum() = default;
 
 	/** Compute the prefix sum.
 	 *
@@ -128,4 +128,4 @@ class FenwickTree {
 	virtual size_t bitCount() const = 0;
 };
 
-} // namespace sux::fenwick
+} 

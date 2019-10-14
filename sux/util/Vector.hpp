@@ -20,13 +20,13 @@
 
 #pragma once
 
-#include "../common.hpp"
+#include "../support/common.hpp"
 #include <assert.h>
 #include <iostream>
 #include <string>
 #include <sys/mman.h>
 
-namespace sux {
+namespace sux::util {
 
 /** Possible types of memory paging. */
 enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE };
@@ -150,4 +150,4 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 	}
 };
 
-} // namespace sux
+} 
