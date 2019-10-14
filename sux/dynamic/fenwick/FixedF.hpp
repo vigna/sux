@@ -24,13 +24,11 @@
 
 namespace sux::fenwick {
 
-/**
- * class FixedF - no compression and classical node layout.
- * @sequence: sequence of integers.
- * @size: number of elements.
- * @BOUND: maximum value that @sequence can store.
+/** A standard (fixed-size) Fenwick tree in classical layout.
  *
+ * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
+
 template <size_t BOUND> class FixedF : public FenwickTree {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
@@ -41,8 +39,14 @@ template <size_t BOUND> class FixedF : public FenwickTree {
 	size_t Size;
 
   public:
+	/** Creates a new instance with no values (empty tree). */
 	FixedF() : Size(0) {}
 
+	/** Creates a new instance with given vector of values.
+	 *
+	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
+	 * @param size the number of elements in the sequence.
+	 */
 	FixedF(uint64_t sequence[], size_t size) : Tree(pos(size) + 1), Size(size) {
 		for (size_t j = 1; j <= Size; j++) Tree[pos(j)] = sequence[j - 1];
 

@@ -28,7 +28,15 @@
 
 namespace sux {
 
+/** Possible types of memory paging. */
+
 enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE };
+
+/** An expandable DArray with settable type of memory paging.
+ *
+ *  @tparam T the data type.
+ *  @tparam PT a memory-paging type out of ::PageType.
+ */
 
 template <typename T, PageType PT = TRANSHUGE> class Vector {
 

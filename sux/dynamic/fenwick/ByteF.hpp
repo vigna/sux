@@ -24,12 +24,9 @@
 
 namespace sux::fenwick {
 
-/**
- * class ByteF - byte compression and classical node layout.
- * @sequence: sequence of integers.
- * @size: number of elements.
- * @BOUND: maximum value that @sequence can store.
+/** A byte-compressed Fenwick tree in classical layout.
  *
+ * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
 template <size_t BOUND> class ByteF : public FenwickTree {
   public:
@@ -41,8 +38,14 @@ template <size_t BOUND> class ByteF : public FenwickTree {
 	size_t Size;
 
   public:
+	/** Creates a new instance with no values (empty tree). */
 	ByteF() : Tree(0), Size(0) {}
 
+	/** Creates a new instance with given vector of values.
+	 *
+	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
+	 * @param size the number of elements in the sequence.
+	 */
 	ByteF(uint64_t sequence[], size_t size) : Tree(pos(size + 1) + 8), Size(size) {
 		for (size_t i = 1; i <= Size; i++) bytewrite(&Tree[pos(i)], bytesize(i), sequence[i - 1]);
 

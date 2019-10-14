@@ -25,12 +25,9 @@
 
 namespace sux::fenwick {
 
-/**
- * class BitF - bit compression and classical node layout.
- * @sequence: sequence of integers.
- * @size: number of elements.
- * @BOUND: maximum value that @sequence can store.
+/** A bit-compressed Fenwick tree in classical layout.
  *
+ * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
 template <size_t BOUND> class BitF : public FenwickTree {
   public:
@@ -44,7 +41,14 @@ template <size_t BOUND> class BitF : public FenwickTree {
 	size_t Size;
 
   public:
+	/** Creates a new instance with no values (empty tree). */
 	BitF() : Size(0) {}
+
+	/** Creates a new instance with given vector of values.
+	 *
+	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
+	 * @param size the number of elements in the sequence.
+	 */
 
 	BitF(uint64_t sequence[], size_t size) : Tree((first_bit_after(size) + END_PADDING + 7) >> 3), Size(size) {
 		for (size_t idx = 1; idx <= Size; idx++) addToPartialFrequency(idx, sequence[idx - 1]);

@@ -26,141 +26,107 @@
 
 namespace sux::fenwick {
 
-/** Fenwick Tree data structure interface.
+/** An interface for all classes implementating Fenwick trees.
  *
- * @param sequence An integer vector.
- * @param size The length of the sequence.
- * @param BOUND maximum value that @sequence can store.
+ * Note that node indices start from 1 and end at size() (included).
  *
- * This data structure indices starts from 1 and ends in @see size.
+ * Each FenwickTree is serializable and deserializable with:
+ * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
+ * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
+ *
+ * The data is stored and loaded in little-endian byte order to guarantee
+ * compatibility on different architectures.
+ *
+ * The serialized data follows the compression and node ordering of the specific Fenwick tree
+ * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
+ * very same data with a ByteL).
  */
 class FenwickTree {
   public:
 	virtual ~FenwickTree() = default;
 
 	/** Compute the prefix sum.
-   *
-	 * @param idx Length of the prefix sum.
-	 * @return The sum of the elements in the range (0 .. @see idx] or zero when @see idx
-	 * is zero.
+     *
+	 * @param length length of the prefix sum (from 0 to size(), included).
+	 * @return the sum of the elements in the range `(0 .. length]`.
 	 */
-	virtual uint64_t prefix(size_t idx) const = 0;
+	virtual uint64_t prefix(size_t length) = 0;
 
 	/** Increment an element of the sequence (not the tree).
-   *
-	 * @param idx: Index (starting from 1) of the element.
-	 * @param inc: Value to sum.
 	 *
-	 * You are allowed to use negative values for the increment, but keep in mind you should respect
-	 * the structure boundaries.
+	 * @param idx: index of the element.
+	 * @param c: value to sum.
 	 *
+	 * You are allowed to use negative values for the increment, but elements of
+	 * of the sequence must remain all nonnegative.
 	 */
-	virtual void add(size_t idx, int64_t inc) = 0;
+	virtual void add(size_t idx, int64_t c) = 0;
 
-	/** Search the index of the closest (less or equal than) prefix.
-   *
-	 * @param val Prefix to search.
+	/** Search the length of the longest prefix whose sum is less than or equal to a given bound.
 	 *
-	 * If @see val is an l-value reference its value will be changed with the distance between the found
-	 * and the searched prefix (i.e. the difference between the prefix and @see val).
+	 * @param val bound for the prefix sum.
 	 *
-	 * This method returns zero if such an element doesn't exists (i.e. there are no prefixes that are
-	 * greater or equal to @see val).
+	 * If `val` is an l-value reference its value will be replaced with the excess, that is,
+	 * the difference between `val` and the longest prefix sum described above.
+	 *
+	 * This method returns zero if there are no prefixes whose sum is
+	 * greater or equal to `val`.
 	 *
 	 */
-	virtual size_t find(uint64_t *val) const = 0;
+	virtual size_t find(uint64_t *val) = 0;
 	size_t find(uint64_t val) const { return find(&val); }
 
-	/**
-	 * compFind() - Complement find.
-	 * @param val Prefix to search.
+	/** Search the length of the longest prefix whose complemented sum is less than or equal to a given bound.
 	 *
-	 * This method search the index whose its prefix its the closest to MAXVAL-@see val. MAXVAL is the
-	 * maximum possibile value for such a prefix (@sequence is therefore bounded).
+	 * @param val bound for the complemented prefix sum.
 	 *
-	 * The same considerations made for FenwickTree::find() holds.
+	 * If `val` is an l-value reference its value will be replaced with the excess, that is,
+	 * the difference between `val` and the complemented longest prefix sum described above.
+	 *
+	 * This method returns zero if there are no prefixes whose complemented sum is
+	 * greater or equal to `val`.
 	 *
 	 */
-	virtual size_t compFind(uint64_t *val) const = 0;
+	virtual size_t compFind(uint64_t *val) = 0;
 	size_t compFind(uint64_t val) const { return compFind(&val); }
 
-	/**
-	 * push() - Append a value to the sequence
-	 * @param val: Value to append
+	/** Append a value to the sequence
+	 * 
+	 * @param val: value to append.
 	 *
-	 * Append a new value to the sequence and update the Tree respectively. You are allowed to use
-	 * negative values for the increment, but keep in mind you should respect the structure
-	 * boundaries.
-	 *
+	 * Append a new value to the sequence and update the tree.
 	 */
-	virtual void push(int64_t val) = 0;
+	virtual void push(uint64_t val) = 0;
 
-	/**
-	 * pop() - Remove the last value of the sequence
+	/** Remove the last value of the sequence.
 	 *
 	 * This method does not release the allocated space.
-	 *
 	 */
 	virtual void pop() = 0;
 
-	/**
-	 * reserve() - Reserve enough space to contain @see space elements
-	 * @param space how much space to reserve
+	/** Reserve enough space to contain a given number of elements.
 	 *
-	 * Nothing happens if the requested space is already reserved. Opposite of FenwickTree::shrink().
+	 * @param size how much space to reserve.
 	 *
+	 * Nothing happens if the requested space is already reserved.
 	 */
 	virtual void reserve(size_t space) = 0;
 
-	/**
-	 * shrink() - Free part of the reserved memory
-	 * @param space how much space to reserve
+	/** Trim the the memory allocated for the tree to the given size, if possible.
 	 *
-	 * Nothing happens if @see space is more than the reserved spcae. This method behaves as
-	 * FenwickTree::shrinkToFit() for values less or equal than the required space for the tree.
-	 * Nothing happens if the requested space more than the space reserved. Opposite of
-	 * FenwickTree::reserve().
-	 *
+	 * @param size new desired size of the allocated space.
 	 */
-	virtual void shrink(size_t space) = 0;
+	virtual void trim(size_t size) = 0;
 
-	/**
-	 * shrinkToFit() - Reserve enough space to contain @see space elements
-	 * @param space how much space to reserve
-	 *
-	 * Nothing happens if @see space is more than the reserved spcae. This method behaves as
-	 * FenwickTree::shrinkToFit() for values less or equal than the required space for the tree.
-	 * Nothing happens if the requested space more than the space reserved. Opposite of
-	 * FenwickTree::reserve().
-	 *
-	 */
-	void shrinkToFit() { shrink(0); };
+	/** Trim the tree to the smallest possible size. */
+	void trimToFit() { shrink(0); };
 
-	/**
-	 * size() - Returns the length of the sequence.
-	 *
-	 */
+	/** Returns the length of the sequence (i.e., the size of the tree). */
 	virtual size_t size() const = 0;
 
-	/**
-	 * bitCount() - Estimation of the size (in bits) of this structure.
-	 *
-	 */
+	/** Returns an estimate of the size (in bits) of this structure. */
 	virtual size_t bitCount() const = 0;
 
-	/**
-	 * Each FenwickTree is serializable and deserializable with:
-	 * - friend std::ostream &operator<<(std::ostream &os, const FenwickTree &ft);
-	 * - friend std::istream &operator>>(std::istream &is, FenwickTree &ft);
-	 *
-	 * The data is stored and loaded with the network (big-endian) byte order to guarantee
-	 * compatibility on different architectures.
-	 *
-	 * The serialized data follows the compression and node ordering of the specific Fenwick tree
-	 * without any compatibility layer (e.g. if you serialize a FixedF, you cannot deserialize the
-	 * very same data with a ByteL).
-	 *
-	 */
 };
 
 } // namespace sux::fenwick

@@ -24,13 +24,11 @@
 
 namespace sux::fenwick {
 
-/**
- * class BitL - bit compression and level ordered node layout.
- * @sequence: sequence of integers.
- * @size: number of elements.
- * @BOUND: maximum value that @sequence can store.
+/** A bit-compressed Fenwick tree in level-order layout.
  *
+ * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  */
+
 template <size_t BOUND> class BitL : public FenwickTree {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
@@ -41,8 +39,14 @@ template <size_t BOUND> class BitL : public FenwickTree {
 	size_t Levels, Size;
 
   public:
+	/** Creates a new instance with no values (empty tree). */
 	BitL() : Levels(0), Size(0) {}
 
+	/** Creates a new instance with given vector of values.
+	 *
+	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
+	 * @param size the number of elements in the sequence.
+	 */
 	BitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
 		for (size_t i = 1; i <= Levels; i++) {
 			size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i);
