@@ -30,7 +30,7 @@ Examples
 - Assuming `v` is a bit vector (i.e., an array of `uint64_t`) and `n` the number
   of bits represented therein,
 
-        sux::Rank9Sel rs(v, n);
+        sux::bits::Rank9Sel rs(v, n);
 
   will create a rank/select structure using Rank9 and Select9.
 
@@ -39,13 +39,13 @@ Examples
   using a fixed-size Fenwick tree in classical Fenwick layout over
   strides of sixteen words you must use
 
-        sux::fenwick::Stride<FixedF, 16>(v, n)
+        sux::bits::Stride<sux::util::FixedF, 16>(v, n)
 
   Such a structure is ideal if ranking is the most common operation. If selection
   is the most common operation a structure based on a byte-compressed level-order
   tree is faster:
 
-        sux::fenwick::Stride<ByteL, 16>(v, n)
+        sux::bits::Stride<sux::util::ByteL, 16>(v, n)
 
   In general, by modifying the two template parameters you can use a
   different stride or a different Fenwick tree structure. A stride is
@@ -53,33 +53,32 @@ Examples
   appearing at the border of each stride. Structures with single-word
   strides should be allocated as follows:
 
-        sux::fenwick::Word<FixedF>(v, n)
+        sux::bits::Word<sux::util::FixedF>(v, n)
 
 - Similary, if `v` is a list of `n` values bounded by 10000 a fixed-size
   Fenwick tree in classical Fenwick layout can be created by
 
-        sux::fenwick::FixedF<10000>(v, n)
+        sux::util::FixedF<10000>(v, n)
 
   Such a tree is ideal if prefix sums are the most common operations. If
   find is the most operation, again a byte-compressed level-order
   structure is faster:
 
-        sux::fenwick::ByteL<10000>(v, n)
+        sux::util::ByteL<10000>(v, n)
 
   For maximum compression, in particular if the bound is very small,
   you can use a bit-compressed tree, which however will be a bit slower:
 
-        sux::fenwick::BitF<3>(v, n)
+        sux::util::BitF<3>(v, n)
 
 - To create a minimal perfect hash function from a vector of strings `keys`, with
   leaf size 8 and bucket size 100, use
 
-        sux::RecSplit<8> rs(keys, 100)
+        sux::function::RecSplit<8> rs(keys, 100)
 
   It will use abount 1.8 bits per key. Increasing the leaf and bucket
   sizes gives much more compact structures (1.56 bits per key), at the
   price of a slower construction time:
 
-        sux::RecSplit<16> rs(keys, 2000)
-
+        sux::function::RecSplit<16> rs(keys, 2000)
 
