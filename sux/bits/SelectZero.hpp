@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "common.hpp"
+#include <cstdint>
 
 namespace sux {
 
@@ -40,7 +40,7 @@ class SelectZero {
 	 *
 	 * @return The return value is undefined if no zero of the given rank exists.
 	 */
-	virtual size_t selectZero(uint64_t rank) = 0;
+	virtual std::size_t selectZero(uint64_t rank) = 0;
 };
 
 } // namespace sux
