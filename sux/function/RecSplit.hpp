@@ -237,13 +237,13 @@ template <size_t LEAF_SIZE> static constexpr uint64_t split_golomb_b(const int m
 	SplittingStrategy<LEAF_SIZE>::split_params(m, fanout, unit);
 
 	k[fanout - 1] = m;
-	for (int i = 0; i < fanout - 1; ++i) {
+	for (size_t i = 0; i < fanout - 1; ++i) {
 		k[i] = unit;
 		k[fanout - 1] -= k[i];
 	}
 
 	double sqrt_prod = 1;
-	for (int i = 0; i < fanout; ++i) sqrt_prod *= sqrt(k[i]);
+	for (size_t i = 0; i < fanout; ++i) sqrt_prod *= sqrt(k[i]);
 
 	const double p = sqrt(m) / (pow(2 * M_PI, (fanout - 1.) / 2) * sqrt_prod);
 	return ceil(-log(2 - p) / log1p(-p)); // Golomb modulus

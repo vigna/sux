@@ -70,7 +70,7 @@ DoubleEF::DoubleEF(const std::vector<uint64_t> &cum_keys, const std::vector<uint
 	const uint64_t words_position = position_size_words();
 	upper_bits_position = new uint64_t[words_position]();
 
-	for (int64_t i = 0, cum_delta = 0, bit_delta = 0; i <= num_buckets; i++, cum_delta += cum_keys_min_delta, bit_delta += min_diff) {
+	for (uint64_t i = 0, cum_delta = 0, bit_delta = 0; i <= num_buckets; i++, cum_delta += cum_keys_min_delta, bit_delta += min_diff) {
 		if (l_cum_keys != 0) set_bits(lower_bits, i * (l_cum_keys + l_position), l_cum_keys, (cum_keys[i] - cum_delta) & lower_bits_mask_cum_keys);
 		set(upper_bits_cum_keys, ((cum_keys[i] - cum_delta) >> l_cum_keys) + i);
 		const auto pval = int64_t(position[i]) - int64_t(bits_per_key_fixed_point * cum_keys[i] >> 20);
