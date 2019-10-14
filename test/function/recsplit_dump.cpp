@@ -10,10 +10,14 @@ using namespace sux::function;
 int main(int argc, char **argv) {
 	if (argc < 4) {
 		fprintf(stderr, "Usage: %s <keys> <bucket size> <mpfh>\n", argv[0]);
-		exit(1);
+		return 1;
 	}
 
 	FILE *keys_fp = fopen(argv[1], "r");
+	if (keys_fp == NULL) {
+		fprintf(stderr, "Keys file %s not found\n", argv[1]);
+		return 1;
+	}
 	const size_t bucket_size = strtoll(argv[2], NULL, 0);
 
 	printf("Building...\n");

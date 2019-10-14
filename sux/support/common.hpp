@@ -1,7 +1,7 @@
 /*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2019 Stefano Marchini and Sebastiano Vigna
+ * Copyright (C) 2019 Emmanuel Esposito, Stefano Marchini and Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
