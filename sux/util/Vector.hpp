@@ -29,7 +29,18 @@
 namespace sux::util {
 
 /** Possible types of memory paging. */
-enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE, MALLOC };
+enum PageType {
+	/** Standard allocation with `malloc()` (the default). */
+	MALLOC,
+	/** Allocation with `mmap()`. Usually in this case allocations
+	  * are aligned on a memory page (typically, 4KiB). */
+	SMALLPAGE,
+	/** Transparent huge pages support through `mmap()` and `madvise()` 
+	  * on Linux. Note that the pages in this case are usually 2MiB each. */
+	TRANSHUGEPAGE,
+	/** Direct huge page support through `mmap()` on Linux. 
+	  * Also in this case pages are usually 2MiB each. */
+	FORCEHUGEPAGE };
 
 /** An expandable vector with settable type of memory paging.
  *
@@ -44,7 +55,7 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
-	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (PT == HUGETLBPAGE ? MAP_HUGETLB : 0);
+	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (PT == FORCEHUGEPAGE ? MAP_HUGETLB : 0);
 
   private:
 	size_t Size = 0, Capacity = 0;
@@ -111,7 +122,7 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 
   private:
 	static size_t page_aligned(size_t size) {
-		if (PT == HUGETLBPAGE)
+		if (PT == FORCEHUGEPAGE)
 			return ((2 * 1024 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
 		else
 			return ((4 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
