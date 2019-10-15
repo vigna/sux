@@ -3,12 +3,12 @@
 #include "../xoroshiro128pp.hpp"
 #include "dynranksel.hpp"
 #include "rankselect.hpp"
-#include <sux/util/BitF.hpp>
-#include <sux/util/BitL.hpp>
-#include <sux/util/ByteF.hpp>
-#include <sux/util/ByteL.hpp>
-#include <sux/util/FixedF.hpp>
-#include <sux/util/FixedL.hpp>
+#include <sux/util/FenwickBitF.hpp>
+#include <sux/util/FenwickBitL.hpp>
+#include <sux/util/FenwickByteF.hpp>
+#include <sux/util/FenwickByteL.hpp>
+#include <sux/util/FenwickFixedF.hpp>
+#include <sux/util/FenwickFixedL.hpp>
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

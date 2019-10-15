@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <size_t BOUND, AllocType AT = MALLOC> class FixedF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -42,14 +42,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedF : public SearchableP
 
   public:
 	/** Creates a new instance with no values (empty tree). */
-	FixedF() : Size(0) {}
+	FenwickFixedF() : Size(0) {}
 
 	/** Creates a new instance with given vector of values.
 	 *
 	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
 	 * @param size the number of elements in the sequence.
 	 */
-	FixedF(uint64_t sequence[], size_t size) : Tree(pos(size) + 1), Size(size) {
+	FenwickFixedF(uint64_t sequence[], size_t size) : Tree(pos(size) + 1), Size(size) {
 		for (size_t j = 1; j <= Size; j++) Tree[pos(j)] = sequence[j - 1];
 
 		for (size_t m = 2; m <= Size; m <<= 1) {
@@ -133,21 +133,21 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedF : public SearchableP
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(FixedF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(FenwickFixedF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	static inline size_t holes(size_t idx) { return idx >> 14; }
 
 	static inline size_t pos(size_t idx) { return idx + holes(idx); }
 
-	friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND, AT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FenwickFixedF<BOUND, AT> &ft) {
 		uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, FixedF<BOUND, AT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FenwickFixedF<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 

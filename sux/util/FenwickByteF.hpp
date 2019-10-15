@@ -30,7 +30,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -41,14 +41,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePr
 
   public:
 	/** Creates a new instance with no values (empty tree). */
-	ByteF() : Tree(0), Size(0) {}
+	FenwickByteF() : Tree(0), Size(0) {}
 
 	/** Creates a new instance with given vector of values.
 	 *
 	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
 	 * @param size the number of elements in the sequence.
 	 */
-	ByteF(uint64_t sequence[], size_t size) : Tree(pos(size + 1) + 8), Size(size) {
+	FenwickByteF(uint64_t sequence[], size_t size) : Tree(pos(size + 1) + 8), Size(size) {
 		for (size_t i = 1; i <= Size; i++) bytewrite(&Tree[pos(i)], bytesize(i), sequence[i - 1]);
 
 		for (size_t m = 2; m <= Size; m <<= 1) {
@@ -136,7 +136,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePr
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(ByteF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(FenwickByteF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	static inline size_t bytesize(size_t idx) { return ((rho(idx) + BOUNDSIZE - 1) >> 3) + 1; }
@@ -166,14 +166,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePr
 		return idx * SMALL + (idx >> MEDIUM) + (idx >> LARGE) * MULTIPLIER + holes(idx);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const ByteF<BOUND, AT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FenwickByteF<BOUND, AT> &ft) {
 		uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, ByteF<BOUND, AT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FenwickByteF<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

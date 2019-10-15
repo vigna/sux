@@ -85,7 +85,7 @@ using auint16_t = std::uint16_t __attribute__((__may_alias__));
 using auint8_t = std::uint8_t __attribute__((__may_alias__));
 ///@}
 
-// Bitmask array used in fenwick::ByteL and fenwick::ByteF
+// Bitmask array used in util::FenwickByteL and util::FenwickByteF
 static constexpr uint64_t BYTE_MASK[] = {0x0ULL, 0xFFULL, 0xFFFFULL, 0xFFFFFFULL, 0xFFFFFFFFULL, 0xFFFFFFFFFFULL, 0xFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
 
 /** Static (i.e. computed in compile time) 1 + log2 rounded up. */

@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <size_t BOUND, AllocType AT = MALLOC> class BitL : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -42,14 +42,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitL : public SearchablePre
 
   public:
 	/** Creates a new instance with no values (empty tree). */
-	BitL() : Levels(0), Size(0) {}
+	FenwickBitL() : Levels(0), Size(0) {}
 
 	/** Creates a new instance with given vector of values.
 	 *
 	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
 	 * @param size the number of elements in the sequence.
 	 */
-	BitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
+	FenwickBitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
 		for (size_t i = 1; i <= Levels; i++) {
 			size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i);
 			Tree[i - 1].resize(space);
@@ -183,7 +183,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitL : public SearchablePre
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(BitL<BOUND, AT>) * 8;
+		size_t ret = sizeof(FenwickBitL<BOUND, AT>) * 8;
 
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]);
 
@@ -191,7 +191,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitL : public SearchablePre
 	}
 
   private:
-	friend std::ostream &operator<<(std::ostream &os, const BitL<BOUND, AT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FenwickBitL<BOUND, AT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -208,7 +208,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitL : public SearchablePre
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, BitL<BOUND, AT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FenwickBitL<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

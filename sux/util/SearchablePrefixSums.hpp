@@ -34,8 +34,8 @@ namespace sux::util {
  * compatibility on different architectures.
  *
  * The serialized data follows the compression and node ordering of the specific Fenwick tree
- * without any compatibility layer (e.g., if you serialize a FixedF, you cannot deserialize the
- * very same data with a ByteL).
+ * without any compatibility layer (e.g., if you serialize a FenwickFixedF, you cannot deserialize the
+ * very same data with a FenwickByteL).
  */
 class SearchablePrefixSums {
   public:

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <cmath>
-#include <sux/util/BitF.hpp>
-#include <sux/util/BitL.hpp>
-#include <sux/util/ByteF.hpp>
-#include <sux/util/ByteL.hpp>
-#include <sux/util/FixedF.hpp>
-#include <sux/util/FixedL.hpp>
+#include <sux/util/FenwickBitF.hpp>
+#include <sux/util/FenwickBitL.hpp>
+#include <sux/util/FenwickByteF.hpp>
+#include <sux/util/FenwickByteL.hpp>
+#include <sux/util/FenwickFixedF.hpp>
+#include <sux/util/FenwickFixedL.hpp>
 
 template <std::size_t S> void run_fenwick(std::size_t size) {
 	using namespace sux::util;
@@ -19,12 +19,12 @@ template <std::size_t S> void run_fenwick(std::size_t size) {
 		add_updates[i] = next() % (S - increments[i]);
 	}
 
-	FixedF<S> fixedf(increments, size);
-	FixedL<S> fixedl(increments, size);
-	ByteF<S> bytef(increments, size);
-	ByteL<S> bytel(increments, size);
-	BitF<S> bitf(increments, size);
-	BitL<S> bitl(increments, size);
+	FenwickFixedF<S> fixedf(increments, size);
+	FenwickFixedL<S> fixedl(increments, size);
+	FenwickByteF<S> bytef(increments, size);
+	FenwickByteL<S> bytel(increments, size);
+	FenwickBitF<S> bitf(increments, size);
+	FenwickBitL<S> bitl(increments, size);
 
 	// prefix
 	for (size_t i = 0; i <= size; ++i) {
@@ -115,5 +115,5 @@ TEST(fenwick, bound) {
 	run_fenwick<18014398509481984>(511); // 2^54
 	run_fenwick<36028797018963967>(511); // 2^55 - 1
 
-	// Note: BOUND >= 2^55 is not supported in BitF
+	// Note: BOUND >= 2^55 is not supported in FenwickBitF
 }

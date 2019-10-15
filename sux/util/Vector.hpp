@@ -30,19 +30,20 @@ namespace sux::util {
 
 /** Possible types of memory allocation.
  *
- * [1] https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html
- * [2] https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
+ * \see https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html
+ * \see https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
  */
 enum AllocType {
 	/** Standard allocation with `malloc()` (usually, the default). */
 	MALLOC,
-	/** Allocation with `mmap()`. Allocations are forced to be aligned on a memory page (typically, 4KiB). */
+	/** Allocation with `mmap()`. Allocations are aligned on a memory page (typically, 4KiB). */
 	SMALLPAGE,
 	/** Transparent huge pages support through `mmap()` and `madvise()`
 	 * on Linux. Allocations are usually a mutiple of 4KiB, but they can be defragmented in blocks of 2MiB each. */
 	TRANSHUGEPAGE,
 	/** Direct huge page support through `mmap()` on Linux.
-	 * In this case allocations are forced to be aligned on page blocks of 2MiB each. */
+	 * In this case allocations are aligned on a huge (typically, 2MiB) memory page.
+	 * This feature is usually disabled by default and it requires the administrator to pre-reserve space for huge memory pages as documented in the reported external references  */
 	FORCEHUGEPAGE
 };
 

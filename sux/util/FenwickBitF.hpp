@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static constexpr size_t STARTING_OFFSET = 1;
@@ -44,7 +44,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePre
 
   public:
 	/** Creates a new instance with no values (empty tree). */
-	BitF() : Size(0) {}
+	FenwickBitF() : Size(0) {}
 
 	/** Creates a new instance with given vector of values.
 	 *
@@ -52,7 +52,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePre
 	 * @param size the number of elements in the sequence.
 	 */
 
-	BitF(uint64_t sequence[], size_t size) : Tree((first_bit_after(size) + END_PADDING + 7) >> 3), Size(size) {
+	FenwickBitF(uint64_t sequence[], size_t size) : Tree((first_bit_after(size) + END_PADDING + 7) >> 3), Size(size) {
 		for (size_t idx = 1; idx <= Size; idx++) addToPartialFrequency(idx, sequence[idx - 1]);
 
 		for (size_t m = 2; m <= Size; m <<= 1)
@@ -132,7 +132,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePre
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(BitF<BOUND, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(FenwickBitF<BOUND, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	inline static size_t holes(size_t idx) { return STARTING_OFFSET + (idx >> 14) * 64; }
@@ -174,14 +174,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePre
 		}
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const BitF<BOUND, AT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FenwickBitF<BOUND, AT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, BitF<BOUND, AT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FenwickBitF<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

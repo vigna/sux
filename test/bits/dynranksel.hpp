@@ -1,11 +1,11 @@
 #pragma once
 
-#include <sux/util/FixedF.hpp>
-#include <sux/util/FixedL.hpp>
-#include <sux/util/ByteF.hpp>
-#include <sux/util/ByteL.hpp>
-#include <sux/util/BitF.hpp>
-#include <sux/util/BitL.hpp>
+#include <sux/util/FenwickBitF.hpp>
+#include <sux/util/FenwickBitL.hpp>
+#include <sux/util/FenwickByteF.hpp>
+#include <sux/util/FenwickByteL.hpp>
+#include <sux/util/FenwickFixedF.hpp>
+#include <sux/util/FenwickFixedL.hpp>
 
 #include <sux/bits/StrideDynRankSel.hpp>
 #include <sux/bits/WordDynRankSel.hpp>
@@ -17,12 +17,12 @@ TEST(dynranksel, all_ones) {
 	uint64_t bitvect[ELEMS] = {UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX,
 							   UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX};
 
-	bits::WordDynRankSel<util::FixedF> fixedf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FixedL> fixedl(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::ByteF> bytef(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::ByteL> bytel(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::BitF> bitf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::BitL> bitl(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
 
 	// rank
 	for (size_t i = 0; i <= BITELEMS; i++) {
@@ -111,12 +111,12 @@ TEST(dynranksel, all_zeroes) {
 	constexpr size_t BITELEMS = ELEMS * 64;
 	uint64_t bitvect[ELEMS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	bits::WordDynRankSel<util::FixedF> fixedf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FixedL> fixedl(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::ByteF> bytef(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::ByteL> bytel(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::BitF> bitf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::BitL> bitl(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, BITELEMS);
+	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
 
 	// rank
 	for (size_t i = 0; i <= BITELEMS; i++) {
@@ -216,20 +216,20 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	const size_t zeros = size - ones;
 
 	// word
-	bits::WordDynRankSel<util::FixedF> fixedf(bitvect, size);
-	bits::WordDynRankSel<util::FixedL> fixedl(bitvect, size);
-	bits::WordDynRankSel<util::BitF> bit(bitvect, size);
-	bits::WordDynRankSel<util::BitL> bitl(bitvect, size);
-	bits::WordDynRankSel<util::ByteF> byte(bitvect, size);
-	bits::WordDynRankSel<util::ByteL> bytel(bitvect, size);
+	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
+	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
+	bits::WordDynRankSel<util::FenwickBitF> bit(bitvect, size);
+	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
+	bits::WordDynRankSel<util::FenwickByteF> byte(bitvect, size);
+	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
 
 	// line
-	bits::StrideDynRankSel<util::FixedF, S> fixedfS(bitvect, size);
-	bits::StrideDynRankSel<util::FixedL, S> fixedlS(bitvect, size);
-	bits::StrideDynRankSel<util::BitF, S> bitS(bitvect, size);
-	bits::StrideDynRankSel<util::BitL, S> bitlS(bitvect, size);
-	bits::StrideDynRankSel<util::ByteF, S> byteS(bitvect, size);
-	bits::StrideDynRankSel<util::ByteL, S> bytelS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickFixedF, S> fixedfS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickFixedL, S> fixedlS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickBitF, S> bitS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickBitL, S> bitlS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickByteF, S> byteS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickByteL, S> bytelS(bitvect, size);
 
 	// rank
 	for (size_t i = 0; i < ones; i++) {
