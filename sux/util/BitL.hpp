@@ -28,15 +28,16 @@ namespace sux::util {
 /** A bit-compressed Fenwick tree in level-order layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
+ * @tparam PT a memory-paging type out of ::PageType.
  */
 
-template <size_t BOUND> class BitL : public SearchablePrefixSums {
+template <size_t BOUND, PageType PT = TRANSHUGE> class BitL : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
   protected:
-	Vector<uint8_t> Tree[64];
+	Vector<uint8_t, PT> Tree[64];
 	size_t Levels, Size;
 
   public:

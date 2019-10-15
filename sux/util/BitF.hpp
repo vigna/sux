@@ -29,8 +29,9 @@ namespace sux::util {
 /** A bit-compressed Fenwick tree in classical layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
+ * @tparam PT a memory-paging type out of ::PageType.
  */
-template <size_t BOUND> class BitF : public SearchablePrefixSums {
+template <size_t BOUND, PageType PT = TRANSHUGE> class BitF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static constexpr size_t STARTING_OFFSET = 1;
@@ -38,7 +39,7 @@ template <size_t BOUND> class BitF : public SearchablePrefixSums {
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 55, "Some nodes will span on multiple words");
 
   protected:
-	Vector<uint8_t> Tree;
+	Vector<uint8_t, PT> Tree;
 	size_t Size;
 
   public:
@@ -131,7 +132,7 @@ template <size_t BOUND> class BitF : public SearchablePrefixSums {
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(BitF<BOUNDSIZE>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(BitF<BOUNDSIZE, PT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	inline static size_t holes(size_t idx) { return STARTING_OFFSET + (idx >> 14) * 64; }
@@ -173,7 +174,7 @@ template <size_t BOUND> class BitF : public SearchablePrefixSums {
 		}
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const BitF<BOUND> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const BitF<BOUND, PT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 

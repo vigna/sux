@@ -29,12 +29,15 @@
 namespace sux::util {
 
 /** Possible types of memory paging. */
-enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE };
+enum PageType { TRANSHUGE, SMALLPAGE, HUGETLBPAGE, MALLOC };
 
-/** An expandable DArray with settable type of memory paging.
+/** An expandable vector with settable type of memory paging.
  *
  *  @tparam T the data type.
  *  @tparam PT a memory-paging type out of ::PageType.
+ *
+ * [1] https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html
+ * [2] https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
  */
 
 template <typename T, PageType PT = TRANSHUGE> class Vector {
@@ -54,8 +57,12 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 
 	~Vector<T, PT>() {
 		if (Data) {
-			int result = munmap(Data, Capacity);
-			assert(result == 0 && "mmunmap failed");
+      if (PT == MALLOC) {
+        free(Data);
+      } else {
+        int result = munmap(Data, Capacity);
+        assert(result == 0 && "mmunmap failed");
+      }
 		}
 	}
 
@@ -113,17 +120,26 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 	void remap(size_t size) {
 		if (size == 0) return;
 
-		size_t space = page_aligned(size);
-		void *mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
-		assert(mem != MAP_FAILED && "mmap failed");
+    void *mem;
+    size_t space;
 
-		if (PT == TRANSHUGE) {
-			int adv = madvise(mem, space, MADV_HUGEPAGE);
-			assert(adv == 0 && "madvise failed");
+		if (PT == MALLOC) {
+      space = size * sizeof(T);
+			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
+			assert(mem != NULL && "malloc failed");
+		} else {
+      space = page_aligned(size);
+			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
+			assert(mem != MAP_FAILED && "mmap failed");
+
+			if (PT == TRANSHUGE) {
+				int adv = madvise(mem, space, MADV_HUGEPAGE);
+				assert(adv == 0 && "madvise failed");
+			}
 		}
 
-		Capacity = space;
-		Data = static_cast<T *>(mem);
+    Capacity = space;
+    Data = static_cast<T *>(mem);
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {

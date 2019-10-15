@@ -20,10 +20,6 @@
 
 #pragma once
 
-#include "../support/common.hpp"
-#include "DArray.hpp"
-#include "Vector.hpp"
-
 namespace sux::util {
 
 /** An interface for all classes implementating Fenwick trees.

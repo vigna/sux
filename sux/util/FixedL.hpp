@@ -28,15 +28,16 @@ namespace sux::util {
 /** A standard (fixed-size) Fenwick tree in level-order layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
+ * @tparam PT a memory-paging type out of ::PageType.
  */
 
-template <size_t BOUND> class FixedL : public SearchablePrefixSums {
+template <size_t BOUND, PageType PT = TRANSHUGE> class FixedL : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
   protected:
-	Vector<uint64_t> Tree[64];
+	Vector<uint64_t, PT> Tree[64];
 	size_t Levels, Size;
 
   public:
@@ -172,7 +173,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSums {
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(FixedL<BOUNDSIZE>) * 8;
+		size_t ret = sizeof(FixedL<BOUNDSIZE, PT>) * 8;
 
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]);
 
@@ -180,7 +181,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSums {
 	}
 
   private:
-	friend std::ostream &operator<<(std::ostream &os, const FixedL<BOUND> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FixedL<BOUND, PT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -197,7 +198,7 @@ template <size_t BOUND> class FixedL : public SearchablePrefixSums {
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, FixedL<BOUND> &ft) {
+	friend std::istream &operator>>(std::istream &is, FixedL<BOUND, PT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);
