@@ -191,7 +191,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteL : public SearchablePr
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(ByteL<BOUNDSIZE, PT>) * 8;
+		size_t ret = sizeof(ByteL<BOUNDSIZE, AT>) * 8;
 
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]);
 
@@ -201,7 +201,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteL : public SearchablePr
   private:
 	static inline size_t heightsize(size_t height) { return ((height + BOUNDSIZE - 1) >> 3) + 1; }
 
-	friend std::ostream &operator<<(std::ostream &os, const ByteL<BOUND, PT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const ByteL<BOUND, AT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -218,7 +218,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class ByteL : public SearchablePr
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, ByteL<BOUND, PT> &ft) {
+	friend std::istream &operator>>(std::istream &is, ByteL<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

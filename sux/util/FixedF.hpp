@@ -133,21 +133,21 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedF : public SearchableP
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(FixedF<BOUNDSIZE, PT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(FixedF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	static inline size_t holes(size_t idx) { return idx >> 14; }
 
 	static inline size_t pos(size_t idx) { return idx + holes(idx); }
 
-	friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND, PT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FixedF<BOUND, AT> &ft) {
 		uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, FixedF<BOUND, PT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FixedF<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 

@@ -173,7 +173,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedL : public SearchableP
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(FixedL<BOUNDSIZE, PT>) * 8;
+		size_t ret = sizeof(FixedL<BOUNDSIZE, AT>) * 8;
 
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]);
 
@@ -181,7 +181,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedL : public SearchableP
 	}
 
   private:
-	friend std::ostream &operator<<(std::ostream &os, const FixedL<BOUND, PT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const FixedL<BOUND, AT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -198,7 +198,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FixedL : public SearchableP
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, FixedL<BOUND, PT> &ft) {
+	friend std::istream &operator>>(std::istream &is, FixedL<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, PageType AT = MALLOC> class BitF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static constexpr size_t STARTING_OFFSET = 1;

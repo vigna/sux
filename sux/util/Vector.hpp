@@ -52,7 +52,7 @@ enum AllocType {
  *  @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <typename T, PageType AT = MALLOC> class Vector {
+template <typename T, AllocType AT = MALLOC> class Vector {
 
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
