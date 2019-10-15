@@ -18,7 +18,7 @@
  *
  */
 
-#include "../xoroshiro128pp.hpp"
+#include "../../test/xoroshiro128pp.hpp"
 #include <cassert>
 #include <chrono>
 #include <climits>

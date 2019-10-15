@@ -1,4 +1,4 @@
-#include "../xoroshiro128pp.hpp"
+#include "../../test/xoroshiro128pp.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
