@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  * @tparam PT a memory-paging type out of ::PageType.
  */
-template <size_t BOUND, PageType PT = TRANSHUGE> class BitF : public SearchablePrefixSums {
+template <size_t BOUND, PageType PT = MALLOC> class BitF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static constexpr size_t STARTING_OFFSET = 1;

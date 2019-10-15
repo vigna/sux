@@ -36,7 +36,7 @@ namespace sux::bits {
  * @tparam WORDS length (in words) of the linear search stride.
  * @tparam PT a memory-paging type out of sux::util::PageType.
  */
-template <template <size_t> class T, size_t WORDS, util::PageType PT = util::TRANSHUGE> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t> class T, size_t WORDS, util::PageType PT = util::MALLOC> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;

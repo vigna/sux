@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam PT a memory-paging type out of ::PageType.
  */
 
-template <size_t BOUND, PageType PT = TRANSHUGE> class ByteL : public SearchablePrefixSums {
+template <size_t BOUND, PageType PT = MALLOC> class ByteL : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");

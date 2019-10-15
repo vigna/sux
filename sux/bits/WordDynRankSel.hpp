@@ -36,7 +36,7 @@ namespace sux::bits {
  * @tparam PT a memory-paging type out of sux::util::PageType.
  */
 
-template <template <size_t> class T, util::PageType PT = util::TRANSHUGE> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t> class T, util::PageType PT = util::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUNDSIZE = 64;
 	size_t Size;

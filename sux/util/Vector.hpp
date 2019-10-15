@@ -51,7 +51,7 @@ enum PageType {
  * [2] https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
  */
 
-template <typename T, PageType PT = TRANSHUGE> class Vector {
+template <typename T, PageType PT = MALLOC> class Vector {
 
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
@@ -143,7 +143,7 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
-			if (PT == TRANSHUGE) {
+			if (PT == TRANSHUGEPAGE) {
 				int adv = madvise(mem, space, MADV_HUGEPAGE);
 				assert(adv == 0 && "madvise failed");
 			}
