@@ -27,7 +27,7 @@
 namespace sux::bits {
 using namespace std;
 
-/** A simple SelectZero implementation based on a two-level inventory, 
+/** A simple SelectZero implementation based on a two-level inventory,
  *  and wired for approximately the same number of zeros and ones.
  *
  * This implementation has been specifically developed to be used

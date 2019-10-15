@@ -29,13 +29,13 @@
 
 namespace sux::bits {
 
-/** An implementation of selection and ranking based on the Elias-Fano representation 
-  * of monotone sequences.
-  *
-  * Instances of this class can be built using a bit vector or an explicit list of
-  * positions for the ones in a vector. In every case, the bit vector or the list
-  * are not necessary after construction.
-  */
+/** An implementation of selection and ranking based on the Elias-Fano representation
+ * of monotone sequences.
+ *
+ * Instances of this class can be built using a bit vector or an explicit list of
+ * positions for the ones in a vector. In every case, the bit vector or the list
+ * are not necessary after construction.
+ */
 
 class EliasFano : public Rank, public Select {
   private:
@@ -88,7 +88,7 @@ class EliasFano : public Rank, public Select {
 	 */
 	EliasFano(const uint64_t *const bits, const uint64_t num_bits);
 
-	/** Creates a new instance using an 
+	/** Creates a new instance using an
 	 *  explicit list of positions for the ones in a bit vector.
 	 *
 	 *  Note that in practice this constructor builds an Elias-Fano

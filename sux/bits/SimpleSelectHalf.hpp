@@ -26,7 +26,7 @@
 
 namespace sux::bits {
 
-/** A simple Select implementation based on a two-level inventory, 
+/** A simple Select implementation based on a two-level inventory,
  *  and wired for approximately the same number of zeros and ones.
  *
  * This implementation has been specifically developed to be used

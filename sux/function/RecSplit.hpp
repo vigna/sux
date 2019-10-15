@@ -74,7 +74,7 @@ static const uint64_t start_seed[] = {0x106393c187cae21a, 0x6453cec3f7376937, 0x
  *
  * @param z a 64-bit integer.
  * @return a 64-bit integer obtained by mixing the bits of `z`.
- */ 
+ */
 
 uint64_t inline remix(uint64_t z) {
 	z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
@@ -84,7 +84,7 @@ uint64_t inline remix(uint64_t z) {
 
 /** 128-bit hashes.
  *
- * In the construction of RecSplit, keys are replaced with instances 
+ * In the construction of RecSplit, keys are replaced with instances
  * of this class using SpookyHash, first thing.
  * Moreover, it is possible to build and query RecSplit instances using 128-bit
  * random hashes only (mainly for benchmarking purposes).
@@ -126,7 +126,6 @@ static constexpr uint64_t bij_memo_golomb[] = {0,        0,        1,         3,
 											   1910,     4954,     12902,     33714,     88350,      232110,     611118,      1612087,     4259803,    11273253,
 											   29874507, 79265963, 210551258, 559849470, 1490011429, 3968988882, 10580669970, 28226919646, 75354118356};
 #endif
-
 
 /** A class emboding the splitting strategy of RecSplit.
  *

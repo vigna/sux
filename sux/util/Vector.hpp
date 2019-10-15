@@ -57,12 +57,12 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 
 	~Vector<T, PT>() {
 		if (Data) {
-      if (PT == MALLOC) {
-        free(Data);
-      } else {
-        int result = munmap(Data, Capacity);
-        assert(result == 0 && "mmunmap failed");
-      }
+			if (PT == MALLOC) {
+				free(Data);
+			} else {
+				int result = munmap(Data, Capacity);
+				assert(result == 0 && "mmunmap failed");
+			}
 		}
 	}
 
@@ -120,15 +120,15 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 	void remap(size_t size) {
 		if (size == 0) return;
 
-    void *mem;
-    size_t space;
+		void *mem;
+		size_t space;
 
 		if (PT == MALLOC) {
-      space = size * sizeof(T);
+			space = size * sizeof(T);
 			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-      space = page_aligned(size);
+			space = page_aligned(size);
 			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
@@ -138,8 +138,8 @@ template <typename T, PageType PT = TRANSHUGE> class Vector {
 			}
 		}
 
-    Capacity = space;
-    Data = static_cast<T *>(mem);
+		Capacity = space;
+		Data = static_cast<T *>(mem);
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {
