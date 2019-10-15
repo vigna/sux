@@ -22,9 +22,16 @@
 
 namespace sux::util {
 
-/** An interface for all classes implementating Fenwick trees.
+/** An interface for classes implementing _searchable prefix sums_.
  *
- * Note that node indices start from 1 and end at size() (included).
+ * A searchable prefix-sums data structure maintains a list of 
+ * nonnegative values and makes it possible to compute sum of 
+ * prefixes and find the length of the longest prefix sum smaller
+ * than or equal to a given bound.
+ * 
+ * Indices into the list start (oddly) from 1 and end at size(),
+ * included, because the typical implementation is by a Fenwick
+ * tree, for which indexing from 1 is natural.
  *
  * Each SearchablePrefixSums is serializable and deserializable with:
  * - friend std::ostream &operator<<(std::ostream &os, const SearchablePrefixSums &ft);
