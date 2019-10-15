@@ -36,7 +36,8 @@ namespace sux::bits {
  * @tparam WORDS length (in words) of the linear search stride.
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <template <size_t, util::AllocType AT> class T, size_t WORDS, util::AllocType AT = util::MALLOC> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t, util::AllocType AT> class T, size_t WORDS, util::AllocType AT = util::MALLOC>
+class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;

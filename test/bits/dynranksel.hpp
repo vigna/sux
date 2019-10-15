@@ -1,5 +1,12 @@
 #pragma once
 
+#include <sux/util/FixedF.hpp>
+#include <sux/util/FixedL.hpp>
+#include <sux/util/ByteF.hpp>
+#include <sux/util/ByteL.hpp>
+#include <sux/util/BitF.hpp>
+#include <sux/util/BitL.hpp>
+
 #include <sux/bits/StrideDynRankSel.hpp>
 #include <sux/bits/WordDynRankSel.hpp>
 

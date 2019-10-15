@@ -36,15 +36,15 @@ namespace sux::util {
 enum AllocType {
 	/** Standard allocation with `malloc()` (usually, the default). */
 	MALLOC,
-	/** Allocation with `mmap()`. Usually in this case allocations
-	  * are aligned on a memory page (typically, 4KiB). */
+	/** Allocation with `mmap()`. Allocations are forced to be aligned on a memory page (typically, 4KiB). */
 	SMALLPAGE,
-	/** Transparent huge pages support through `mmap()` and `madvise()` 
-	  * on Linux. Note that the pages in this case are usually 2MiB each. */
+	/** Transparent huge pages support through `mmap()` and `madvise()`
+	 * on Linux. Allocations are usually a mutiple of 4KiB, but they can be defragmented in blocks of 2MiB each. */
 	TRANSHUGEPAGE,
-	/** Direct huge page support through `mmap()` on Linux. 
-	  * Also in this case pages are usually 2MiB each. */
-	FORCEHUGEPAGE };
+	/** Direct huge page support through `mmap()` on Linux.
+	 * In this case allocations are forced to be aligned on page blocks of 2MiB each. */
+	FORCEHUGEPAGE
+};
 
 /** An expandable vector with settable type of memory allocation.
  *
@@ -136,11 +136,11 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 		size_t space;
 
 		if (AT == MALLOC) {
-      space = size * sizeof(T);
+			space = size * sizeof(T);
 			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-      space = page_aligned(size);
+			space = page_aligned(size);
 			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
@@ -150,7 +150,7 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 			}
 		}
 
-    memset(static_cast<char*>(mem) + Capacity, 0, space - Capacity);
+		memset(static_cast<char *>(mem) + Capacity, 0, space - Capacity);
 
 		Capacity = space;
 		Data = static_cast<T *>(mem);

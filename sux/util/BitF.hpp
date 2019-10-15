@@ -123,9 +123,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class BitF : public SearchablePre
 		}
 	}
 
-	virtual void pop() {
-		Tree.resize((first_bit_after(--Size) + END_PADDING + 7) >> 3);
-  }
+	virtual void pop() { Tree.resize((first_bit_after(--Size) + END_PADDING + 7) >> 3); }
 
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
