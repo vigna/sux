@@ -123,16 +123,18 @@ template <size_t BOUND, PageType PT = MALLOC> class BitF : public SearchablePref
 		}
 	}
 
-	virtual void pop() { Size--; }
+	virtual void pop() {
+		Tree.resize((first_bit_after(--Size) + END_PADDING + 7) >> 3);
+  }
 
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
 	using SearchablePrefixSums::trimToFit;
-	virtual void trim(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); };
+	virtual void trim(size_t space) { Tree.trim((first_bit_after(space) + END_PADDING + 7) >> 3); };
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(BitF<BOUNDSIZE, PT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(BitF<BOUND, PT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	inline static size_t holes(size_t idx) { return STARTING_OFFSET + (idx >> 14) * 64; }
@@ -181,7 +183,7 @@ template <size_t BOUND, PageType PT = MALLOC> class BitF : public SearchablePref
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, BitF<BOUND> &ft) {
+	friend std::istream &operator>>(std::istream &is, BitF<BOUND, PT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

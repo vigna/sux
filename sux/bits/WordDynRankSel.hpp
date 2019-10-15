@@ -36,11 +36,11 @@ namespace sux::bits {
  * @tparam PT a memory-paging type out of sux::util::PageType.
  */
 
-template <template <size_t> class T, util::PageType PT = util::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t, util::PageType PT> class T, util::PageType PT = util::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUNDSIZE = 64;
 	size_t Size;
-	T<BOUNDSIZE> Fenwick;
+	T<BOUNDSIZE, PT> Fenwick;
 	util::Vector<uint64_t, PT> Vector;
 
   public:
@@ -139,11 +139,11 @@ template <template <size_t> class T, util::PageType PT = util::MALLOC> class Wor
 		return (x / y) + ((x % y != 0) ? 1 : 0);
 	}
 
-	T<BOUNDSIZE> buildFenwick(const uint64_t bitvector[], size_t size) {
+	T<BOUNDSIZE, PT> buildFenwick(const uint64_t bitvector[], size_t size) {
 		uint64_t *sequence = new uint64_t[size];
 		for (size_t i = 0; i < size; i++) sequence[i] = nu(bitvector[i]);
 
-		T<BOUNDSIZE> tree(sequence, size);
+		T<BOUNDSIZE, PT> tree(sequence, size);
 		delete[] sequence;
 		return tree;
 	}

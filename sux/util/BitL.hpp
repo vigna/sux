@@ -52,7 +52,6 @@ template <size_t BOUND, PageType PT = MALLOC> class BitL : public SearchablePref
 	BitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
 		for (size_t i = 1; i <= Levels; i++) {
 			size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i);
-			Tree[i - 1].reserve(space);
 			Tree[i - 1].resize(space);
 		}
 
@@ -178,13 +177,13 @@ template <size_t BOUND, PageType PT = MALLOC> class BitL : public SearchablePref
 	using SearchablePrefixSums::trimToFit;
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
+		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i) + 7);
 	};
 
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(BitL<BOUNDSIZE>) * 8;
+		size_t ret = sizeof(BitL<BOUND, PT>) * 8;
 
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]);
 
@@ -192,7 +191,7 @@ template <size_t BOUND, PageType PT = MALLOC> class BitL : public SearchablePref
 	}
 
   private:
-	friend std::ostream &operator<<(std::ostream &os, const BitL<BOUND> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const BitL<BOUND, PT> &ft) {
 		const uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -209,7 +208,7 @@ template <size_t BOUND, PageType PT = MALLOC> class BitL : public SearchablePref
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, BitL<BOUND> &ft) {
+	friend std::istream &operator>>(std::istream &is, BitL<BOUND, PT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);

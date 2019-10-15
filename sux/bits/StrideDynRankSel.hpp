@@ -36,11 +36,11 @@ namespace sux::bits {
  * @tparam WORDS length (in words) of the linear search stride.
  * @tparam PT a memory-paging type out of sux::util::PageType.
  */
-template <template <size_t> class T, size_t WORDS, util::PageType PT = util::MALLOC> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t, util::PageType PT> class T, size_t WORDS, util::PageType PT = util::MALLOC> class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;
-	T<BOUND> Fenwick;
+	T<BOUND, PT> Fenwick;
 	util::Vector<uint64_t, PT> Vector;
 
   public:
@@ -158,11 +158,11 @@ template <template <size_t> class T, size_t WORDS, util::PageType PT = util::MAL
 		return (x / y) + ((x % y != 0) ? 1 : 0);
 	}
 
-	static T<BOUND> buildFenwick(const uint64_t bitvector[], size_t size) {
+	static T<BOUND, PT> buildFenwick(const uint64_t bitvector[], size_t size) {
 		uint64_t *sequence = new uint64_t[divRoundup(size, WORDS)]();
 		for (size_t i = 0; i < size; i++) sequence[i / WORDS] += nu(bitvector[i]);
 
-		T<BOUND> tree(sequence, divRoundup(size, WORDS));
+		T<BOUND, PT> tree(sequence, divRoundup(size, WORDS));
 		delete[] sequence;
 		return tree;
 	}

@@ -135,11 +135,11 @@ template <typename T, PageType PT = MALLOC> class Vector {
 		size_t space;
 
 		if (PT == MALLOC) {
-			space = size * sizeof(T);
+      space = size * sizeof(T);
 			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-			space = page_aligned(size);
+      space = page_aligned(size);
 			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
@@ -148,6 +148,8 @@ template <typename T, PageType PT = MALLOC> class Vector {
 				assert(adv == 0 && "madvise failed");
 			}
 		}
+
+    memset(static_cast<char*>(mem) + Capacity, 0, space - Capacity);
 
 		Capacity = space;
 		Data = static_cast<T *>(mem);
