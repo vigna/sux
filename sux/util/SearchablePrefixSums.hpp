@@ -24,11 +24,11 @@ namespace sux::util {
 
 /** An interface for classes implementing _searchable prefix sums_.
  *
- * A searchable prefix-sums data structure maintains a list of 
- * nonnegative values and makes it possible to compute sum of 
+ * A searchable prefix-sums data structure maintains a list of
+ * nonnegative values and makes it possible to compute sum of
  * prefixes and find the length of the longest prefix sum smaller
  * than or equal to a given bound.
- * 
+ *
  * Indices into the list start (oddly) from 1 and end at size(),
  * included, because the typical implementation is by a Fenwick
  * tree, for which indexing from 1 is natural.

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../support/SpookyV2.hpp"
+#include "../util/Vector.hpp"
 #include "DoubleEF.hpp"
 #include "RiceBitVector.hpp"
 #include <array>
@@ -282,9 +283,12 @@ static constexpr array<uint8_t, MAX_LEAF_SIZE> fill_bij_midstop() {
  * parameter decides how large a leaf will be. Larger leaves imply
  * slower construction, but less space and faster evaluation.
  *
+ * @tparam LEAF_SIZE the size of a leaf; typicals value range from 6 to 8
+ * for fast, small maps, or up to 16 for very compact functions.
+ * @tparam AT a type of memory allocation out of sux::util::AllocType.
  */
 
-template <size_t LEAF_SIZE> class RecSplit {
+template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class RecSplit {
 	using SplitStrat = SplittingStrategy<LEAF_SIZE>;
 
 	static constexpr size_t _leaf = LEAF_SIZE;
@@ -299,8 +303,8 @@ template <size_t LEAF_SIZE> class RecSplit {
 	size_t bucket_size;
 	size_t nbuckets;
 	size_t keys_count;
-	RiceBitVector descriptors;
-	DoubleEF *ef;
+	RiceBitVector<AT> descriptors;
+	DoubleEF<AT> *ef;
 
   public:
 	/** Builds a RecSplit instance using a given list of keys and bucket size.
@@ -308,7 +312,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 * **Warning**: duplicate keys will cause this method to never return.
 	 *
 	 * @param keys a vector of strings.
-	 * @param bucket_size the desired bucket size.
+	 * @param bucket_size the desired bucket size; typical sizes go from
+	 * 100 to 2000, with smaller buckets giving slightly larger but faster
+	 * functions.
 	 */
 	RecSplit(const vector<string> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
@@ -327,7 +333,9 @@ template <size_t LEAF_SIZE> class RecSplit {
 	 *
 	 * Note that this constructor is mainly useful for benchmarking.
 	 * @param keys a vector of 128-bit hashes.
-	 * @param bucket_size the desired bucket size.
+	 * @param bucket_size the desired bucket size; typical sizes go from
+	 * 100 to 2000, with smaller buckets giving slightly larger but faster
+	 * functions.
 	 */
 	RecSplit(vector<hash128_t> &keys, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
@@ -531,7 +539,6 @@ template <size_t LEAF_SIZE> class RecSplit {
 				}
 				copy(&temp[0], &temp[m], &bucket[start]);
 				x -= start_seed[level];
-
 				const auto log2golomb = golomb_param(m);
 				descriptors.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
@@ -712,7 +719,7 @@ template <size_t LEAF_SIZE> class RecSplit {
 		descriptors.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
 		descriptors.fitData();
 
-		ef = new DoubleEF(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
+		ef = new DoubleEF<AT>(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
 
 #ifdef STATS
 		// Evaluation purposes only

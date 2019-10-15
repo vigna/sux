@@ -19,9 +19,8 @@ The classes we provide fall into three categories:
   Stefano Marchini).
 
 * Minimal perfect hashing functions based on the paper ["RecSplit: Minimal
-  Perfect Hashing via Recursive
-  Splitting"](http://vigna.di.unimi.it/papers.php#EGVRS) (with Emmanuel
-  Esposito and Thomas Mueller Graf).
+  Perfect Hashing via Recursive Splitting"](http://vigna.di.unimi.it/papers.php#EGVRS) 
+  (with Emmanuel Esposito and Thomas Mueller Graf).
 
 All classes are heavily asserted. For testing speed, remember to use `-DNDEBUG`.
 
