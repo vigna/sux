@@ -45,13 +45,13 @@ Examples
   using a fixed-size Fenwick tree in classical Fenwick layout over
   strides of sixteen words you must use
 
-        sux::bits::StrideDynRankSel<sux::util::FenwickFixedF, 16>(v, n)
+        sux::bits::StrideDynRankSel<sux::util::FenwickFixedF, 16> drs(v, n)
 
   Such a structure is ideal if ranking is the most common operation. If selection
   is the most common operation a structure based on a byte-compressed level-order
   tree is faster:
 
-        sux::bits::StrideDynRankSel<sux::util::FenwickByteL, 16>(v, n)
+        sux::bits::StrideDynRankSel<sux::util::FenwickByteL, 16> drs(v, n)
 
   In general, by modifying the two template parameters you can use a
   different stride or a different Fenwick tree structure. A stride is
@@ -59,23 +59,23 @@ Examples
   appearing at the border of each stride. Structures with single-word
   strides should be allocated as follows:
 
-        sux::bits::WordDynRankSel<sux::util::FenwickFixedF>(v, n)
+        sux::bits::WordDynRankSel<sux::util::FenwickFixedF> drs(v, n)
 
 - Similary, if `v` is a list of `n` values bounded by 10000 a fixed-size
   Fenwick tree in classical Fenwick layout can be created by
 
-        sux::util::FenwickFixedF<10000>(v, n)
+        sux::util::FenwickFixedF<10000> drs(v, n)
 
   Such a tree is ideal if prefix sums are the most common operations. If
   find is the most operation, again a byte-compressed level-order
   structure is faster:
 
-        sux::util::FenwickByteL<10000>(v, n)
+        sux::util::FenwickByteL<10000> drs(v, n)
 
   For maximum compression, in particular if the bound is very small,
   you can use a bit-compressed tree, which however will be a bit slower:
 
-        sux::util::FenwickBitF<3>(v, n)
+        sux::util::FenwickBitF<3> drs(v, n)
 
 - All data structures for searchable prefix sums and dynamic rank and selection
   make it possible to allocate memory in different ways, and in particular
@@ -84,12 +84,12 @@ Examples
   policy, choosing among the types available in sux::util::PageType. For
   example,
 
-        sux::util::FenwickFixedF<10000, MALLOC>(v, n)
+        sux::util::FenwickFixedF<10000, MALLOC> drs(v, n)
 
   creates a Fenwick tree as above, using a standard `malloc()` call, which
   is the most compatible approach, but
 
-        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE>(v, n)
+        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> drs(v, n)
 
   will try to use transparent huge pages instead, if available.
 
