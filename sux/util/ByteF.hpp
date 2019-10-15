@@ -28,15 +28,15 @@ namespace sux::util {
 /** A byte-compressed Fenwick tree in classical layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
- * @tparam PT a memory-paging type out of ::PageType.
+ * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, PageType PT = MALLOC> class ByteF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
   protected:
-	Vector<uint8_t, PT> Tree;
+	Vector<uint8_t, AT> Tree;
 	size_t Size;
 
   public:

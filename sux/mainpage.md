@@ -78,15 +78,20 @@ Examples
         sux::util::BitF<3>(v, n)
 
 - All data structures for searchable prefix sums and dynamic rank and selection
-  try by default to use Linux transparent large pages (2MiB). You can use
-  an additional template parameter to specify your favorite
-  memory-allocation policy, choosing among `MALLOC`, `SMALLPAGE`,
-  `TRANSHUGE`, `HUGETLBPAGE`. For example,
+  make it possible to allocate memory in different ways, and in particular
+  to use transparent large pages (usually, 2MiB) on Linux. You can use an
+  additional template parameter to specify your favorite memory-allocation
+  policy, choosing among the types available in sux::util::PageType. For
+  example,
 
         sux::util::FixedF<10000, MALLOC>(v, n)
 
-  creates a Fenwick tree as above, but using a standard `malloc()` call, which
-  is the most compatible approeach.
+  creates a Fenwick tree as above, using a standard `malloc()` call, which
+  is the most compatible approach, but
+
+        sux::util::FixedF<10000, TRANSHUGEPAGE>(v, n)
+
+  will try to use transparent huge pages instead, if available.
 
 - To create a minimal perfect hash function from a vector of strings `keys`, with
   leaf size 8 and bucket size 100, use

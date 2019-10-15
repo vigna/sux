@@ -28,9 +28,13 @@
 
 namespace sux::util {
 
-/** Possible types of memory paging. */
-enum PageType {
-	/** Standard allocation with `malloc()` (the default). */
+/** Possible types of memory allocation.
+ *
+ * [1] https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html
+ * [2] https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
+ */
+enum AllocType {
+	/** Standard allocation with `malloc()` (usually, the default). */
 	MALLOC,
 	/** Allocation with `mmap()`. Usually in this case allocations
 	  * are aligned on a memory page (typically, 4KiB). */
@@ -42,33 +46,30 @@ enum PageType {
 	  * Also in this case pages are usually 2MiB each. */
 	FORCEHUGEPAGE };
 
-/** An expandable vector with settable type of memory paging.
+/** An expandable vector with settable type of memory allocation.
  *
  *  @tparam T the data type.
- *  @tparam PT a memory-paging type out of ::PageType.
- *
- * [1] https://www.kernel.org/doc/html/latest/admin-guide/mm/hugetlbpage.html
- * [2] https://www.kernel.org/doc/html/latest/admin-guide/mm/transhuge.html
+ *  @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <typename T, PageType PT = MALLOC> class Vector {
+template <typename T, PageType AT = MALLOC> class Vector {
 
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
-	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (PT == FORCEHUGEPAGE ? MAP_HUGETLB : 0);
+	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (AT == FORCEHUGEPAGE ? MAP_HUGETLB : 0);
 
   private:
 	size_t Size = 0, Capacity = 0;
 	T *Data = nullptr;
 
   public:
-	Vector<T, PT>() = default;
+	Vector<T, AT>() = default;
 
-	explicit Vector<T, PT>(size_t size) { resize(size); }
+	explicit Vector<T, AT>(size_t size) { resize(size); }
 
-	~Vector<T, PT>() {
+	~Vector<T, AT>() {
 		if (Data) {
-			if (PT == MALLOC) {
+			if (AT == MALLOC) {
 				free(Data);
 			} else {
 				int result = munmap(Data, Capacity);
@@ -77,9 +78,9 @@ template <typename T, PageType PT = MALLOC> class Vector {
 		}
 	}
 
-	Vector(Vector<T, PT> &&oth) : Size(std::exchange(oth.Size, 0)), Capacity(std::exchange(oth.Capacity, 0)), Data(std::exchange(oth.Data, nullptr)) {}
+	Vector(Vector<T, AT> &&oth) : Size(std::exchange(oth.Size, 0)), Capacity(std::exchange(oth.Capacity, 0)), Data(std::exchange(oth.Data, nullptr)) {}
 
-	Vector<T, PT> &operator=(Vector<T, PT> &&oth) {
+	Vector<T, AT> &operator=(Vector<T, AT> &&oth) {
 		swap(*this, oth);
 		return *this;
 	}
@@ -104,7 +105,7 @@ template <typename T, PageType PT = MALLOC> class Vector {
 
 	T popBack() { return Data[--Size]; }
 
-	friend void swap(Vector<T, PT> &first, Vector<T, PT> &second) noexcept {
+	friend void swap(Vector<T, AT> &first, Vector<T, AT> &second) noexcept {
 		std::swap(first.Size, second.Size);
 		std::swap(first.Capacity, second.Capacity);
 		std::swap(first.Data, second.Data);
@@ -118,11 +119,11 @@ template <typename T, PageType PT = MALLOC> class Vector {
 
 	inline size_t capacity() const { return Capacity; }
 
-	size_t bitCount() const { return sizeof(Vector<T, PT>) * 8 + Capacity * 8; }
+	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + Capacity * 8; }
 
   private:
 	static size_t page_aligned(size_t size) {
-		if (PT == FORCEHUGEPAGE)
+		if (AT == FORCEHUGEPAGE)
 			return ((2 * 1024 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
 		else
 			return ((4 * 1024 - 1) | (size * sizeof(T) - 1)) + 1;
@@ -134,7 +135,7 @@ template <typename T, PageType PT = MALLOC> class Vector {
 		void *mem;
 		size_t space;
 
-		if (PT == MALLOC) {
+		if (AT == MALLOC) {
 			space = size * sizeof(T);
 			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
 			assert(mem != NULL && "malloc failed");
@@ -143,7 +144,7 @@ template <typename T, PageType PT = MALLOC> class Vector {
 			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
-			if (PT == TRANSHUGEPAGE) {
+			if (AT == TRANSHUGEPAGE) {
 				int adv = madvise(mem, space, MADV_HUGEPAGE);
 				assert(adv == 0 && "madvise failed");
 			}
@@ -153,7 +154,7 @@ template <typename T, PageType PT = MALLOC> class Vector {
 		Data = static_cast<T *>(mem);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const Vector<T, PT> &vector) {
+	friend std::ostream &operator<<(std::ostream &os, const Vector<T, AT> &vector) {
 		const uint64_t nsize = static_cast<uint64_t>(vector.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
@@ -165,11 +166,11 @@ template <typename T, PageType PT = MALLOC> class Vector {
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, Vector<T, PT> &vector) {
+	friend std::istream &operator>>(std::istream &is, Vector<T, AT> &vector) {
 		uint64_t nsize;
 		is.read((char *)&nsize, sizeof(uint64_t));
 
-		vector = Vector<T, PT>(nsize);
+		vector = Vector<T, AT>(nsize);
 
 		for (size_t i = 0; i < vector.size(); ++i) is.read((char *)&vector[i], sizeof(T));
 
