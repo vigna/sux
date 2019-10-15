@@ -28,15 +28,15 @@ namespace sux::util {
 /** A byte-compressed Fenwick tree in classical layout.
  *
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
- * @tparam PT a memory-paging type out of ::PageType.
+ * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, PageType PT = MALLOC> class ByteF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class ByteF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
 
   protected:
-	Vector<uint8_t, PT> Tree;
+	Vector<uint8_t, AT> Tree;
 	size_t Size;
 
   public:
@@ -136,7 +136,7 @@ template <size_t BOUND, PageType PT = MALLOC> class ByteF : public SearchablePre
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(ByteF<BOUNDSIZE, PT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return sizeof(ByteF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
   private:
 	static inline size_t bytesize(size_t idx) { return ((rho(idx) + BOUNDSIZE - 1) >> 3) + 1; }
@@ -166,14 +166,14 @@ template <size_t BOUND, PageType PT = MALLOC> class ByteF : public SearchablePre
 		return idx * SMALL + (idx >> MEDIUM) + (idx >> LARGE) * MULTIPLIER + holes(idx);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const ByteF<BOUND, PT> &ft) {
+	friend std::ostream &operator<<(std::ostream &os, const ByteF<BOUND, AT> &ft) {
 		uint64_t nsize = htol((uint64_t)ft.Size);
 		os.write((char *)&nsize, sizeof(uint64_t));
 
 		return os << ft.Tree;
 	}
 
-	friend std::istream &operator>>(std::istream &is, ByteF<BOUND, PT> &ft) {
+	friend std::istream &operator>>(std::istream &is, ByteF<BOUND, AT> &ft) {
 		uint64_t nsize;
 		is.read((char *)(&nsize), sizeof(uint64_t));
 		ft.Size = ltoh(nsize);
