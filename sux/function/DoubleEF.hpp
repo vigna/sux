@@ -34,6 +34,8 @@
 
 namespace sux::function {
 
+using namespace sux;
+
 /** A double Elias-Fano list.
  *
  * This class exists solely to implement RecSplit.

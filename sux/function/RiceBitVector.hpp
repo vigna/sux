@@ -26,9 +26,10 @@
 #include <iostream>
 #include "../util/Vector.hpp"
 
-using namespace std;
-
 namespace sux::function {
+
+using namespace std;
+using namespace sux;
 
 #define DEFAULT_VECTSIZE (1 << 2)
 
