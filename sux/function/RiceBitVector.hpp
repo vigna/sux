@@ -32,7 +32,7 @@ namespace sux::function {
 
 #define DEFAULT_VECTSIZE (1 << 2)
 
-/** Storage for Golomb-Rice code of a RecSplit bucket.
+/** Storage for Golomb-Rice codes of a RecSplit bucket.
  *
  *  This class exists solely to implement RecSplit.
  * @tparam AT a type of memory allocation out of util::AllocType.
