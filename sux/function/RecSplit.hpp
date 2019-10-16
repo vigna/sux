@@ -31,10 +31,10 @@
 #include <string>
 #include <vector>
 
+namespace sux::function {
+
 using namespace std;
 using namespace std::chrono;
-
-namespace sux::function {
 
 // Assumed *maximum* size of a bucket. Works with high probability up to average bucket size ~2000.
 static const int MAX_BUCKET_SIZE = 3000;
