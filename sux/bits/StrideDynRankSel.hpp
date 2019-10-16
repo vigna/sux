@@ -51,7 +51,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	 * @param size the length (in bits) of the bit vector.
 	 */
 	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, AT>(divRoundup(size, 64))) {
-		std::copy_n(bitvector, divRoundup(size, 64), Vector.get());
+		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
 	}
 
 	/** Creates a new instance using a given bit vector.
@@ -59,9 +59,9 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	StrideDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
+	StrideDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.p(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
 
-	const uint64_t *bitvector() const { return Vector.get(); }
+	const uint64_t *bitvector() const { return Vector.p(); }
 
 	virtual uint64_t rank(size_t pos) {
 		size_t idx = pos / (64 * WORDS);

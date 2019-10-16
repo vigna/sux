@@ -43,11 +43,22 @@ enum AllocType {
 	TRANSHUGEPAGE,
 	/** Direct huge page support through `mmap()` on Linux.
 	 * In this case allocations are aligned on a huge (typically, 2MiB) memory page.
-	 * This feature is usually disabled by default and it requires the administrator to pre-reserve space for huge memory pages as documented in the reported external references  */
+	 * This feature is usually disabled by default and it requires the administrator 
+	 * to pre-reserve space for huge memory pages as documented in the reported external references  */
 	FORCEHUGEPAGE
 };
 
 /** An expandable vector with settable type of memory allocation.
+ *
+ *  Instances of this class have a behavior similar to std::vector.
+ *  However, the strategy used for allocation memory can be selected.
+ *
+ *  Once enough capacity has been allocated through reserve(size_t),
+ *  p() is a pointer to the first element and all allocated space can
+ *  be used directly, if necessary.
+ *
+ *  Vector implements the standard `<<` and `>>` operators for simple
+ *  serialization and deserialization.
  *
  *  @tparam T the data type.
  *  @tparam AT a type of memory allocation out of ::AllocType.
@@ -60,8 +71,8 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (AT == FORCEHUGEPAGE ? MAP_HUGETLB : 0);
 
   private:
-	size_t Size = 0, Capacity = 0;
-	T *Data = nullptr;
+	size_t _size = 0, _capacity = 0;
+	T *data = nullptr;
 
   public:
 	Vector<T, AT>() = default;
@@ -69,58 +80,100 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	explicit Vector<T, AT>(size_t size) { resize(size); }
 
 	~Vector<T, AT>() {
-		if (Data) {
+		if (data) {
 			if (AT == MALLOC) {
-				free(Data);
+				free(data);
 			} else {
-				int result = munmap(Data, Capacity);
+				int result = munmap(data, _capacity);
 				assert(result == 0 && "mmunmap failed");
 			}
 		}
 	}
 
-	Vector(Vector<T, AT> &&oth) : Size(std::exchange(oth.Size, 0)), Capacity(std::exchange(oth.Capacity, 0)), Data(std::exchange(oth.Data, nullptr)) {}
+	Vector(Vector<T, AT> &&oth) : _size(std::exchange(oth._size, 0)), _capacity(std::exchange(oth._capacity, 0)), data(std::exchange(oth.data, nullptr)) {}
 
 	Vector<T, AT> &operator=(Vector<T, AT> &&oth) {
 		swap(*this, oth);
 		return *this;
 	}
 
+	/** Trim the the memory allocated to the given size, if possible.
+	 *
+	 * @param size new desired size (in elements) of the allocated space.
+	 */
 	void trim(size_t size) {
-		if (size < Capacity) remap(size);
+		if (size < _capacity) remap(size);
 	}
 
+	/** Reserve enough space to contain a given number of elements.
+	 *
+	 * @param size how much space (in elements) to reserve.
+	 *
+	 * Nothing happens if the requested space is already reserved.
+	 */
 	void reserve(size_t size) {
-		if (size > Capacity) remap(size);
+		if (size > _capacity) remap(size);
 	}
 
+	/** Changes the vector size to the given value.
+	  *
+	  * If the argument is smaller than the current size, the excess
+	  * elements will be discared. Otherwise, new zero elements will
+	  * be added.
+	  *
+	  * @param size the desired new size (in elements) of this vector.
+	  */
 	void resize(size_t size) {
-		if (size > Capacity) reserve(1ULL << (lambda(size) + 1));
-		Size = size;
+		// TODO: is this right?
+		if (size > _capacity) reserve(max(size_t(4), (size * 3) / 2));
+		_size = size;
 	}
 
+	/** Adds a given element at the end of this vector.
+	 *
+	 * @param elem an element.
+	 */
 	void pushBack(T elem) {
-		resize(Size + 1);
-		Data[Size - 1] = elem;
+		resize(size + 1);
+		data[size - 1] = elem;
 	}
 
-	T popBack() { return Data[--Size]; }
+	/** Pops the element at the end of this vector.
+	 *
+	 *  The last element of this vector is removed and
+     *  returned.
+	 *
+	 * @return the last element of this vector.
+	 */
+	T popBack() { return data[--_size]; }
 
 	friend void swap(Vector<T, AT> &first, Vector<T, AT> &second) noexcept {
-		std::swap(first.Size, second.Size);
-		std::swap(first.Capacity, second.Capacity);
-		std::swap(first.Data, second.Data);
+		std::swap(first._size, second._size);
+		std::swap(first._capacity, second._capacity);
+		std::swap(first.data, second.data);
 	}
 
-	inline T *get() const { return Data; }
+	/** Returns a pointer at the start of the backing array. */
+	inline T *p() const { return data; }
 
-	inline T &operator[](size_t i) const { return Data[i]; };
+	/** Returns the given element of the vector. */
+	inline T &operator[](size_t i) const { return data[i]; };
 
-	inline size_t size() const { return Size; }
+	/** Returns the number of elements in this vector. */
+	inline size_t size() const { return _size; }
 
-	inline size_t capacity() const { return Capacity; }
+	/** Returns the number of elements that this vector
+	 * can hold currently without increasing its capacity.
+	 *
+	 * @return the number of elements that this vector
+	 * can hold currently without increasing its capacity.
+	 */
+	inline size_t capacity() const { return _capacity; }
 
-	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + Capacity * sizeof(T) * 8; }
+	/** Returns the number of bits used by this vector.
+	 * @return the number of bits used by this vector.
+	 */
+	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + _capacity * sizeof(T) * 8; }
 
   private:
 	static size_t page_aligned(size_t size) {
@@ -138,11 +191,11 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 
 		if (AT == MALLOC) {
 			space = size * sizeof(T);
-			mem = Capacity == 0 ? malloc(space) : realloc(Data, space);
+			mem = _capacity == 0 ? malloc(space) : realloc(data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-			space = page_aligned(size);
-			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity * sizeof(T), space, MREMAP_MAYMOVE, -1, 0);
+			space = page_aligned(size * sizeof(T));
+			mem = _capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(data, _capacity * sizeof(T), space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
 			if (AT == TRANSHUGEPAGE) {
@@ -151,32 +204,24 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 			}
 		}
 
-		memset(static_cast<char *>(mem) + Capacity * sizeof(T), 0, space - Capacity * sizeof(T));
+		if (_capacity * sizeof(T) < space) memset(static_cast<char *>(mem) + _capacity * sizeof(T), 0, space - _capacity * sizeof(T));
 
-		Capacity = space / sizeof(T);
-		Data = static_cast<T *>(mem);
+		_capacity = space / sizeof(T);
+		data = static_cast<T *>(mem);
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const Vector<T, AT> &vector) {
-		const uint64_t nsize = static_cast<uint64_t>(vector.Size);
+		const uint64_t nsize = vector.size();
 		os.write((char *)&nsize, sizeof(uint64_t));
-
-		for (size_t i = 0; i < vector.Size; ++i) {
-			const T value = vector[i];
-			os.write((char *)&value, sizeof(T));
-		}
-
+		os.write((char *)vector.p(), vector.size() * sizeof(T));
 		return os;
 	}
 
 	friend std::istream &operator>>(std::istream &is, Vector<T, AT> &vector) {
 		uint64_t nsize;
 		is.read((char *)&nsize, sizeof(uint64_t));
-
 		vector = Vector<T, AT>(nsize);
-
-		for (size_t i = 0; i < vector.size(); ++i) is.read((char *)&vector[i], sizeof(T));
-
+		is.read((char *)vector.p(), vector.size() * sizeof(T));
 		return is;
 	}
 };

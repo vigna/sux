@@ -1,14 +1,14 @@
 CC = g++ -g -std=c++17 -Wall -Wextra -O0 -march=native -l gtest -I./ -fsanitize=address -fsanitize=undefined
 
-bin/bits: test/bits/* sux/bits/*
+bin/bits: test/bits/* sux/bits/* sux/util/Vector.hpp sux/support/*
 	@mkdir -p bin
 	$(CC) test/bits/test.cpp sux/bits/Rank9.cpp sux/bits/Rank9Sel.cpp sux/bits/SimpleSelect.cpp sux/bits/SimpleSelectZero.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp -o bin/bits
 
-bin/util: test/util/* sux/util/*
+bin/util: test/util/* sux/util/* sux/support/*
 	@mkdir -p bin
 	$(CC) test/util/test.cpp -o bin/util
 
-bin/function: test/function/* sux/function/*
+bin/function: test/function/* sux/function/* sux/util/Vector.hpp sux/support/*
 	@mkdir -p bin
 	$(CC) test/function/test.cpp sux/support/SpookyV2.cpp -o bin/function
 

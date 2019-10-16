@@ -50,7 +50,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	 * @param size the length (in bits) of the bit vector.
 	 */
 	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::Vector<uint64_t, AT>(divRoundup(size, BOUNDSIZE))) {
-		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.get());
+		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.p());
 	}
 
 	/** Creates a new instance using a given bit vector.
@@ -58,9 +58,9 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	WordDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.get(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
+	WordDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.p(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
 
-	const uint64_t *bitvector() const { return Vector.get(); }
+	const uint64_t *bitvector() const { return Vector.p(); }
 
 	using Rank::rank;
 	using Rank::rankZero;

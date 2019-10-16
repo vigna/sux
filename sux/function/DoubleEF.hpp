@@ -35,6 +35,7 @@
 namespace sux::function {
 
 using namespace sux;
+using namespace sux::util;
 
 /** A double Elias-Fano list.
  *
@@ -51,7 +52,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 	static constexpr uint64_t super_q_mask = super_q - 1;
 	static constexpr uint64_t q_per_super_q = super_q / q;
 	static constexpr uint64_t super_q_size = 1 + q_per_super_q / 4;
-	uint64_t *lower_bits, *upper_bits_position, *upper_bits_cum_keys, *jump;
+	Vector<uint64_t, AT> lower_bits, upper_bits_position, upper_bits_cum_keys, jump;
 	uint64_t lower_bits_mask_cum_keys, lower_bits_mask_position;
 
 	uint64_t num_buckets, u_cum_keys, u_position;
@@ -89,15 +90,10 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		os.write((char *)&ef.min_diff, sizeof(ef.min_diff));
 		os.write((char *)&ef.bits_per_key_fixed_point, sizeof(ef.bits_per_key_fixed_point));
 
-		const uint64_t words_lower_bits = ef.lower_bits_size_words();
-		os.write((char *)ef.lower_bits, sizeof(uint64_t) * (size_t)words_lower_bits);
-		const uint64_t words_cum_keys = ef.cum_keys_size_words();
-		os.write((char *)ef.upper_bits_cum_keys, sizeof(uint64_t) * (size_t)words_cum_keys);
-		const uint64_t words_position = ef.position_size_words();
-		os.write((char *)ef.upper_bits_position, sizeof(uint64_t) * (size_t)words_position);
-
-		const uint64_t jump_words = ef.jump_size_words();
-		os.write((char *)ef.jump, sizeof(uint64_t) * (size_t)jump_words);
+		os << ef.lower_bits;
+		os << ef.upper_bits_cum_keys;
+		os << ef.upper_bits_position;
+		os << ef.jump;
 		return os;
 	}
 
@@ -116,19 +112,10 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		ef.lower_bits_mask_cum_keys = (UINT64_C(1) << ef.l_cum_keys) - 1;
 		ef.lower_bits_mask_position = (UINT64_C(1) << ef.l_position) - 1;
 
-		const uint64_t words_lower_bits = ef.lower_bits_size_words();
-		ef.lower_bits = new uint64_t[words_lower_bits];
-		is.read((char *)ef.lower_bits, sizeof(uint64_t) * (size_t)words_lower_bits);
-		const uint64_t words_cum_keys = ef.cum_keys_size_words();
-		ef.upper_bits_cum_keys = new uint64_t[words_cum_keys];
-		is.read((char *)ef.upper_bits_cum_keys, sizeof(uint64_t) * (size_t)words_cum_keys);
-		const uint64_t words_position = ef.position_size_words();
-		ef.upper_bits_position = new uint64_t[words_position];
-		is.read((char *)ef.upper_bits_position, sizeof(uint64_t) * (size_t)words_position);
-
-		const uint64_t jump_words = ef.jump_size_words();
-		ef.jump = new uint64_t[jump_words];
-		is.read((char *)ef.jump, sizeof(uint64_t) * (size_t)jump_words);
+		is >> ef.lower_bits;
+		is >> ef.upper_bits_cum_keys;
+		is >> ef.upper_bits_position;
+		is >> ef.jump;
 		return is;
 	}
 
@@ -169,22 +156,23 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		lower_bits_mask_position = (UINT64_C(1) << l_position) - 1;
 
 		const uint64_t words_lower_bits = lower_bits_size_words();
-		lower_bits = new uint64_t[words_lower_bits];
+		lower_bits.resize(words_lower_bits);
 		const uint64_t words_cum_keys = cum_keys_size_words();
-		upper_bits_cum_keys = new uint64_t[words_cum_keys]();
+		upper_bits_cum_keys.resize(words_cum_keys);
 		const uint64_t words_position = position_size_words();
-		upper_bits_position = new uint64_t[words_position]();
+		upper_bits_position.resize(words_position);
 
 		for (uint64_t i = 0, cum_delta = 0, bit_delta = 0; i <= num_buckets; i++, cum_delta += cum_keys_min_delta, bit_delta += min_diff) {
-			if (l_cum_keys != 0) set_bits(lower_bits, i * (l_cum_keys + l_position), l_cum_keys, (cum_keys[i] - cum_delta) & lower_bits_mask_cum_keys);
-			set(upper_bits_cum_keys, ((cum_keys[i] - cum_delta) >> l_cum_keys) + i);
+			if (l_cum_keys != 0) set_bits(lower_bits.p(), i * (l_cum_keys + l_position), l_cum_keys, (cum_keys[i] - cum_delta) & lower_bits_mask_cum_keys);
+			set(upper_bits_cum_keys.p(), ((cum_keys[i] - cum_delta) >> l_cum_keys) + i);
+
 			const auto pval = int64_t(position[i]) - int64_t(bits_per_key_fixed_point * cum_keys[i] >> 20);
-			if (l_position != 0) set_bits(lower_bits, i * (l_cum_keys + l_position) + l_cum_keys, l_position, (pval - bit_delta) & lower_bits_mask_position);
-			set(upper_bits_position, ((pval - bit_delta) >> l_position) + i);
+			if (l_position != 0) set_bits(lower_bits.p(), i * (l_cum_keys + l_position) + l_cum_keys, l_position, (pval - bit_delta) & lower_bits_mask_position);
+			set(upper_bits_position.p(), ((pval - bit_delta) >> l_position) + i);
 		}
 
 		const uint64_t jump_words = jump_size_words();
-		jump = new uint64_t[jump_words];
+		jump.resize(jump_words);
 
 		for (uint64_t i = 0, c = 0, last_super_q = 0; i < words_cum_keys; i++) {
 			for (int b = 0; b < 64; b++) {
@@ -193,7 +181,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 					if ((c & q_mask) == 0) {
 						const uint64_t offset = i * 64 + b - last_super_q;
 						if (offset >= (1 << 16)) abort();
-						((uint16_t *)(jump + (c / super_q) * (super_q_size * 2) + 2))[2 * ((c % super_q) / q)] = offset;
+						((uint16_t *)(jump.p() + (c / super_q) * (super_q_size * 2) + 2))[2 * ((c % super_q) / q)] = offset;
 					}
 					c++;
 				}
@@ -207,7 +195,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 					if ((c & q_mask) == 0) {
 						const uint64_t offset = i * 64 + b - last_super_q;
 						if (offset >= (1 << 16)) abort();
-						((uint16_t *)(jump + (c / super_q) * (super_q_size * 2) + 2))[2 * ((c % super_q) / q) + 1] = offset;
+						((uint16_t *)(jump.p() + (c / super_q) * (super_q_size * 2) + 2))[2 * ((c % super_q) / q) + 1] = offset;
 					}
 					c++;
 				}
@@ -233,13 +221,13 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &cum_keys_next, uint64_t &position) {
 		const uint64_t pos_lower = i * (l_cum_keys + l_position);
 		uint64_t lower;
-		memcpy(&lower, (uint8_t *)lower_bits + pos_lower / 8, 8);
+		memcpy(&lower, (uint8_t *)lower_bits.p() + pos_lower / 8, 8);
 		lower >>= pos_lower % 8;
 
 		const uint64_t jump_super_q = (i / super_q) * super_q_size * 2;
 		const uint64_t jump_inside_super_q = (i % super_q) / q;
-		const uint64_t jump_cum_keys = jump[jump_super_q] + ((uint16_t *)(jump + jump_super_q + 2))[2 * jump_inside_super_q];
-		const uint64_t jump_position = jump[jump_super_q + 1] + ((uint16_t *)(jump + jump_super_q + 2))[2 * jump_inside_super_q + 1];
+		const uint64_t jump_cum_keys = jump[jump_super_q] + ((uint16_t *)(jump.p() + jump_super_q + 2))[2 * jump_inside_super_q];
+		const uint64_t jump_position = jump[jump_super_q + 1] + ((uint16_t *)(jump.p() + jump_super_q + 2))[2 * jump_inside_super_q + 1];
 
 		uint64_t curr_word_cum_keys = jump_cum_keys / 64;
 		uint64_t curr_word_position = jump_position / 64;
@@ -270,13 +258,13 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 	void get(const uint64_t i, uint64_t &cum_keys, uint64_t &position) {
 		const uint64_t pos_lower = i * (l_cum_keys + l_position);
 		uint64_t lower;
-		memcpy(&lower, (uint8_t *)lower_bits + pos_lower / 8, 8);
+		memcpy(&lower, (uint8_t *)lower_bits.p() + pos_lower / 8, 8);
 		lower >>= pos_lower % 8;
 
 		const uint64_t jump_super_q = (i / super_q) * super_q_size * 2;
 		const uint64_t jump_inside_super_q = (i % super_q) / q;
-		const uint64_t jump_cum_keys = jump[jump_super_q] + ((uint16_t *)(jump + jump_super_q + 2))[2 * jump_inside_super_q];
-		const uint64_t jump_position = jump[jump_super_q + 1] + ((uint16_t *)(jump + jump_super_q + 2))[2 * jump_inside_super_q + 1];
+		const uint64_t jump_cum_keys = jump[jump_super_q] + ((uint16_t *)(jump.p() + jump_super_q + 2))[2 * jump_inside_super_q];
+		const uint64_t jump_position = jump[jump_super_q + 1] + ((uint16_t *)(jump.p() + jump_super_q + 2))[2 * jump_inside_super_q + 1];
 
 		uint64_t curr_word_cum_keys = jump_cum_keys / 64;
 		uint64_t curr_word_position = jump_position / 64;
@@ -301,13 +289,6 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 	uint64_t bitCountCumKeys() { return (num_buckets + 1) * l_cum_keys + num_buckets + 1 + (u_cum_keys >> l_cum_keys) + jump_size_words() / 2; }
 
 	uint64_t bitCountPosition() { return (num_buckets + 1) * l_position + num_buckets + 1 + (u_position >> l_position) + jump_size_words() / 2; }
-
-	~DoubleEF() {
-		delete[] upper_bits_position;
-		delete[] upper_bits_cum_keys;
-		delete[] lower_bits;
-		delete[] jump;
-	}
 };
 
 } // namespace sux::function
