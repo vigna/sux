@@ -87,15 +87,15 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	}
 
 	void trim(size_t size) {
-		if (size * sizeof(T) < Capacity) remap(size);
+		if (size < Capacity) remap(size);
 	}
 
 	void reserve(size_t size) {
-		if (size * sizeof(T) > Capacity) remap(size);
+		if (size > Capacity) remap(size);
 	}
 
 	void resize(size_t size) {
-		if (size * sizeof(T) > Capacity) reserve(1ULL << (lambda(size) + 1));
+		if (size > Capacity) reserve(1ULL << (lambda(size) + 1));
 		Size = size;
 	}
 
@@ -120,7 +120,7 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 
 	inline size_t capacity() const { return Capacity; }
 
-	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + Capacity * 8; }
+	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + Capacity * sizeof(T) * 8; }
 
   private:
 	static size_t page_aligned(size_t size) {
@@ -134,7 +134,7 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 		if (size == 0) return;
 
 		void *mem;
-		size_t space;
+		size_t space; // Space to allocate, in bytes
 
 		if (AT == MALLOC) {
 			space = size * sizeof(T);
@@ -142,7 +142,7 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 			assert(mem != NULL && "malloc failed");
 		} else {
 			space = page_aligned(size);
-			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity, space, MREMAP_MAYMOVE, -1, 0);
+			mem = Capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(Data, Capacity * sizeof(T), space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
 			if (AT == TRANSHUGEPAGE) {
@@ -151,9 +151,9 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 			}
 		}
 
-		memset(static_cast<char *>(mem) + Capacity, 0, space - Capacity);
+		memset(static_cast<char *>(mem) + Capacity * sizeof(T), 0, space - Capacity * sizeof(T));
 
-		Capacity = space;
+		Capacity = space / sizeof(T);
 		Data = static_cast<T *>(mem);
 	}
 

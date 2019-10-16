@@ -52,7 +52,7 @@ TEST(RiceBitVector_test, trees_golomb_0) {
 	const size_t golomb_param = 0;
 	vector<uint64_t> keys = gen_keys();
 
-	auto *r = build_bitvector<sux::util::AllocType::TRANSHUGEPAGE>(keys, golomb_param);
+	auto *r = build_bitvector(keys, golomb_param);
 	size_t tree_offset = 0;
 	for (uint64_t k : keys) {
 		tree_offset += 1 + (k >> golomb_param) + golomb_param;
