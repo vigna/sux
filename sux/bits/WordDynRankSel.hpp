@@ -33,7 +33,7 @@ namespace sux::bits {
  *  operations on a single word.
  *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
- * @tparam AT a type of memory allocation out of ::AllocType.
+ * @tparam AT a type of memory allocation out of util::AllocType.
  */
 
 template <template <size_t, util::AllocType AT> class T, util::AllocType AT = util::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {

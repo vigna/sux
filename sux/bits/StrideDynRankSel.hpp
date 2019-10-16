@@ -34,7 +34,7 @@ namespace sux::bits {
  *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  * @tparam WORDS length (in words) of the linear search stride.
- * @tparam AT a type of memory allocation out of ::AllocType.
+ * @tparam AT a type of memory allocation out of util::AllocType.
  */
 template <template <size_t, util::AllocType AT> class T, size_t WORDS, util::AllocType AT = util::MALLOC>
 class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {

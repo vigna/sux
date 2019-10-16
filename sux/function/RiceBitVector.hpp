@@ -35,7 +35,7 @@ namespace sux::function {
 /** Storage for Golomb-Rice code of a RecSplit bucket.
  *
  *  This class exists solely to implement RecSplit.
- * @tparam AT a type of memory allocation out of ::AllocType.
+ * @tparam AT a type of memory allocation out of util::AllocType.
  */
 
 template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {

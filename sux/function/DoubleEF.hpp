@@ -36,8 +36,8 @@ namespace sux::function {
 
 /** A double Elias-Fano list.
  *
- *  This class exists solely to implement RecSplit.
- * @tparam AT a type of memory allocation out of ::AllocType.
+ * This class exists solely to implement RecSplit.
+ * @tparam AT a type of memory allocation out of util::AllocType.
  */
 
 template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
