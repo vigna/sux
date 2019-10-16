@@ -10,7 +10,7 @@ bin/util: test/util/*
 
 bin/function: test/function/*
 	@mkdir -p bin
-	$(CC) test/function/test.cpp sux/function/DoubleEF.cpp sux/function/RiceBitVector.cpp sux/support/SpookyV2.cpp -o bin/function
+	$(CC) test/function/test.cpp sux/support/SpookyV2.cpp -o bin/function
 
 test: bin/bits bin/util bin/function
 	./bin/bits --gtest_color=yes
