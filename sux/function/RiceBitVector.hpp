@@ -129,9 +129,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
 		int used_bits = bit_count & 63;
 
-		while (((bit_count + log2golomb + 63) / 64) * 8 + 7 > data.size() * sizeof(uint64_t)) {
+		if (((bit_count + log2golomb + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.resize((data.size() * 3) / 2);
+			data.reserve(data.capacity() + 1);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 
@@ -154,9 +154,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 			bit_inc += u + 1;
 		}
 
-		while (((bit_count + bit_inc + 63) / 64) * 8 + 7 > data.size() * sizeof(uint64_t)) {
+		if (((bit_count + bit_inc + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.resize((data.size() * 3) / 2);
+			data.reserve(data.capacity() + 1);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 

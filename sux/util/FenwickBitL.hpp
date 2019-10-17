@@ -174,7 +174,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
 	}
 
-	using SearchablePrefixSums::trimToFit;
+	
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i) + 7);

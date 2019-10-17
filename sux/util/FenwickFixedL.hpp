@@ -52,7 +52,6 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedL : public Sear
 	FenwickFixedL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
 		for (size_t i = 1; i <= Levels; i++) {
 			size_t space = (size + (1ULL << (i - 1))) / (1ULL << i);
-			Tree[i - 1].reserve(space);
 			Tree[i - 1].resize(space);
 		}
 
@@ -164,7 +163,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedL : public Sear
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve((space + (1ULL << (i - 1))) / (1ULL << i));
 	}
 
-	using SearchablePrefixSums::trimToFit;
+	
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
 		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim((space + (1ULL << (i - 1))) / (1ULL << i));

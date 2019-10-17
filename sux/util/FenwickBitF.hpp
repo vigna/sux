@@ -127,7 +127,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitF : public Search
 
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
-	using SearchablePrefixSums::trimToFit;
+	
 	virtual void trim(size_t space) { Tree.trim((first_bit_after(space) + END_PADDING + 7) >> 3); };
 
 	virtual size_t size() const { return Size; }

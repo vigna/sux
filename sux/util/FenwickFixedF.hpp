@@ -128,7 +128,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public Sear
 
 	virtual void reserve(size_t space) { Tree.reserve(space); }
 
-	using SearchablePrefixSums::trimToFit;
+	
 	virtual void trim(size_t space) { Tree.trim(space); };
 
 	virtual size_t size() const { return Size; }

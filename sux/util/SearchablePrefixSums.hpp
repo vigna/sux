@@ -107,23 +107,6 @@ class SearchablePrefixSums {
 	 */
 	virtual void pop() = 0;
 
-	/** Reserve enough space to contain a given number of elements.
-	 *
-	 * @param size how much space to reserve.
-	 *
-	 * Nothing happens if the requested space is already reserved.
-	 */
-	virtual void reserve(size_t size) = 0;
-
-	/** Trim the the memory allocated for the tree to the given size, if possible.
-	 *
-	 * @param size new desired size of the allocated space.
-	 */
-	virtual void trim(size_t size) = 0;
-
-	/** Trim the tree to the smallest possible size. */
-	void trimToFit() { trim(0); };
-
 	/** Returns the length of the sequence (i.e., the size of the tree). */
 	virtual size_t size() const = 0;
 

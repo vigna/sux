@@ -90,6 +90,11 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 		}
 	}
 
+	// Delete copy operators
+	Vector(const Vector&) = delete;
+	Vector& operator=(const Vector&) = delete;
+
+	// Define move operators
 	Vector(Vector<T, AT> &&oth) : _size(std::exchange(oth._size, 0)), _capacity(std::exchange(oth._capacity, 0)), data(std::exchange(oth.data, nullptr)) {}
 
 	Vector<T, AT> &operator=(Vector<T, AT> &&oth) {
@@ -97,35 +102,51 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 		return *this;
 	}
 
-	/** Trim the the memory allocated to the given size, if possible.
-	 *
-	 * @param size new desired size (in elements) of the allocated space.
-	 */
-	void trim(size_t size) {
-		if (size < _capacity) remap(size);
+	/** Trim the the memory allocated so that it holds at most the given number of elements. 
+	  * @param capacity the new desired capacity.
+	  */
+	void trim(size_t capacity) {
+		if (capacity >= _size && capacity < _capacity) remap(capacity);
 	}
 
-	/** Reserve enough space to contain a given number of elements.
+	/** Trim the the memory allocated so that it holds exactly size() elements. */
+	void trimToFit() {
+		trim(_size);
+	}
+
+	/** Enlarges the backing array to that it can contain a given number of elements.
 	 *
-	 * @param size how much space (in elements) to reserve.
+	 * If the current capacity is sufficient, nothing happens. Otherwise, the
+	 * backing is enlarged to the provided capacity.
 	 *
-	 * Nothing happens if the requested space is already reserved.
+	 * @param capacity the desired new capacity.
 	 */
-	void reserve(size_t size) {
-		if (size > _capacity) remap(size);
+	void reserve(size_t capacity) {
+		if (capacity > _capacity) remap(capacity);
+	}
+
+	/** Enlarges the backing array to that it can contain a given number of elements, plus possibly extra space.
+	 *
+	 * If the current capacity is sufficient, nothing happens. Otherwise, the
+	 * backing is enlarged to the maximum between the provided capacity and
+	 * 50% more than the current capacity.
+	 *
+	 * @param capacity the desired new capacity.
+	 */
+	void grow(size_t capacity) {
+		if (capacity > _capacity) remap(max(capacity, _capacity + (_capacity / 2)));
 	}
 
 	/** Changes the vector size to the given value.
 	  *
-	  * If the argument is smaller than the current size, the excess
-	  * elements will be discared. Otherwise, new zero elements will
-	  * be added.
+	  * If the argument is smaller than or equal to the current size,
+	  * the backing array is unmodified. Otherwise, the backing array 
+	  * is enlarged to the given size. New elements are initialized to zero.
 	  *
-	  * @param size the desired new size (in elements) of this vector.
+	  * @param size the desired new size.
 	  */
 	void resize(size_t size) {
-		// TODO: is this right?
-		if (size > _capacity) reserve(max(size_t(4), (size * 3) / 2));
+		if (size > _capacity) grow(size);
 		_size = size;
 	}
 
@@ -134,8 +155,9 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	 * @param elem an element.
 	 */
 	void pushBack(T elem) {
-		resize(size + 1);
-		data[size - 1] = elem;
+		grow(_size + 1);
+		data[_size] = elem;
+		_size++;
 	}
 
 	/** Pops the element at the end of this vector.
