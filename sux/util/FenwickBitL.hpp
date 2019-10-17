@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public SearchablePrefixSums, public Expandable {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -182,11 +182,24 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 			Tree[i].reserve(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
 
+	using Expandable::trimToFit;
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
 		for (size_t i = 0; i < levels; i++)
 			Tree[i].trim(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
+
+	virtual void resize(size_t space) {
+		size_t levels = lambda(space) + 1;
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].resize(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+  }
+
+	virtual void size(size_t space) {
+		size_t levels = lambda(space) + 1;
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].size(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+  }
 
 	virtual size_t size() const { return Size; }
 

@@ -30,7 +30,7 @@ namespace sux::util {
  * @tparam BOUND maximum representable value (at most the maximum value of a `uint64_t`).
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
-template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public SearchablePrefixSums, public Expandable {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -134,6 +134,12 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public Searc
 	virtual void reserve(size_t space) { Tree.reserve(pos(space) + 8); }
 
   virtual void trim(size_t space) { Tree.trim(pos(space) + 8); };
+
+	virtual void trimToFit() { trim(Size); };
+
+	virtual void resize(size_t space) { Tree.resize(pos(space) + 8); }
+
+  virtual void size(size_t space) { Tree.size(pos(space) + 8); };
 
 	virtual size_t size() const { return Size; }
 

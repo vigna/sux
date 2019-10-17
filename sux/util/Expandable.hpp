@@ -37,7 +37,7 @@ public:
 	virtual void trim(size_t space) = 0;
 
 	/** Trim the the memory allocated so that it holds exactly size() elements. */
-	virtual void trimToFit() = 0;
+	void trimToFit() { trim(size()); };
 
 	/** Enlarges the backing array to that it can contain a given number of elements.
 	 *
@@ -70,7 +70,7 @@ public:
 	virtual void resize(size_t size) = 0;
 
 	/** Returns the number of elements in this vector. */
-	virtual inline size_t size() const = 0;
+	virtual size_t size() const = 0;
 
 	/** Changes the vector size and capacity to the given value.
    *
@@ -80,14 +80,6 @@ public:
    * @param size the desired new size.
    */
 	virtual void size(size_t size) = 0;
-
-	/** Returns the number of elements that this vector
-	 * can hold currently without increasing its capacity.
-	 *
-	 * @return the number of elements that this vector
-	 * can hold currently without increasing its capacity.
-	 */
-	virtual inline size_t capacity() const = 0;
 };
 
 } // namespace sux::util

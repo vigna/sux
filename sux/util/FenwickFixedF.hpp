@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public SearchablePrefixSums {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public SearchablePrefixSums, public Expandable {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");
@@ -130,15 +130,14 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public Sear
 
 	virtual void reserve(size_t space) { Tree.reserve(space); }
 
+	using Expandable::trimToFit;
 	virtual void trim(size_t space) { Tree.trim(space); };
 
-	virtual void trimToFit() { Tree.trim(Size); };
+	virtual void resize(size_t space) { Tree.resize(space); }
 
-	virtual void resize(size_t size) { Tree.resize(size); }
+	virtual void size(size_t space) { Tree.size(space); }
 
 	virtual size_t size() const { return Size; }
-
-	virtual size_t capacity() const { return Tree.capacity(); }
 
 	virtual size_t bitCount() const { return sizeof(FenwickFixedF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
 
