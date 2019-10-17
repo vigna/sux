@@ -67,6 +67,12 @@ enum AllocType {
 
 template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 
+#ifndef MAP_HUGETLB
+#pragma message("Huge pages not supported")
+#define MAP_HUGETLB 0
+#define MADV_HUGEPAGE 0
+#endif
+
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
 	static constexpr int FLAGS = MAP_PRIVATE | MAP_ANONYMOUS | (AT == FORCEHUGEPAGE ? MAP_HUGETLB : 0);
@@ -229,7 +235,15 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 			assert(mem != NULL && "malloc failed");
 		} else {
 			space = page_aligned(size);
-			mem = _capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
+			if (_capacity == 0) mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
+			else {
+#ifndef MREMAP_MAYMOVE
+				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
+				memcpy(mem, data, page_aligned(_capacity));
+#else
+				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
+#endif
+			}
 			assert(mem != MAP_FAILED && "mmap failed");
 
 			if (AT == TRANSHUGEPAGE) {
