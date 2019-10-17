@@ -20,13 +20,13 @@ TEST(rankselect, all_ones) {
 		SimpleSelectHalf SimpleSelectHalf(bitvect, size);
 
 		// rank
-		for (size_t i = 0; i <= size; i++) {
+		for (size_t i = 0; i < size; i++) {
 			EXPECT_EQ(i, Rank9Sel.rank(i)) << "at index " << i;
 			EXPECT_EQ(i, EliasFano.rank(i)) << "at index " << i;
 		}
 
 		// rankZero
-		for (size_t i = 0; i <= size; i++) {
+		for (size_t i = 0; i < size; i++) {
 			EXPECT_EQ(0, Rank9Sel.rankZero(i)) << "at index " << i;
 			EXPECT_EQ(0, EliasFano.rankZero(i)) << "at index " << i;
 		}
@@ -55,13 +55,13 @@ TEST(rankselect, all_zeroes) {
 		SimpleSelectZeroHalf SimpleSelectZeroHalf(bitvect, size);
 
 		// rank
-		for (size_t i = 0; i <= size; i++) {
+		for (size_t i = 0; i < size; i++) {
 			EXPECT_EQ(0, Rank9Sel.rank(i)) << "at index " << i;
 			EXPECT_EQ(0, EliasFano.rank(i)) << "at index " << i;
 		}
 
 		// rankZero
-		for (size_t i = 0; i <= size; i++) {
+		for (size_t i = 0; i < size; i++) {
 			EXPECT_EQ(i, Rank9Sel.rankZero(i)) << "at index " << i;
 			EXPECT_EQ(i, EliasFano.rankZero(i)) << "at index " << i;
 		}
