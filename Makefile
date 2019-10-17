@@ -36,8 +36,14 @@ ranksel: benchmark/bits/ranksel.cpp
 	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano sux/bits/Rank9.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp benchmark/bits/ranksel.cpp -o bin/testeliasfano
 	g++ -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel sux/bits/Rank9Sel.cpp benchmark/bits/ranksel.cpp -o bin/testrank9sel
 
+fenwick: benchmark/util/fenwick.cpp
+	@mkdir -p bin/fenwick
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=MALLOC benchmark/util/fenwick.cpp -o bin/fenwick/malloc_64
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=SMALLPAGE benchmark/util/fenwick.cpp -o bin/fenwick/smallpage_64
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=TRANSHUGEPAGE benchmark/util/fenwick.cpp -o bin/fenwick/transhugepage_64
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=FORCEHUGEPAGE benchmark/util/fenwick.cpp -o bin/fenwick/forcehugepage_64
+
 .PHONY: clean
 
 clean:
 	@rm -rf ./bin
-
