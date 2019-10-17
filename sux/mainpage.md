@@ -98,14 +98,14 @@ Almost all data structures make it possible to allocate memory in
 different ways, and in particular to use transparent large pages (usually,
 2MiB) on Linux. You can use an additional template parameter to specify
 your favorite memory-allocation policy, choosing among the types available
-in sux::util::PageType. For example,
+in sux::util::AllocType. For example,
 
-        sux::util::FenwickFixedF<10000, MALLOC> drs(v, n)
+        sux::util::FenwickFixedF<10000, MALLOC> f(v, n)
 
 creates a Fenwick tree as above, using a standard `malloc()` call, which
 is the default, and the most compatible approach, but
 
-        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> drs(v, n)
+        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> f(v, n)
 
 will try to use transparent huge pages instead, if available.
 
