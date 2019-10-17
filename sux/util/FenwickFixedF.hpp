@@ -31,7 +31,7 @@ namespace sux::util {
  * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public SearchablePrefixSums, public Expandable {
+template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public SearchablePrefixSums {
   public:
 	static constexpr size_t BOUNDSIZE = ceil_log2_plus1(BOUND);
 	static_assert(BOUNDSIZE >= 1 && BOUNDSIZE <= 64, "Leaves can't be stored in a 64-bit word");

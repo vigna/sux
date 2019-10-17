@@ -51,8 +51,8 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::Vector<uint64_t, AT>(divRoundup(size, BOUNDSIZE))) {
-		std::copy_n(bitvector, divRoundup(size, BOUNDSIZE), Vector.p());
+	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::Vector<uint64_t, AT>(divRoundup(size + 1, 64))) {
+		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
 	}
 
 	/** Creates a new instance using a given bit vector.
@@ -73,8 +73,6 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	virtual size_t select(uint64_t rank) {
 		size_t idx = Fenwick.find(&rank);
 
-		if (idx >= Vector.size()) return SIZE_MAX;
-
 		uint64_t rank_chunk = nu(Vector[idx]);
 		if (rank < rank_chunk) return idx * 64 + select64(Vector[idx], rank);
 
@@ -83,8 +81,6 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 
 	virtual size_t selectZero(uint64_t rank) {
 		const size_t idx = Fenwick.compFind(&rank);
-
-		if (idx >= Vector.size()) return SIZE_MAX;
 
 		uint64_t rank_chunk = nu(~Vector[idx]);
 		if (rank < rank_chunk) return idx * 64 + select64(~Vector[idx], rank);
@@ -139,8 +135,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {
-		if (y > x) return 1;
-		return (x / y) + ((x % y != 0) ? 1 : 0);
+		return (x + y - 1) / y;
 	}
 
 	T<BOUNDSIZE, AT> buildFenwick(const uint64_t bitvector[], size_t size) {

@@ -48,18 +48,18 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	/** Creates a new instance using a given bit vector.
 	 *
 	 * Note that the bit vector will be copied.
-	 * 
+	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, AT>(divRoundup(size, 64))) {
+	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, AT>(divRoundup(size + 1, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
 	}
 
 	/** Creates a new instance using a given bit vector.
 	 *
 	 * Note that thte argument Vector will not be copied.
-	 * 
+	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
@@ -84,8 +84,6 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		size_t idx = Fenwick.find(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {
-			if (i >= Vector.size()) return SIZE_MAX;
-
 			uint64_t rank_chunk = nu(Vector[i]);
 			if (rank < rank_chunk)
 				return i * 64 + select64(Vector[i], rank);
@@ -100,8 +98,6 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		size_t idx = Fenwick.compFind(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {
-			if (i >= Vector.size()) return SIZE_MAX;
-
 			uint64_t rank_chunk = nu(~Vector[i]);
 			if (rank < rank_chunk)
 				return i * 64 + select64(~Vector[i], rank);

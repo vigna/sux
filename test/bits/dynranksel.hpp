@@ -54,16 +54,6 @@ TEST(dynranksel, all_ones) {
 		EXPECT_EQ(i, bitl.select(i)) << "at index " << i;
 	}
 
-	// selectZero
-	for (size_t i = 0; i < BITELEMS; i++) {
-		EXPECT_EQ(SIZE_MAX, fixedf.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, fixedl.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bytef.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bytel.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bitf.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bitl.selectZero(i)) << "at index " << i;
-	}
-
 	// update
 	for (size_t i = 0; i < ELEMS; i++) {
 		fixedf.update(i, 1);
@@ -138,16 +128,6 @@ TEST(dynranksel, all_zeroes) {
 		EXPECT_EQ(i, bitl.rankZero(i)) << "at index " << i;
 	}
 
-	// select
-	for (size_t i = 0; i < BITELEMS; i++) {
-		EXPECT_EQ(SIZE_MAX, fixedf.select(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, fixedl.select(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bytef.select(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bytel.select(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bitf.select(i)) << "at index " << i;
-		EXPECT_EQ(SIZE_MAX, bitl.select(i)) << "at index " << i;
-	}
-
 	// selectZero
 	for (size_t i = 0; i < BITELEMS; i++) {
 		EXPECT_EQ(i, fixedf.selectZero(i)) << "at index " << i;
@@ -166,16 +146,6 @@ TEST(dynranksel, all_zeroes) {
 		bytel.update(i, 0b10);
 		bitf.update(i, 0b10);
 		bitl.update(i, 0b10);
-	}
-
-	// select (check update correctness)
-	for (size_t i = 0; i < ELEMS; i++) {
-		EXPECT_EQ(i * 64 + 1, fixedf.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64 + 1, fixedl.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64 + 1, bytef.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64 + 1, bytel.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64 + 1, bitf.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64 + 1, bitl.select(i)) << "at index " << i;
 	}
 
 	// update
@@ -274,8 +244,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// select
-	auto poslim = std::min(size, fixedf.select(fixedf.rank(size) - 1));
-	for (size_t pos = 0; pos <= poslim; pos++) {
+	for (size_t pos = 0; pos < fixedf.rank(size); pos++) {
 		auto res = fixedf.rank(pos);
 
 		if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
@@ -310,8 +279,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// selectZero
-	poslim = std::min(size, fixedf.selectZero(fixedf.rankZero(size) - 1));
-	for (size_t pos = 0; pos <= poslim; pos++) {
+	for (size_t pos = 0; pos < fixedf.rankZero(size); pos++) {
 
 		auto res = fixedf.rankZero(pos);
 
@@ -364,7 +332,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// select
-	for (size_t i = 0; i < size; i++) {
+	for (size_t i = 0; i < fixedf.rank(size); i++) {
 		auto res = fixedf.select(i);
 
 		EXPECT_EQ(res, fixedl.select(i)) << "at index " << i << ", stride " << S;
@@ -382,7 +350,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// selectZero
-	for (size_t i = 0; i < size; i++) {
+	for (size_t i = 0; i < fixedf.rankZero(size); i++) {
 		auto res = fixedf.selectZero(i);
 
 		EXPECT_EQ(res, fixedl.selectZero(i)) << "at index " << i << ", stride " << S;
