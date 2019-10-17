@@ -20,7 +20,7 @@ TEST(rankselect, all_ones) {
 		SimpleSelectHalf SimpleSelectHalf(bitvect, size);
 
 		// rank
-		for (size_t i = 0; i < size; i++) {
+		for (size_t i = 0; i <= size; i++) {
 			EXPECT_EQ(i, Rank9Sel.rank(i)) << "at index " << i;
 			EXPECT_EQ(i, EliasFano.rank(i)) << "at index " << i;
 		}
@@ -55,7 +55,7 @@ TEST(rankselect, all_zeroes) {
 		SimpleSelectZeroHalf SimpleSelectZeroHalf(bitvect, size);
 
 		// rank
-		for (size_t i = 0; i < size; i++) {
+		for (size_t i = 0; i <= size; i++) {
 			EXPECT_EQ(0, Rank9Sel.rank(i)) << "at index " << i;
 			EXPECT_EQ(0, EliasFano.rank(i)) << "at index " << i;
 		}
@@ -114,7 +114,7 @@ static void run_rankselect(std::size_t size) {
 	}
 
 	// select
-	auto poslim = std::min(size - 1, Rank9Sel.select(Rank9Sel.rank(size) - 1));
+	auto poslim = std::min(size, Rank9Sel.select(Rank9Sel.rank(size) - 1));
 	for (size_t pos = 0; pos <= poslim; pos++) {
 		auto res = Rank9Sel.rank(pos);
 		EXPECT_EQ(res, EliasFano.rank(pos));
@@ -137,7 +137,7 @@ static void run_rankselect(std::size_t size) {
 
 	// selectZero
 	poslim = std::min(size - 1, SimpleSelectZero.selectZero(Rank9Sel.rankZero(size) - 1));
-	for (size_t pos = 0; pos <= poslim; pos++) {
+	for (size_t pos = 0; pos < poslim; pos++) {
 		auto res = Rank9Sel.rankZero(pos);
 		EXPECT_EQ(res, EliasFano.rankZero(pos));
 		if (bitvect[pos / 64] & UINT64_C(1) << pos % 64)

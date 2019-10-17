@@ -25,7 +25,7 @@ TEST(dynranksel, all_ones) {
 	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
 
 	// rank
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
 		EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
 		EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
@@ -35,7 +35,7 @@ TEST(dynranksel, all_ones) {
 	}
 
 	// rankZero
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(0, fixedf.rankZero(i)) << "at index " << i;
 		EXPECT_EQ(0, fixedl.rankZero(i)) << "at index " << i;
 		EXPECT_EQ(0, bytef.rankZero(i)) << "at index " << i;
@@ -95,7 +95,7 @@ TEST(dynranksel, all_ones) {
 	}
 
 	// rank (check update correctness)
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
 		EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
 		EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
@@ -119,7 +119,7 @@ TEST(dynranksel, all_zeroes) {
 	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
 
 	// rank
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
 		EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
 		EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
@@ -129,7 +129,7 @@ TEST(dynranksel, all_zeroes) {
 	}
 
 	// rankZero
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(i, fixedf.rankZero(i)) << "at index " << i;
 		EXPECT_EQ(i, fixedl.rankZero(i)) << "at index " << i;
 		EXPECT_EQ(i, bytef.rankZero(i)) << "at index " << i;
@@ -189,7 +189,7 @@ TEST(dynranksel, all_zeroes) {
 	}
 
 	// rank (check update correctness)
-	for (size_t i = 0; i < BITELEMS; i++) {
+	for (size_t i = 0; i <= BITELEMS; i++) {
 		EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
 		EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
 		EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
@@ -274,8 +274,8 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// select
-	auto poslim = std::min(size, fixedf.select(fixedf.rank(size - 1) - 1));
-	for (size_t pos = 0; pos < poslim; pos++) {
+	auto poslim = std::min(size, fixedf.select(fixedf.rank(size) - 1));
+	for (size_t pos = 0; pos <= poslim; pos++) {
 		auto res = fixedf.rank(pos);
 
 		if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
@@ -310,8 +310,8 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	// selectZero
-	poslim = std::min(size, fixedf.selectZero(fixedf.rankZero(size - 1) - 1));
-	for (size_t pos = 0; pos < poslim; pos++) {
+	poslim = std::min(size, fixedf.selectZero(fixedf.rankZero(size) - 1));
+	for (size_t pos = 0; pos <= poslim; pos++) {
 
 		auto res = fixedf.rankZero(pos);
 
