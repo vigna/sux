@@ -82,7 +82,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		return size;
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, DoubleEF &ef) {
+	friend std::ostream &operator<<(std::ostream &os, const DoubleEF<AT> &ef) {
 		os.write((char *)&ef.num_buckets, sizeof(ef.num_buckets));
 		os.write((char *)&ef.u_cum_keys, sizeof(ef.u_cum_keys));
 		os.write((char *)&ef.u_position, sizeof(ef.u_position));
@@ -97,7 +97,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, DoubleEF &ef) {
+	friend std::istream &operator>>(std::istream &is, DoubleEF<AT> &ef) {
 		is.read((char *)&ef.num_buckets, sizeof(ef.num_buckets));
 		is.read((char *)&ef.u_cum_keys, sizeof(ef.u_cum_keys));
 		is.read((char *)&ef.u_position, sizeof(ef.u_position));

@@ -304,9 +304,11 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 	size_t nbuckets;
 	size_t keys_count;
 	RiceBitVector<AT> descriptors;
-	DoubleEF<AT> *ef;
+	DoubleEF<AT> ef;
 
   public:
+	RecSplit() {}
+
 	/** Builds a RecSplit instance using a given list of keys and bucket size.
 	 *
 	 * **Warning**: duplicate keys will cause this method to never return.
@@ -363,14 +365,6 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		hash_gen(&h[0]);
 	}
 
-	RecSplit() {
-		this->keys_count = 0;
-		this->bucket_size = 0;
-		this->ef = NULL;
-	}
-
-	~RecSplit() { delete ef; }
-
 	/** Returns the value associated with the given 128-bit hash.
 	 *
 	 * Note that this method is mainly useful for benchmarking.
@@ -380,7 +374,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 	size_t operator()(const hash128_t &hash) {
 		const size_t bucket = hash128_to_bucket(hash);
 		uint64_t cum_keys, cum_keys_next, bit_pos;
-		ef->get(bucket, cum_keys, cum_keys_next, bit_pos);
+		ef.get(bucket, cum_keys, cum_keys_next, bit_pos);
 
 		// Number of keys in this bucket
 		size_t m = cum_keys_next - cum_keys;
@@ -719,15 +713,15 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		descriptors.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
 		descriptors.fitData();
 
-		ef = new DoubleEF<AT>(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
+		ef = DoubleEF<AT>(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
 
 #ifdef STATS
 		// Evaluation purposes only
-		double ef_sizes = (double)ef->bitCountCumKeys() / keys_count;
-		double ef_bits = (double)ef->bitCountPosition() / keys_count;
+		double ef_sizes = (double)ef.bitCountCumKeys() / keys_count;
+		double ef_bits = (double)ef.bitCountPosition() / keys_count;
 		double rice_desc = (double)descriptors.getBits() / keys_count;
-		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef->bitCountCumKeys() / nbuckets);
-		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef->bitCountPosition() / nbuckets);
+		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef.bitCountCumKeys() / nbuckets);
+		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef.bitCountPosition() / nbuckets);
 		printf("Elias-Fano cumul sizes:  %f bits/key\n", ef_sizes);
 		printf("Elias-Fano cumul bits:   %f bits/key\n", ef_bits);
 		printf("Rice-Golomb descriptors: %f bits/key\n", rice_desc);
@@ -812,7 +806,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		os.write((char *)&rs.bucket_size, sizeof(rs.bucket_size));
 		os.write((char *)&rs.keys_count, sizeof(rs.keys_count));
 		os << rs.descriptors;
-		os << *rs.ef;
+		os << rs.ef;
 		return os;
 	}
 
@@ -827,9 +821,8 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		is.read((char *)&rs.keys_count, sizeof(keys_count));
 		rs.nbuckets = max(1, (rs.keys_count + rs.bucket_size - 1) / rs.bucket_size);
 
-		rs.ef = new DoubleEF();
 		is >> rs.descriptors;
-		is >> *rs.ef;
+		is >> rs.ef;
 		return is;
 	}
 };

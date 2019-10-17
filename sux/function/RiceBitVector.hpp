@@ -48,13 +48,13 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 	uint64_t *curr_ptr_unary;
 	int valid_lower_bits_unary = 0;
 
-	friend std::ostream &operator<<(std::ostream &os, const RiceBitVector &rbv) {
+	friend std::ostream &operator<<(std::ostream &os, const RiceBitVector<AT> &rbv) {
 		os.write((char *)&rbv.bit_count, sizeof(rbv.bit_count));
 		os << rbv.data;
 		return os;
 	}
 
-	friend std::istream &operator>>(std::istream &is, RiceBitVector &rbv) {
+	friend std::istream &operator>>(std::istream &is, RiceBitVector<AT> &rbv) {
 		rbv.curr_fixed_offset = 0;
 		rbv.curr_window_unary = 0;
 		rbv.valid_lower_bits_unary = 0;
