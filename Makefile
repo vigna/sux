@@ -43,6 +43,17 @@ fenwick: benchmark/util/fenwick.cpp
 	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=TRANSHUGEPAGE benchmark/util/fenwick.cpp -o bin/fenwick/transhugepage_64
 	g++ -std=c++17 -I./ -O3 -march=native -DSET_BOUND=64 -DSET_ALLOC=FORCEHUGEPAGE benchmark/util/fenwick.cpp -o bin/fenwick/forcehugepage_64
 
+dynranksel: benchmark/bits/dynranksel.cpp
+	@mkdir -p bin/dynranksel
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_ALLOC=MALLOC benchmark/bits/dynranksel.cpp -o bin/dynranksel/malloc_1
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_ALLOC=SMALLPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/smallpage_1
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_ALLOC=TRANSHUGEPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/transhugepage_1
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_ALLOC=FORCEHUGEPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/forcehugepage_1
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_STRIDE=16 -DSET_ALLOC=MALLOC benchmark/bits/dynranksel.cpp -o bin/dynranksel/malloc_16
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_STRIDE=16 -DSET_ALLOC=SMALLPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/smallpage_16
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_STRIDE=16 -DSET_ALLOC=TRANSHUGEPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/transhugepage_16
+	g++ -std=c++17 -I./ -O3 -march=native -DSET_STRIDE=16 -DSET_ALLOC=FORCEHUGEPAGE benchmark/bits/dynranksel.cpp -o bin/dynranksel/forcehugepage_16
+
 .PHONY: clean
 
 clean:
