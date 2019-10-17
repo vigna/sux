@@ -76,22 +76,6 @@ Examples
 
         sux::util::FenwickBitF<3> drs(v, n)
 
-- All data structures for searchable prefix sums and dynamic rank and selection
-  make it possible to allocate memory in different ways, and in particular
-  to use transparent large pages (usually, 2MiB) on Linux. You can use an
-  additional template parameter to specify your favorite memory-allocation
-  policy, choosing among the types available in sux::util::PageType. For
-  example,
-
-        sux::util::FenwickFixedF<10000, MALLOC> drs(v, n)
-
-  creates a Fenwick tree as above, using a standard `malloc()` call, which
-  is the most compatible approach, but
-
-        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> drs(v, n)
-
-  will try to use transparent huge pages instead, if available.
-
 - To create a minimal perfect hash function from a vector of strings `keys`, with
   leaf size 8 and bucket size 100, use
 
@@ -106,3 +90,22 @@ Examples
   The class sux::function::RecSplit implements the operator
   sux::function::RecSplit::operator()(const string &key) , so you
   can obtain the number associated with a string key `k` with `rs(k)`.
+
+Memory allocation
+-----------------
+
+Almost all data structures make it possible to allocate memory in
+different ways, and in particular to use transparent large pages (usually,
+2MiB) on Linux. You can use an additional template parameter to specify
+your favorite memory-allocation policy, choosing among the types available
+in sux::util::PageType. For example,
+
+        sux::util::FenwickFixedF<10000, MALLOC> drs(v, n)
+
+creates a Fenwick tree as above, using a standard `malloc()` call, which
+is the default, and the most compatible approach, but
+
+        sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> drs(v, n)
+
+will try to use transparent huge pages instead, if available.
+
