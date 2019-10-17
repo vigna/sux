@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 	size_t queries = stoul(argv[2]);
 
 	cout << "Performing " << queries << " queries over " << size << " elements\n";
-  cout << "The bound is " << SET_BOUND << " and allocations use " << STRINGIFY(SET_ALLOC) << "\n";
+	cout << "The bound is " << SET_BOUND << " and allocations use " << STRINGIFY(SET_ALLOC) << "\n";
 
 	runall<FenwickFixedF, B, AT>("\nFenwickFixedF", size, queries);
 	runall<FenwickFixedL, B, AT>("\nFenwickFixedL", size, queries);

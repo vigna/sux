@@ -21,17 +21,15 @@
 #pragma once
 
 #include "../support/common.hpp"
+#include "../util/Vector.hpp"
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
-#include "../util/Vector.hpp"
 
 namespace sux::function {
 
 using namespace std;
 using namespace sux;
-
-#define DEFAULT_VECTSIZE (4)
 
 /** Storage for Golomb-Rice codes of a RecSplit bucket.
  *
@@ -40,16 +38,69 @@ using namespace sux;
  */
 
 template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
+
+  public:
+	class Builder {
+		util::Vector<uint64_t, AT> data;
+		size_t bit_count = 0;
+
+	  public:
+		Builder() : Builder(16) {}
+
+		Builder(const size_t alloc_words) : data(alloc_words) {}
+
+		void appendFixed(const uint64_t v, const int log2golomb) {
+			const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
+			int used_bits = bit_count & 63;
+
+			data.resize((((bit_count + log2golomb + 7) / 8) + 7 + 7) / 8);
+
+			uint64_t *append_ptr = data.p() + bit_count / 64;
+			uint64_t cur_word = *append_ptr;
+
+			cur_word |= lower_bits << used_bits;
+			if (used_bits + log2golomb > 64) {
+				*(append_ptr++) = cur_word;
+				cur_word = lower_bits >> (64 - used_bits);
+				used_bits += log2golomb - 64;
+			}
+			*append_ptr = cur_word;
+			bit_count += log2golomb;
+		}
+
+		void appendUnaryAll(const std::vector<uint32_t> unary) {
+			size_t bit_inc = 0;
+			for (const auto &u : unary) {
+				bit_inc += u + 1;
+			}
+
+			data.resize((((bit_count + bit_inc + 7) / 8) + 7 + 7) / 8);
+
+			for (const auto &u : unary) {
+				bit_count += u;
+				uint64_t *append_ptr = data.p() + bit_count / 64;
+				*append_ptr |= uint64_t(1) << (bit_count & 63);
+				++bit_count;
+			}
+		}
+
+		uint64_t getBits() { return bit_count; }
+
+		RiceBitVector<AT> build() {
+			data.trimToFit();
+			return RiceBitVector(std::move(data));
+		}
+	};
+
   private:
 	util::Vector<uint64_t, AT> data;
-	size_t bit_count = 0;
 	size_t curr_fixed_offset = 0;
 	uint64_t curr_window_unary = 0;
 	uint64_t *curr_ptr_unary;
 	int valid_lower_bits_unary = 0;
 
 	friend std::ostream &operator<<(std::ostream &os, const RiceBitVector<AT> &rbv) {
-		os.write((char *)&rbv.bit_count, sizeof(rbv.bit_count));
+		// os.write((char *)&rbv.bit_count, sizeof(rbv.bit_count));
 		os << rbv.data;
 		return os;
 	}
@@ -58,17 +109,14 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		rbv.curr_fixed_offset = 0;
 		rbv.curr_window_unary = 0;
 		rbv.valid_lower_bits_unary = 0;
-		is.read((char *)&rbv.bit_count, sizeof(rbv.bit_count));
+		// is.read((char *)&rbv.bit_count, sizeof(rbv.bit_count));
 		is >> rbv.data;
 		return is;
 	}
 
   public:
-	RiceBitVector() : RiceBitVector(4) {}
-
-	RiceBitVector(const size_t alloc_words) : data(alloc_words), curr_ptr_unary(data.p()) {
-		curr_ptr_unary = data.p();
-	}
+	RiceBitVector() {}
+	RiceBitVector(util::Vector<uint64_t, AT> data) : data(std::move(data)) {}
 
 	uint64_t readNext(const int log2golomb) {
 		uint64_t result = 0;
@@ -124,66 +172,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		valid_lower_bits_unary = 64 - (unary_pos & 63);
 	}
 
-	void appendFixed(const uint64_t v, const int log2golomb) {
-		const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
-		int used_bits = bit_count & 63;
-
-		if (((bit_count + log2golomb) / 64) + 2 > data.capacity()) {
-			auto offset_unary = curr_ptr_unary - data.p();
-			data.resize(((bit_count + log2golomb) / 64) + 2);
-			curr_ptr_unary = data.p() + offset_unary;
-		}
-
-		uint64_t *append_ptr = data.p() + bit_count / 64;
-		uint64_t cur_word = *append_ptr;
-
-		cur_word |= lower_bits << used_bits;
-		if (used_bits + log2golomb > 64) {
-			*(append_ptr++) = cur_word;
-			cur_word = lower_bits >> (64 - used_bits);
-			used_bits += log2golomb - 64;
-		}
-		*append_ptr = cur_word;
-		bit_count += log2golomb;
-	}
-
-	void appendUnaryAll(const std::vector<uint32_t> unary) {
-		size_t bit_inc = 0;
-		for (const auto &u : unary) {
-			bit_inc += u + 1;
-		}
-
-		if ((bit_count + bit_inc) / 64 + 2 > data.capacity()) {
-			auto offset_unary = curr_ptr_unary - data.p();
-			data.resize((bit_count + bit_inc) / 64 + 2);
-			curr_ptr_unary = data.p() + offset_unary;
-		}
-
-		for (const auto &u : unary) {
-			bit_count += u;
-			uint64_t *append_ptr = data.p() + bit_count / 64;
-			*append_ptr |= uint64_t(1) << (bit_count & 63);
-			++bit_count;
-		}
-	}
-
-	size_t getBits() const { return bit_count; }
-
-	void fitData() {
-		data.resize((((bit_count + 63) / 64) * sizeof(uint64_t) + 7 + 7) / 8);
-		curr_ptr_unary = data.p();
-	}
-
-	void printBits() const {
-		size_t size = bit_count;
-		for (uint64_t *p = data.p(); p <= data.p() + bit_count / 64; ++p) {
-			for (size_t i = 0; i < std::min(size, size_t(64)); ++i) {
-				printf("%lu", ((*p) >> i) & 1);
-			}
-			size -= 64;
-			printf("\n");
-		}
-	}
+	size_t getBits() const { return data.size() * sizeof(uint64_t); }
 };
 
 } // namespace sux::function

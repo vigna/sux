@@ -172,21 +172,18 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 
 	virtual void grow(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 0; i < levels; i++)
-			Tree[i].grow(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+		for (size_t i = 0; i < levels; i++) Tree[i].grow(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
 
 	virtual void reserve(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 0; i < levels; i++)
-			Tree[i].reserve(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+		for (size_t i = 0; i < levels; i++) Tree[i].reserve(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
 
 	using Expandable::trimToFit;
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 0; i < levels; i++)
-			Tree[i].trim(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+		for (size_t i = 0; i < levels; i++) Tree[i].trim(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
 
 	virtual void resize(size_t space) {
