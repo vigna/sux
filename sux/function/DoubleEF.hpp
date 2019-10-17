@@ -156,11 +156,11 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		lower_bits_mask_position = (UINT64_C(1) << l_position) - 1;
 
 		const uint64_t words_lower_bits = lower_bits_size_words();
-		lower_bits.resize(words_lower_bits);
+		lower_bits.size(words_lower_bits);
 		const uint64_t words_cum_keys = cum_keys_size_words();
-		upper_bits_cum_keys.resize(words_cum_keys);
+		upper_bits_cum_keys.size(words_cum_keys);
 		const uint64_t words_position = position_size_words();
-		upper_bits_position.resize(words_position);
+		upper_bits_position.size(words_position);
 
 		for (uint64_t i = 0, cum_delta = 0, bit_delta = 0; i <= num_buckets; i++, cum_delta += cum_keys_min_delta, bit_delta += min_diff) {
 			if (l_cum_keys != 0) set_bits(lower_bits.p(), i * (l_cum_keys + l_position), l_cum_keys, (cum_keys[i] - cum_delta) & lower_bits_mask_cum_keys);
@@ -172,7 +172,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class DoubleEF {
 		}
 
 		const uint64_t jump_words = jump_size_words();
-		jump.resize(jump_words);
+		jump.size(jump_words);
 
 		for (uint64_t i = 0, c = 0, last_super_q = 0; i < words_cum_keys; i++) {
 			for (int b = 0; b < 64; b++) {

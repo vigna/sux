@@ -60,7 +60,6 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		rbv.valid_lower_bits_unary = 0;
 		is.read((char *)&rbv.bit_count, sizeof(rbv.bit_count));
 		is >> rbv.data;
-		rbv.curr_ptr_unary = rbv.data.p();
 		return is;
 	}
 
@@ -129,9 +128,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
 		int used_bits = bit_count & 63;
 
-		if (((bit_count + log2golomb + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
+		if (((bit_count + log2golomb) / 64) + 2 > data.capacity()) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.grow(data.capacity() + 1);
+			data.resize(((bit_count + log2golomb) / 64) + 2);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 
@@ -154,9 +153,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 			bit_inc += u + 1;
 		}
 
-		if (((bit_count + bit_inc + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
+		if ((bit_count + bit_inc) / 64 + 2 > data.capacity()) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.grow(data.capacity() + 1);
+			data.resize((bit_count + bit_inc) / 64 + 2);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 
@@ -171,7 +170,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 	size_t getBits() const { return bit_count; }
 
 	void fitData() {
-		data.trim((((bit_count + 63) / 64) * sizeof(uint64_t) + 7 + 7) / 8);
+		data.resize((((bit_count + 63) / 64) * sizeof(uint64_t) + 7 + 7) / 8);
 		curr_ptr_unary = data.p();
 	}
 

@@ -152,6 +152,19 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 		_size = size;
 	}
 
+	/** Changes the vector size and capacity to the given value.
+	  *
+	  * Both size and capacity are set to the provided size. 
+	  * If necessary, new elements are initialized to zero.
+	  *
+	  * @param size the desired new size.
+	  */
+	void size(size_t size) {
+		reserve(size);
+		_size = size;
+		trimToFit();
+	}
+
 	/** Adds a given element at the end of this vector.
 	 *
 	 * @param elem an element.
