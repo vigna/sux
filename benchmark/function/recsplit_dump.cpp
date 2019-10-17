@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
 	printf("Building...\n");
 	auto begin = chrono::high_resolution_clock::now();
-	RecSplit<LEAF> rs(keys_fp, bucket_size);
+	RecSplit<LEAF, ALLOC_TYPE> rs(keys_fp, bucket_size);
 	auto elapsed = chrono::duration_cast<std::chrono::nanoseconds>(chrono::high_resolution_clock::now() - begin).count();
 	printf("Construction time: %.3f s, %.0f ns/key\n", elapsed * 1E-9, elapsed / (double)rs.size());
 

@@ -21,10 +21,10 @@ LEAF?=8
 
 recsplit: benchmark/function/recsplit_*
 	@mkdir -p bin
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) benchmark/function/recsplit_dump.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) benchmark/function/recsplit_dump128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) benchmark/function/recsplit_load.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
-	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) benchmark/function/recsplit_load128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
+	g++ -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
 
 ranksel: benchmark/bits/ranksel.cpp
 	@mkdir -p bin

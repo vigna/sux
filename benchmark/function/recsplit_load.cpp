@@ -11,7 +11,7 @@
 using namespace std;
 using namespace sux::function;
 
-template <typename T> void benchmark(RecSplit<LEAF> &rs, const vector<T> &keys) {
+template <typename T> void benchmark(RecSplit<LEAF, ALLOC_TYPE> &rs, const vector<T> &keys) {
 	printf("Benchmarking...\n");
 
 	uint64_t sample[SAMPLES];
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	fin.close();
 
 	fstream fs;
-	RecSplit<LEAF> rs;
+	RecSplit<LEAF, ALLOC_TYPE> rs;
 
 	fs.exceptions(fstream::failbit | fstream::badbit);
 	fs.open(argv[2], std::fstream::in | std::fstream::binary);

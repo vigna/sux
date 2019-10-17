@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sux::function;
 
-void benchmark(RecSplit<LEAF> &rs, const uint64_t n) {
+void benchmark(RecSplit<LEAF, ALLOC_TYPE> &rs, const uint64_t n) {
 	printf("Benchmarking...\n");
 
 	uint64_t sample[SAMPLES];
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 	const uint64_t n = strtoll(argv[1], NULL, 0);
 
 	fstream fs;
-	RecSplit<LEAF> rs;
+	RecSplit<LEAF, ALLOC_TYPE> rs;
 
 	fs.exceptions(fstream::failbit | fstream::badbit);
 	fs.open(argv[2], fstream::in | fstream::binary);
