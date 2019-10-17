@@ -806,7 +806,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 #endif
 	}
 
-	friend ostream &operator<<(ostream &os, const RecSplit<LEAF_SIZE> &rs) {
+	friend ostream &operator<<(ostream &os, const RecSplit<LEAF_SIZE, AT> &rs) {
 		const size_t leaf_size = LEAF_SIZE;
 		os.write((char *)&leaf_size, sizeof(leaf_size));
 		os.write((char *)&rs.bucket_size, sizeof(rs.bucket_size));
@@ -816,7 +816,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		return os;
 	}
 
-	friend istream &operator>>(istream &is, RecSplit<LEAF_SIZE> &rs) {
+  friend istream &operator>>(istream &is, RecSplit<LEAF_SIZE, AT> &rs) {
 		size_t leaf_size;
 		is.read((char *)&leaf_size, sizeof(leaf_size));
 		if (leaf_size != LEAF_SIZE) {
