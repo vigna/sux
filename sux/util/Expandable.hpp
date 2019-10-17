@@ -1,7 +1,7 @@
 /*
  * Sux: Succinct data structures
  *
- * Copyright (C) 2019 Stefano Marchini
+ * Copyright (C) 2019 Stefano Marchini and Sebastiano Vigna
  *
  *  This library is free software; you can redistribute it and/or modify it
  *  under the terms of the GNU Lesser General Public License as published by the Free
@@ -28,65 +28,69 @@
 
 namespace sux::util {
 
+/** A generic interface for classes that have size (the current 
+  * number of elements) and capacity (the number of elements 
+  * that can be added before a reallocation happens). */
+
 class Expandable {
   public:
-	/** Trim the the memory allocated so that it holds at most the given number of elements.
-	 * @param capacity the new desired capacity.
-	 */
-	virtual void trim(size_t space) = 0;
-
-	/** Trim the the memory allocated so that it holds exactly size() elements. */
-	virtual void trimToFit() = 0;
-
-	/** Enlarges the backing array to that it can contain a given number of elements.
+	/** Enlarges this expandable so that it can contain a given number of elements
+	 *  without memory reallocation.
 	 *
 	 * If the current capacity is sufficient, nothing happens. Otherwise, the
-	 * backing is enlarged to the provided capacity.
+	 * expandable is enlarged to the provided capacity.
 	 *
 	 * @param capacity the desired new capacity.
 	 */
-	virtual void reserve(size_t space) = 0;
+	virtual void reserve(size_t capacity) = 0;
 
-	/** Enlarges the backing array to that it can contain a given number of elements, plus possibly extra space.
+	/** Enlarges this expandable so that it can contain 
+	 * a given number of elements, plus possibly extra space.
 	 *
 	 * If the current capacity is sufficient, nothing happens. Otherwise, the
-	 * backing is enlarged to the maximum between the provided capacity and
-	 * 50% more than the current capacity.
+	 * expandable is enlarged, usually to the maximum between the provided 
+	 * capacity and 50% more than the current capacity.
 	 *
 	 * @param capacity the desired new capacity.
 	 */
-	virtual void grow(size_t space) = 0;
+	virtual void grow(size_t capacity) = 0;
 
-	/** Changes the vector size to the given value.
+	/** Changes the expandable size to the given value.
 	 *
 	 * If the argument is smaller than or equal to the current size,
-	 * the backing array is unmodified. Otherwise, the backing array
-	 * is enlarged to the given size using grow(). New elements are
-	 * initialized to zero.
+	 * there is no memory reallocation. Otherwise, reallocation 
+	 * happens with grow().
 	 *
 	 * @param size the desired new size.
 	 */
 	virtual void resize(size_t size) = 0;
 
-	/** Returns the number of elements in this vector. */
+	/** Returns the number of elements in this expandable. */
 	virtual inline size_t size() const = 0;
 
-	/** Changes the vector size and capacity to the given value.
+	/** Changes the expandable size and capacity to the given value.
 	 *
-	 * Both size and capacity are set to the provided size.
-	 * If necessary, new elements are initialized to zero.
-	 *
-	 * @param size the desired new size.
+	 * @param size the desired new size and capacity.
 	 */
 	virtual void size(size_t size) = 0;
 
-	/** Returns the number of elements that this vector
-	 * can hold currently without increasing its capacity.
+	/** Returns the number of elements that this expandable
+	 * can hold currently without memory reallocation.
 	 *
-	 * @return the number of elements that this vector
-	 * can hold currently without increasing its capacity.
+	 * @return the number of elements that this expandable
+	 * can hold currently without memory reallocation.
 	 */
 	virtual inline size_t capacity() const = 0;
+
+	/** Trims the data structure to the given capacity, 
+	 * provided it is larger than the current size.
+	 * @param capacity the new desired capacity.
+	 */
+	virtual void trim(size_t capacity) = 0;
+
+	/** Trims the the memory allocated so that size and capacity are the same. */
+	virtual void trimToFit() = 0;
+
 };
 
 } // namespace sux::util
