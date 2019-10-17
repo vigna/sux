@@ -711,7 +711,6 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 #endif
 		}
 		descriptors.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
-		descriptors.fitData();
 
 		ef = DoubleEF<AT>(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
 

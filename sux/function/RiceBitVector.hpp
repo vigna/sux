@@ -66,9 +66,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
   public:
 	RiceBitVector() : RiceBitVector(4) {}
 
-	RiceBitVector(const size_t alloc_words) : data(alloc_words), curr_ptr_unary(data.p()) {
-		curr_ptr_unary = data.p();
-	}
+	RiceBitVector(const size_t alloc_words) : data(alloc_words) {}
 
 	uint64_t readNext(const int log2golomb) {
 		uint64_t result = 0;
@@ -128,7 +126,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		const uint64_t lower_bits = v & ((uint64_t(1) << log2golomb) - 1);
 		int used_bits = bit_count & 63;
 
-		if (((bit_count + log2golomb) / 64) + 2 > data.capacity()) {
+		if ((((bit_count + log2golomb + 7) / 8) + 7 + 7) / 8 > data.capacity()) {
 			auto offset_unary = curr_ptr_unary - data.p();
 			data.resize(((bit_count + log2golomb) / 64) + 2);
 			curr_ptr_unary = data.p() + offset_unary;
@@ -153,7 +151,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 			bit_inc += u + 1;
 		}
 
-		if ((bit_count + bit_inc) / 64 + 2 > data.capacity()) {
+		if ((((bit_count + bit_inc + 7) / 8) + 7 + 7) / 8 > data.capacity()) {
 			auto offset_unary = curr_ptr_unary - data.p();
 			data.resize((bit_count + bit_inc) / 64 + 2);
 			curr_ptr_unary = data.p() + offset_unary;
@@ -168,11 +166,6 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 	}
 
 	size_t getBits() const { return bit_count; }
-
-	void fitData() {
-		data.resize((((bit_count + 63) / 64) * sizeof(uint64_t) + 7 + 7) / 8);
-		curr_ptr_unary = data.p();
-	}
 
 	void printBits() const {
 		size_t size = bit_count;
