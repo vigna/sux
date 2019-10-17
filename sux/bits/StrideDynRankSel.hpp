@@ -47,6 +47,8 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
   public:
 	/** Creates a new instance using a given bit vector.
 	 *
+	 * Note that the bit vector will be copied.
+	 * 
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
@@ -56,6 +58,8 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 
 	/** Creates a new instance using a given bit vector.
 	 *
+	 * Note that thte argument Vector will not be copied.
+	 * 
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */

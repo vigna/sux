@@ -131,7 +131,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 
 		if (((bit_count + log2golomb + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.reserve(data.capacity() + 1);
+			data.grow(data.capacity() + 1);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 
@@ -156,7 +156,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 
 		if (((bit_count + bit_inc + 63) / 64) * 8 + 7 > data.capacity() * sizeof(uint64_t)) {
 			auto offset_unary = curr_ptr_unary - data.p();
-			data.reserve(data.capacity() + 1);
+			data.grow(data.capacity() + 1);
 			curr_ptr_unary = data.p() + offset_unary;
 		}
 

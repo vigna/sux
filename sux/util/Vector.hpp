@@ -141,12 +141,13 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	  *
 	  * If the argument is smaller than or equal to the current size,
 	  * the backing array is unmodified. Otherwise, the backing array 
-	  * is enlarged to the given size. New elements are initialized to zero.
+	  * is enlarged to the given size using grow(). New elements are 
+	  * initialized to zero.
 	  *
 	  * @param size the desired new size.
 	  */
 	void resize(size_t size) {
-		if (size > _capacity) grow(size);
+		grow(size);
 		_size = size;
 	}
 
@@ -155,9 +156,8 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	 * @param elem an element.
 	 */
 	void pushBack(T elem) {
-		grow(_size + 1);
-		data[_size] = elem;
-		_size++;
+		resize(_size + 1);
+		data[_size - 1] = elem;
 	}
 
 	/** Pops the element at the end of this vector.
@@ -216,8 +216,8 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 			mem = _capacity == 0 ? malloc(space) : realloc(data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-			space = page_aligned(size * sizeof(T));
-			mem = _capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(data, _capacity * sizeof(T), space, MREMAP_MAYMOVE, -1, 0);
+			space = page_aligned(size);
+			mem = _capacity == 0 ? mmap(nullptr, space, PROT, FLAGS, -1, 0) : mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
 			assert(mem != MAP_FAILED && "mmap failed");
 
 			if (AT == TRANSHUGEPAGE) {
