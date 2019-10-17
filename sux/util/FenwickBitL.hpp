@@ -50,9 +50,10 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 	 * @param size the number of elements in the sequence.
 	 */
 	FenwickBitL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
-		for (size_t i = 1; i <= Levels; i++) {
-			size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i);
-			Tree[i - 1].resize(space);
+		for (size_t i = 0; i < Levels; i++) {
+			size_t bits = ((size + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i);
+			Tree[i].reserve(bits / 8 + 8);
+			Tree[i].resize(bits / 8 + 8);
 		}
 
 		for (size_t l = 0; l < Levels; l++) {
@@ -105,7 +106,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 
 			idx <<= 1;
 
-			if (pos >= Tree[height].size()) continue;
+			if ((pos + BOUNDSIZE + height) / 8 + 7 >= Tree[height].size()) continue;
 
 			const uint64_t value = bitread(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height);
 
@@ -128,7 +129,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 
 			idx <<= 1;
 
-			if (pos >= Tree[height].size()) continue;
+			if ((pos + BOUNDSIZE + height) / 8 + 7 >= Tree[height].size()) continue;
 
 			const uint64_t value = (BOUND << height) - bitread(&Tree[height][pos / 8], pos % 8, BOUNDSIZE + height);
 
@@ -169,16 +170,23 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 		Size--;
 	}
 
-	virtual void reserve(size_t space) {
+	virtual void grow(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i));
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].grow(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
 	}
 
-	
+	virtual void reserve(size_t space) {
+		size_t levels = lambda(space) + 1;
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].reserve(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+	}
+
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * (BOUNDSIZE - 1 + i) + 7);
-	};
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].trim(((space + (1ULL << i)) / (1ULL << (i + 1))) * (BOUNDSIZE + i) / 8 + 8);
+	}
 
 	virtual size_t size() const { return Size; }
 

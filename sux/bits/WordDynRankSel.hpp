@@ -47,7 +47,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	/** Creates a new instance using a given bit vector.
 	 *
 	 * Note that the bit vector will be copied.
-	 * 
+	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
@@ -58,7 +58,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	/** Creates a new instance using a given bit vector.
 	 *
 	 * Note that thte argument Vector will not be copied.
-	 * 
+	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */

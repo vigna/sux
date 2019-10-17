@@ -21,6 +21,7 @@
 #pragma once
 
 #include "../support/common.hpp"
+#include "Expandable.hpp"
 #include <assert.h>
 #include <iostream>
 #include <string>
@@ -43,7 +44,7 @@ enum AllocType {
 	TRANSHUGEPAGE,
 	/** Direct huge page support through `mmap()` on Linux.
 	 * In this case allocations are aligned on a huge (typically, 2MiB) memory page.
-	 * This feature is usually disabled by default and it requires the administrator 
+	 * This feature is usually disabled by default and it requires the administrator
 	 * to pre-reserve space for huge memory pages as documented in the reported external references  */
 	FORCEHUGEPAGE
 };
@@ -64,7 +65,7 @@ enum AllocType {
  *  @tparam AT a type of memory allocation out of ::AllocType.
  */
 
-template <typename T, AllocType AT = MALLOC> class Vector {
+template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 
   public:
 	static constexpr int PROT = PROT_READ | PROT_WRITE;
@@ -102,7 +103,7 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 		return *this;
 	}
 
-	/** Trim the the memory allocated so that it holds at most the given number of elements. 
+	/** Trim the the memory allocated so that it holds at most the given number of elements.
 	  * @param capacity the new desired capacity.
 	  */
 	void trim(size_t capacity) {
@@ -140,8 +141,8 @@ template <typename T, AllocType AT = MALLOC> class Vector {
 	/** Changes the vector size to the given value.
 	  *
 	  * If the argument is smaller than or equal to the current size,
-	  * the backing array is unmodified. Otherwise, the backing array 
-	  * is enlarged to the given size using grow(). New elements are 
+	  * the backing array is unmodified. Otherwise, the backing array
+	  * is enlarged to the given size using grow(). New elements are
 	  * initialized to zero.
 	  *
 	  * @param size the desired new size.

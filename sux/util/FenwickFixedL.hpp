@@ -50,10 +50,11 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedL : public Sear
 	 * @param size the number of elements in the sequence.
 	 */
 	FenwickFixedL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
-		for (size_t i = 1; i <= Levels; i++) {
-			size_t space = (size + (1ULL << (i - 1))) / (1ULL << i);
-			Tree[i - 1].resize(space);
-		}
+		for (size_t i = 0; i < Levels; i++) {
+      size_t elems = (size + (1ULL << i)) / (1ULL << (i + 1));
+      Tree[i].reserve(elems);
+      Tree[i].resize(elems);
+    }
 
 		for (size_t l = 0; l < Levels; l++) {
 			for (size_t node = 1ULL << l; node <= size; node += 1ULL << (l + 1)) {
@@ -158,16 +159,23 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedL : public Sear
 		Tree[height].popBack();
 	}
 
+	virtual void grow(size_t space) {
+		size_t levels = lambda(space) + 1;
+		for (size_t i = 0; i < levels; i++)
+      Tree[i].grow((space + (1ULL << i)) / (1ULL << (i + 1)));
+  }
+
 	virtual void reserve(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].reserve((space + (1ULL << (i - 1))) / (1ULL << i));
-	}
+		for (size_t i = 0; i < levels; i++)
+      Tree[i].reserve((space + (1ULL << i)) / (1ULL << (i + 1)));
+  }
 
-	
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim((space + (1ULL << (i - 1))) / (1ULL << i));
-	};
+		for (size_t i = 0; i < levels; i++)
+      Tree[i].trim((space + (1ULL << i)) / (1ULL << (i + 1)));
+  }
 
 	virtual size_t size() const { return Size; }
 

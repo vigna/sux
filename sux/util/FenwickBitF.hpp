@@ -125,9 +125,10 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitF : public Search
 
 	virtual void pop() { Tree.resize((first_bit_after(--Size) + END_PADDING + 7) >> 3); }
 
+	virtual void grow(size_t space) { Tree.grow((first_bit_after(space) + END_PADDING + 7) >> 3); }
+
 	virtual void reserve(size_t space) { Tree.reserve((first_bit_after(space) + END_PADDING + 7) >> 3); }
 
-	
 	virtual void trim(size_t space) { Tree.trim((first_bit_after(space) + END_PADDING + 7) >> 3); };
 
 	virtual size_t size() const { return Size; }

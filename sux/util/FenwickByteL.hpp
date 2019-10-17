@@ -50,10 +50,10 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteL : public Searc
 	 * @param size the number of elements in the sequence.
 	 */
 	FenwickByteL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
-		for (size_t i = 1; i <= Levels; i++) {
-			size_t space = ((size + (1ULL << (i - 1))) / (1ULL << i)) * heightsize(i - 1);
-			Tree[i - 1].reserve(space + 8);
-			Tree[i - 1].resize(space + 8);
+		for (size_t i = 0; i < Levels; i++) {
+			size_t bytes = ((size + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i);
+			Tree[i].reserve(bytes + 8);
+			Tree[i].resize(bytes + 8);
 		}
 
 		for (size_t l = 0; l < Levels; l++) {
@@ -177,15 +177,22 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteL : public Searc
 		Size--;
 	}
 
+	virtual void grow(size_t space) {
+		size_t levels = lambda(space) + 1;
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].grow(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
+	};
+
 	virtual void reserve(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].resize(((space + (1ULL << (i - 1))) / (1ULL << i)) * heightsize(i - 1) + 7);
-	}
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].reserve(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
+  }
 
-	
 	virtual void trim(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 1; i <= levels; i++) Tree[i - 1].trim(((space + (1ULL << (i - 1))) / (1ULL << i)) * heightsize(i - 1) + 7);
+		for (size_t i = 0; i < levels; i++)
+			Tree[i].trim(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
 	};
 
 	virtual size_t size() const { return Size; }

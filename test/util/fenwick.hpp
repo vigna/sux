@@ -39,13 +39,14 @@ template <std::size_t S> void run_fenwick(std::size_t size) {
 
 	// find
 	for (std::uint64_t i = 0; i <= size; ++i) {
-		std::uint64_t res = fixedf.find(i);
+    size_t item = next() % S;
+		std::uint64_t res = fixedf.find(item);
 
-		EXPECT_EQ(res, fixedl.find(i)) << "at index " << i << ", size " << size << ", bound: " << S;
-		EXPECT_EQ(res, bytef.find(i)) << "at index " << i << ", size " << size << ", bound: " << S;
-		EXPECT_EQ(res, bytel.find(i)) << "at index " << i << ", size " << size << ", bound: " << S;
-		EXPECT_EQ(res, bitf.find(i)) << "at index " << i << ", size " << size << ", bound: " << S;
-		EXPECT_EQ(res, bitl.find(i)) << "at index " << i << ", size " << size << ", bound: " << S;
+		EXPECT_EQ(res, fixedl.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
+		EXPECT_EQ(res, bytef.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
+		EXPECT_EQ(res, bytel.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
+		EXPECT_EQ(res, bitf.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
+		EXPECT_EQ(res, bitl.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
 	}
 
 	// add
@@ -71,13 +72,14 @@ template <std::size_t S> void run_fenwick(std::size_t size) {
 
 	// find complement
 	for (std::uint64_t i = 0; i <= size; ++i) {
-		std::uint64_t res = fixedf.compFind(i);
+    size_t item = next() % S;
+		std::uint64_t res = fixedf.compFind(item);
 
-		EXPECT_EQ(res, fixedl.compFind(i)) << "atresx " << i << ", size " << size << ", bound " << S;
-		EXPECT_EQ(res, bytef.compFind(i)) << "at index " << i << ", size " << size << ", bound " << S;
-		EXPECT_EQ(res, bytel.compFind(i)) << "at index " << i << ", size " << size << ", bound " << S;
-		EXPECT_EQ(res, bitf.compFind(i)) << "at index " << i << ", size " << size << ", bound " << S;
-		EXPECT_EQ(res, bitl.compFind(i)) << "at index " << i << ", size " << size << ", bound " << S;
+		EXPECT_EQ(res, fixedl.compFind(item)) << "atresx " << i << ", size " << size << ", bound " << S;
+		EXPECT_EQ(res, bytef.compFind(item)) << "at index " << i << ", size " << size << ", bound " << S;
+		EXPECT_EQ(res, bytel.compFind(item)) << "at index " << i << ", size " << size << ", bound " << S;
+		EXPECT_EQ(res, bitf.compFind(item)) << "at index " << i << ", size " << size << ", bound " << S;
+		EXPECT_EQ(res, bitl.compFind(item)) << "at index " << i << ", size " << size << ", bound " << S;
 	}
 
 	delete[] increments;
