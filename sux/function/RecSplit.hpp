@@ -437,13 +437,13 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 	inline uint64_t hash128_to_bucket(const hash128_t &hash) const { return remap128(hash.first, nbuckets); }
 
 	// Computes and stores the splittings and bijections of a bucket.
-	void recSplit(vector<uint64_t> &bucket, vector<uint32_t> &unary) {
+	void recSplit(vector<uint64_t> &bucket, typename RiceBitVector<AT>::Builder &builder, vector<uint32_t> &unary) {
 		const auto m = bucket.size();
 		vector<uint64_t> temp(m);
-		recSplit(bucket, temp, 0, bucket.size(), unary, 0);
+		recSplit(bucket, temp, 0, bucket.size(), builder, unary, 0);
 	}
 
-	void recSplit(vector<uint64_t> &bucket, vector<uint64_t> &temp, size_t start, size_t end, vector<uint32_t> &unary, const int level) {
+	void recSplit(vector<uint64_t> &bucket, vector<uint64_t> &temp, size_t start, size_t end, typename RiceBitVector<AT>::Builder &builder, vector<uint32_t> &unary, const int level) {
 		const auto m = end - start;
 		assert(m > 1);
 		uint64_t x = start_seed[level];
@@ -489,7 +489,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 #endif
 			x -= start_seed[level];
 			const auto log2golomb = golomb_param(m);
-			descriptors.appendFixed(x, log2golomb);
+			builder.appendFixed(x, log2golomb);
 			unary.push_back(x >> log2golomb);
 #ifdef MORESTATS
 			bij_count[m]++;
@@ -534,14 +534,14 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 				copy(&temp[0], &temp[m], &bucket[start]);
 				x -= start_seed[level];
 				const auto log2golomb = golomb_param(m);
-				descriptors.appendFixed(x, log2golomb);
+				builder.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
 				time_split[min(MAX_LEVEL_TIME, level)] += duration_cast<nanoseconds>(high_resolution_clock::now() - start_time).count();
 #endif
-				recSplit(bucket, temp, start, start + split, unary, level + 1);
-				if (m - split > 1) recSplit(bucket, temp, start + split, end, unary, level + 1);
+				recSplit(bucket, temp, start, start + split, builder, unary, level + 1);
+				if (m - split > 1) recSplit(bucket, temp, start + split, end, builder, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -571,7 +571,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 
 				x -= start_seed[level];
 				const auto log2golomb = golomb_param(m);
-				descriptors.appendFixed(x, log2golomb);
+				builder.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
@@ -579,9 +579,9 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 #endif
 				size_t i;
 				for (i = 0; i < m - lower_aggr; i += lower_aggr) {
-					recSplit(bucket, temp, start + i, start + i + lower_aggr, unary, level + 1);
+					recSplit(bucket, temp, start + i, start + i + lower_aggr, builder, unary, level + 1);
 				}
-				if (m - i > 1) recSplit(bucket, temp, start + i, end, unary, level + 1);
+				if (m - i > 1) recSplit(bucket, temp, start + i, end, builder, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -610,7 +610,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 
 				x -= start_seed[level];
 				const auto log2golomb = golomb_param(m);
-				descriptors.appendFixed(x, log2golomb);
+				builder.appendFixed(x, log2golomb);
 				unary.push_back(x >> log2golomb);
 
 #ifdef MORESTATS
@@ -618,9 +618,9 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 #endif
 				size_t i;
 				for (i = 0; i < m - _leaf; i += _leaf) {
-					recSplit(bucket, temp, start + i, start + i + _leaf, unary, level + 1);
+					recSplit(bucket, temp, start + i, start + i + _leaf, builder, unary, level + 1);
 				}
-				if (m - i > 1) recSplit(bucket, temp, start + i, end, unary, level + 1);
+				if (m - i > 1) recSplit(bucket, temp, start + i, end, builder, unary, level + 1);
 #ifdef MORESTATS
 				else
 					sum_depths += level;
@@ -685,6 +685,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		auto bucket_pos_acc = vector<int64_t>(nbuckets + 1);
 
 		sort(hashes, hashes + keys_count, [this](const hash128_t &a, const hash128_t &b) { return hash128_to_bucket(a) < hash128_to_bucket(b); });
+		typename RiceBitVector<AT>::Builder builder;
 
 		bucket_size_acc[0] = bucket_pos_acc[0] = 0;
 		for (size_t i = 0, last = 0; i < nbuckets; i++) {
@@ -695,10 +696,10 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 			bucket_size_acc[i + 1] = bucket_size_acc[i] + s;
 			if (bucket.size() > 1) {
 				vector<uint32_t> unary;
-				recSplit(bucket, unary);
-				descriptors.appendUnaryAll(unary);
+				recSplit(bucket, builder, unary);
+				builder.appendUnaryAll(unary);
 			}
-			bucket_pos_acc[i + 1] = descriptors.getBits();
+			bucket_pos_acc[i + 1] = builder.getBits();
 #ifdef MORESTATS
 			auto upper_leaves = (s + _leaf - 1) / _leaf;
 			auto upper_height = ceil(log(upper_leaves) / log(2)); // TODO: check
@@ -710,15 +711,15 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 			maxsize = max(maxsize, s);
 #endif
 		}
-		descriptors.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
-
+		builder.appendFixed(1, 1); // Sentinel (avoids checking for parts of size 1)
+		descriptors = builder.build();
 		ef = DoubleEF<AT>(vector<uint64_t>(bucket_size_acc.begin(), bucket_size_acc.end()), vector<uint64_t>(bucket_pos_acc.begin(), bucket_pos_acc.end()));
 
 #ifdef STATS
 		// Evaluation purposes only
 		double ef_sizes = (double)ef.bitCountCumKeys() / keys_count;
 		double ef_bits = (double)ef.bitCountPosition() / keys_count;
-		double rice_desc = (double)descriptors.getBits() / keys_count;
+		double rice_desc = (double)builder.getBits() / keys_count;
 		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef.bitCountCumKeys() / nbuckets);
 		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef.bitCountPosition() / nbuckets);
 		printf("Elias-Fano cumul sizes:  %f bits/key\n", ef_sizes);
@@ -809,7 +810,7 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		return os;
 	}
 
-  friend istream &operator>>(istream &is, RecSplit<LEAF_SIZE, AT> &rs) {
+	friend istream &operator>>(istream &is, RecSplit<LEAF_SIZE, AT> &rs) {
 		size_t leaf_size;
 		is.read((char *)&leaf_size, sizeof(leaf_size));
 		if (leaf_size != LEAF_SIZE) {

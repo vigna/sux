@@ -92,8 +92,8 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	}
 
 	// Delete copy operators
-	Vector(const Vector&) = delete;
-	Vector& operator=(const Vector&) = delete;
+	Vector(const Vector &) = delete;
+	Vector &operator=(const Vector &) = delete;
 
 	// Define move operators
 	Vector(Vector<T, AT> &&oth) : _size(std::exchange(oth._size, 0)), _capacity(std::exchange(oth._capacity, 0)), data(std::exchange(oth.data, nullptr)) {}
@@ -104,16 +104,14 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	}
 
 	/** Trim the the memory allocated so that it holds at most the given number of elements.
-	  * @param capacity the new desired capacity.
-	  */
+	 * @param capacity the new desired capacity.
+	 */
 	void trim(size_t capacity) {
 		if (capacity >= _size && capacity < _capacity) remap(capacity);
 	}
 
 	/** Trim the the memory allocated so that it holds exactly size() elements. */
-	void trimToFit() {
-		trim(_size);
-	}
+	void trimToFit() { trim(_size); }
 
 	/** Enlarges the backing array to that it can contain a given number of elements.
 	 *
@@ -139,26 +137,26 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	}
 
 	/** Changes the vector size to the given value.
-	  *
-	  * If the argument is smaller than or equal to the current size,
-	  * the backing array is unmodified. Otherwise, the backing array
-	  * is enlarged to the given size using grow(). New elements are
-	  * initialized to zero.
-	  *
-	  * @param size the desired new size.
-	  */
+	 *
+	 * If the argument is smaller than or equal to the current size,
+	 * the backing array is unmodified. Otherwise, the backing array
+	 * is enlarged to the given size using grow(). New elements are
+	 * initialized to zero.
+	 *
+	 * @param size the desired new size.
+	 */
 	void resize(size_t size) {
 		grow(size);
 		_size = size;
 	}
 
 	/** Changes the vector size and capacity to the given value.
-	  *
-	  * Both size and capacity are set to the provided size. 
-	  * If necessary, new elements are initialized to zero.
-	  *
-	  * @param size the desired new size.
-	  */
+	 *
+	 * Both size and capacity are set to the provided size.
+	 * If necessary, new elements are initialized to zero.
+	 *
+	 * @param size the desired new size.
+	 */
 	void size(size_t size) {
 		reserve(size);
 		_size = size;
@@ -177,7 +175,7 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	/** Pops the element at the end of this vector.
 	 *
 	 *  The last element of this vector is removed and
-     *  returned.
+	 *  returned.
 	 *
 	 * @return the last element of this vector.
 	 */

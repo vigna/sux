@@ -13,8 +13,8 @@ bin/function: test/function/* sux/function/* sux/util/Vector.hpp sux/support/*
 	$(CC) test/function/test.cpp sux/support/SpookyV2.cpp -o bin/function
 
 test: bin/bits bin/util bin/function
-	./bin/bits --gtest_color=yes
-	./bin/util --gtest_color=yes
+#	./bin/bits --gtest_color=yes
+#	./bin/util --gtest_color=yes
 	./bin/function --gtest_color=yes
 
 LEAF?=8

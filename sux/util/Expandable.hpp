@@ -29,8 +29,7 @@
 namespace sux::util {
 
 class Expandable {
-public:
-
+  public:
 	/** Trim the the memory allocated so that it holds at most the given number of elements.
 	 * @param capacity the new desired capacity.
 	 */
@@ -59,26 +58,26 @@ public:
 	virtual void grow(size_t space) = 0;
 
 	/** Changes the vector size to the given value.
-	  *
-	  * If the argument is smaller than or equal to the current size,
-	  * the backing array is unmodified. Otherwise, the backing array
-	  * is enlarged to the given size using grow(). New elements are
-	  * initialized to zero.
-	  *
-	  * @param size the desired new size.
-	  */
+	 *
+	 * If the argument is smaller than or equal to the current size,
+	 * the backing array is unmodified. Otherwise, the backing array
+	 * is enlarged to the given size using grow(). New elements are
+	 * initialized to zero.
+	 *
+	 * @param size the desired new size.
+	 */
 	virtual void resize(size_t size) = 0;
 
 	/** Returns the number of elements in this vector. */
 	virtual inline size_t size() const = 0;
 
 	/** Changes the vector size and capacity to the given value.
-   *
-   * Both size and capacity are set to the provided size.
-   * If necessary, new elements are initialized to zero.
-   *
-   * @param size the desired new size.
-   */
+	 *
+	 * Both size and capacity are set to the provided size.
+	 * If necessary, new elements are initialized to zero.
+	 *
+	 * @param size the desired new size.
+	 */
 	virtual void size(size_t size) = 0;
 
 	/** Returns the number of elements that this vector

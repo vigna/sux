@@ -39,7 +39,7 @@ template <std::size_t S> void run_fenwick(std::size_t size) {
 
 	// find
 	for (std::uint64_t i = 0; i <= size; ++i) {
-    size_t item = next() % S;
+		size_t item = next() % S;
 		std::uint64_t res = fixedf.find(item);
 
 		EXPECT_EQ(res, fixedl.find(item)) << "at index " << i << ", size " << size << ", bound: " << S;
@@ -72,7 +72,7 @@ template <std::size_t S> void run_fenwick(std::size_t size) {
 
 	// find complement
 	for (std::uint64_t i = 0; i <= size; ++i) {
-    size_t item = next() % S;
+		size_t item = next() % S;
 		std::uint64_t res = fixedf.compFind(item);
 
 		EXPECT_EQ(res, fixedl.compFind(item)) << "atresx " << i << ", size " << size << ", bound " << S;

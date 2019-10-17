@@ -134,9 +134,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	virtual size_t bitCount() const { return sizeof(WordDynRankSel<T, AT>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
 
   private:
-	static size_t divRoundup(size_t x, size_t y) {
-		return (x + y - 1) / y;
-	}
+	static size_t divRoundup(size_t x, size_t y) { return (x + y - 1) / y; }
 
 	T<BOUNDSIZE, AT> buildFenwick(const uint64_t bitvector[], size_t size) {
 		uint64_t *sequence = new uint64_t[size];
