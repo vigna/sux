@@ -39,9 +39,9 @@ namespace sux::bits {
  */
 template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public Rank9<AT>, public Select {
   private:
-	const int log2_ones_per_inventory = 9;
-	const int ones_per_inventory = 1 << log2_ones_per_inventory;
-	const uint64_t inventory_mask = ones_per_inventory - 1;
+	static const int log2_ones_per_inventory = 9;
+	static const int ones_per_inventory = 1 << log2_ones_per_inventory;
+	static const uint64_t inventory_mask = ones_per_inventory - 1;
 
 	util::Vector<uint64_t, AT> inventory, subinventory;
 	uint64_t inventory_size;
@@ -52,7 +52,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 	 * @param v a sux::util::Vector of `uint64_t`.
 	 * @param num_bits the length (in bits) of the bit vector.
 	 */
-	//template <T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
+	template <typename util::AllocType T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
 
 	/** Creates a new instance using a given bit vector.
 	 *

@@ -39,7 +39,7 @@ using namespace std;
 
 template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
   private:
-	const int max_zeros_per_inventory = 8192;
+	static const int max_zeros_per_inventory = 8192;
 
 	const uint64_t *bits;
 	util::Vector<int64_t, AT> inventory;
