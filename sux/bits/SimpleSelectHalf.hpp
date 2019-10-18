@@ -25,18 +25,6 @@
 #include "Select.hpp"
 #include <cstdint>
 
-#define LOG2_ONES_PER_INVENTORY (10)
-#define ONES_PER_INVENTORY (1 << LOG2_ONES_PER_INVENTORY)
-#define ONES_PER_INVENTORY_MASK (ONES_PER_INVENTORY - 1)
-#define LOG2_LONGWORDS_PER_SUBINVENTORY (2)
-#define LONGWORDS_PER_SUBINVENTORY (1 << LOG2_LONGWORDS_PER_SUBINVENTORY)
-#define LOG2_ONES_PER_SUB64 (LOG2_ONES_PER_INVENTORY - LOG2_LONGWORDS_PER_SUBINVENTORY)
-#define ONES_PER_SUB64 (1 << LOG2_ONES_PER_SUB64)
-#define ONES_PER_SUB64_MASK (ONES_PER_SUB64 - 1)
-#define LOG2_ONES_PER_SUB16 (LOG2_ONES_PER_SUB64 - 2)
-#define ONES_PER_SUB16 (1 << LOG2_ONES_PER_SUB16)
-#define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
-
 namespace sux::bits {
 
 using namespace std;
@@ -53,6 +41,18 @@ using namespace sux;
 
 template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
   private:
+	static const int log2_ones_per_inventory = 10;
+	static const int ones_per_inventory = 1 << log2_ones_per_inventory;
+	static const int ones_per_inventory_mask = ones_per_inventory - 1;
+	static const uint64_t log2_longwords_per_subinventory = 2;
+	static const int longwords_per_subinventory = 1 << log2_longwords_per_subinventory;
+	static const int log2_ones_per_sub64 = log2_ones_per_inventory - log2_longwords_per_subinventory;
+	static const int ones_per_sub64 = 1 << log2_ones_per_sub64;
+	static const uint64_t ones_per_sub64_mask = ones_per_sub64 - 1;
+	static const int log2_ones_per_sub16 = log2_ones_per_sub64 - 2;
+	static const int ones_per_sub16 = 1 << log2_ones_per_sub16;
+	static const uint64_t ones_per_sub16_mask = ones_per_sub16 - 1;
+
 	const uint64_t *bits;
 	util::Vector<int64_t, AT> inventory;
 
@@ -77,31 +77,31 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 
 		assert(c <= num_bits);
 
-		inventory_size = (c + ONES_PER_INVENTORY - 1) / ONES_PER_INVENTORY;
+		inventory_size = (c + ones_per_inventory - 1) / ones_per_inventory;
 
 #ifdef DEBUG
 		printf("Number of bits: %" PRId64 " Number of ones: %" PRId64 " (%.2f%%)\n", num_bits, c, (c * 100.0) / num_bits);
 
-		printf("Ones per inventory: %d Ones per sub 64: %d sub 16: %d\n", ONES_PER_INVENTORY, ONES_PER_SUB64, ONES_PER_SUB16);
+		printf("Ones per inventory: %d Ones per sub 64: %d sub 16: %d\n", ones_per_inventory, ones_per_sub64, ones_per_sub16);
 #endif
 
-		inventory.size(inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1);
+		inventory.size(inventory_size * (longwords_per_subinventory + 1) + 1);
 
 		uint64_t d = 0;
-		const uint64_t mask = ONES_PER_INVENTORY - 1;
+		const uint64_t mask = ones_per_inventory - 1;
 
-		// First phase: we build an inventory for each one out of ONES_PER_INVENTORY.
+		// First phase: we build an inventory for each one out of ones_per_inventory.
 		for (uint64_t i = 0; i < num_words; i++)
 			for (int j = 0; j < 64; j++) {
 				if (i * 64 + j >= num_bits) break;
 				if (bits[i] & 1ULL << j) {
-					if ((d & mask) == 0) inventory[(d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1)] = i * 64 + j;
+					if ((d & mask) == 0) inventory[(d >> log2_ones_per_inventory) * (longwords_per_subinventory + 1)] = i * 64 + j;
 					d++;
 				}
 			}
 
 		assert(c == d);
-		inventory[inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1)] = num_bits;
+		inventory[inventory_size * (longwords_per_subinventory + 1)] = num_bits;
 
 #ifdef DEBUG
 		printf("Inventory entries filled: %" PRId64 "\n", inventory_size + 1);
@@ -119,9 +119,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 				if (i * 64 + j >= num_bits) break;
 				if (bits[i] & 1ULL << j) {
 					if ((d & mask) == 0) {
-						inventory_index = (d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1);
+						inventory_index = (d >> log2_ones_per_inventory) * (longwords_per_subinventory + 1);
 						start = inventory[inventory_index];
-						span = inventory[inventory_index + LONGWORDS_PER_SUBINVENTORY + 1] - start;
+						span = inventory[inventory_index + longwords_per_subinventory + 1] - start;
 						if (span > (1 << 16)) inventory[inventory_index] = -inventory[inventory_index] - 1;
 						offset = 0;
 						p64 = &inventory[inventory_index + 1];
@@ -130,13 +130,13 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 
 					if (span < (1 << 16)) {
 						assert(i * 64 + j - start <= (1 << 16));
-						if ((d & ONES_PER_SUB16_MASK) == 0) {
-							assert(offset < LONGWORDS_PER_SUBINVENTORY * 4);
+						if ((d & ones_per_sub16_mask) == 0) {
+							assert(offset < longwords_per_subinventory * 4);
 							p16[offset++] = i * 64 + j - start;
 						}
 					} else {
-						if ((d & ONES_PER_SUB64_MASK) == 0) {
-							assert(offset < LONGWORDS_PER_SUBINVENTORY);
+						if ((d & ones_per_sub64_mask) == 0) {
+							assert(offset < longwords_per_subinventory);
 							p64[offset++] = i * 64 + j - start;
 							exact++;
 						}
@@ -160,12 +160,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 #endif
 		assert(rank < num_ones);
 
-		const uint64_t inventory_index = rank >> LOG2_ONES_PER_INVENTORY;
+		const uint64_t inventory_index = rank >> log2_ones_per_inventory;
 		assert(inventory_index <= inventory_size);
-		const int64_t *inventory_start = inventory.p() + (inventory_index << LOG2_LONGWORDS_PER_SUBINVENTORY) + inventory_index;
+		const int64_t *inventory_start = inventory.p() + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
 
 		const int64_t inventory_rank = *inventory_start;
-		const int subrank = rank & ONES_PER_INVENTORY_MASK;
+		const int subrank = rank & ones_per_inventory_mask;
 #ifdef DEBUG
 		printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank, inventory_index, inventory_rank, subrank);
 #endif
@@ -174,12 +174,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 		int residual;
 
 		if (inventory_rank >= 0) {
-			start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> LOG2_ONES_PER_SUB16];
-			residual = subrank & ONES_PER_SUB16_MASK;
+			start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> log2_ones_per_sub16];
+			residual = subrank & ones_per_sub16_mask;
 		} else {
-			assert((subrank >> LOG2_ONES_PER_SUB64) < LONGWORDS_PER_SUBINVENTORY);
-			start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> LOG2_ONES_PER_SUB64));
-			residual = subrank & ONES_PER_SUB64_MASK;
+			assert((subrank >> log2_ones_per_sub64) < longwords_per_subinventory);
+			start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> log2_ones_per_sub64));
+			residual = subrank & ones_per_sub64_mask;
 		}
 
 #ifdef DEBUG

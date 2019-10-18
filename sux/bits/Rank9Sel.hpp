@@ -39,9 +39,9 @@ namespace sux::bits {
  */
 template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public Rank9<AT>, public Select {
   private:
-	const int log2_ones_per_inventory = 9;
-	const int ones_per_inventory = 1 << log2_ones_per_inventory;
-	const uint64_t inventory_mask = ones_per_inventory - 1;
+	static const int log2_ones_per_inventory = 9;
+	static const int ones_per_inventory = 1 << log2_ones_per_inventory;
+	static const uint64_t inventory_mask = ones_per_inventory - 1;
 
 	util::Vector<uint64_t, AT> inventory, subinventory;
 	uint64_t inventory_size;
