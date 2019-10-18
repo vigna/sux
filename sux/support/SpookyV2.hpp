@@ -26,84 +26,15 @@
 // slower than MD5.
 //
 
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
+#include <cstring>
 
-#ifdef _MSC_VER
-#define INLINE __forceinline
-typedef unsigned __int64 uint64;
-typedef unsigned __int32 uint32;
-typedef unsigned __int16 uint16;
-typedef unsigned __int8 uint8;
-#else
-#include <stdint.h>
-#define INLINE inline
-typedef uint64_t uint64;
-typedef uint32_t uint32;
-typedef uint16_t uint16;
-typedef uint8_t uint8;
-#endif
+#define ALLOW_UNALIGNED_READS 1
 
 class SpookyHash {
-  public:
-	//
-	// SpookyHash: hash a single message in one call, produce 128-bit output
-	//
-	static void Hash128(const void *message, // message to hash
-						size_t length,       // length of message in bytes
-						uint64 *hash1,       // in/out: in seed 1, out hash value 1
-						uint64 *hash2);      // in/out: in seed 2, out hash value 2
-
-	//
-	// Hash64: hash a single message in one call, return 64-bit output
-	//
-	static uint64 Hash64(const void *message, // message to hash
-						 size_t length,       // length of message in bytes
-						 uint64 seed)         // seed
-	{
-		uint64 hash1 = seed;
-		Hash128(message, length, &hash1, &seed);
-		return hash1;
-	}
-
-	//
-	// Hash32: hash a single message in one call, produce 32-bit output
-	//
-	static uint32 Hash32(const void *message, // message to hash
-						 size_t length,       // length of message in bytes
-						 uint32 seed)         // seed
-	{
-		uint64 hash1 = seed, hash2 = seed;
-		Hash128(message, length, &hash1, &hash2);
-		return (uint32)hash1;
-	}
-
-	//
-	// Init: initialize the context of a SpookyHash
-	//
-	void Init(uint64 seed1,  // any 64-bit value will do, including 0
-			  uint64 seed2); // different seeds produce independent hashes
-
-	//
-	// Update: add a piece of a message to a SpookyHash state
-	//
-	void Update(const void *message, // message fragment
-				size_t length);      // length of message fragment in bytes
-
-	//
-	// Final: compute the hash for the current SpookyHash state
-	//
-	// This does not modify the state; you can keep updating it afterward
-	//
-	// The result is the same as if SpookyHash() had been called with
-	// all the pieces concatenated into one message.
-	//
-	void Final(uint64 *hash1,  // out only: first 64 bits of hash value.
-			   uint64 *hash2); // out only: second 64 bits of hash value.
-
-	//
-	// left rotate a 64-bit value by k bytes
-	//
-	static INLINE uint64 Rot64(uint64 x, int k) { return (x << k) | (x >> (64 - k)); }
+  private:
+	static inline uint64_t Rot64(uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
 
 	//
 	// This is used if the input is 96 bytes long or longer.
@@ -118,7 +49,7 @@ class SpookyHash {
 	//   When run forward or backwards one Mix
 	// I tried 3 pairs of each; they all differed by at least 212 bits.
 	//
-	static INLINE void Mix(const uint64 *data, uint64 &s0, uint64 &s1, uint64 &s2, uint64 &s3, uint64 &s4, uint64 &s5, uint64 &s6, uint64 &s7, uint64 &s8, uint64 &s9, uint64 &s10, uint64 &s11) {
+	static inline void Mix(const uint64_t *data, uint64_t &s0, uint64_t &s1, uint64_t &s2, uint64_t &s3, uint64_t &s4, uint64_t &s5, uint64_t &s6, uint64_t &s7, uint64_t &s8, uint64_t &s9, uint64_t &s10, uint64_t &s11) {
 		s0 += data[0];
 		s2 ^= s10;
 		s11 ^= s0;
@@ -197,7 +128,7 @@ class SpookyHash {
 	// Two iterations was almost good enough for a 64-bit result, but a
 	// 128-bit result is reported, so End() does three iterations.
 	//
-	static INLINE void EndPartial(uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3, uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7, uint64 &h8, uint64 &h9, uint64 &h10, uint64 &h11) {
+	static inline void EndPartial(uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9, uint64_t &h10, uint64_t &h11) {
 		h11 += h1;
 		h2 ^= h11;
 		h1 = Rot64(h1, 44);
@@ -236,7 +167,7 @@ class SpookyHash {
 		h0 = Rot64(h0, 54);
 	}
 
-	static INLINE void End(const uint64 *data, uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3, uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7, uint64 &h8, uint64 &h9, uint64 &h10, uint64 &h11) {
+	static inline void End(const uint64_t *data, uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9, uint64_t &h10, uint64_t &h11) {
 		h0 += data[0];
 		h1 += data[1];
 		h2 += data[2];
@@ -269,7 +200,7 @@ class SpookyHash {
 	// with diffs defined by either xor or subtraction
 	// with a base of all zeros plus a counter, or plus another bit, or random
 	//
-	static INLINE void ShortMix(uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3) {
+	static inline void ShortMix(uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3) {
 		h2 = Rot64(h2, 50);
 		h2 += h3;
 		h0 ^= h2;
@@ -320,7 +251,7 @@ class SpookyHash {
 	// For every pair of input bits,
 	// with probability 50 +- .75% (the worst case is approximately that)
 	//
-	static INLINE void ShortEnd(uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3) {
+	static inline void ShortEnd(uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3) {
 		h3 ^= h2;
 		h2 = Rot64(h2, 15);
 		h3 += h2;
@@ -357,18 +288,7 @@ class SpookyHash {
 	}
 
   private:
-	//
-	// Short is used for messages under 192 bytes in length
-	// Short has a low startup cost, the normal mode is good for long
-	// keys, the cost crossover is at about 192 bytes.  The two modes were
-	// held to the same quality bar.
-	//
-	static void Short(const void *message, // message (array of bytes, not necessarily aligned)
-					  size_t length,       // length of message (in bytes)
-					  uint64 *hash1,       // in/out: in the seed, out the hash value
-					  uint64 *hash2);      // in/out: in the seed, out the hash value
-
-	// number of uint64's in internal state
+	// number of uint64_t's in internal state
 	static const size_t sc_numVars = 12;
 
 	// size of the internal state
@@ -384,10 +304,203 @@ class SpookyHash {
 	//  * is a not-very-regular mix of 1's and 0's
 	//  * does not need any other special mathematical properties
 	//
-	static const uint64 sc_const = 0xdeadbeefdeadbeefLL;
+	static const uint64_t sc_const = 0xdeadbeefdeadbeefLL;
 
-	uint64 m_data[2 * sc_numVars]; // unhashed data, for partial messages
-	uint64 m_state[sc_numVars];    // internal state of the hash
-	size_t m_length;               // total length of the input so far
-	uint8 m_remainder;             // length of unhashed data stashed in m_data
+  public:
+
+	/** Hashes short data to 128 bits.
+	 *
+	 * This version has a lower startup cost, and it is more efficient
+	 * on short (less than about 200 characters) strings.
+	 *
+	 * @param data bytes to hash.
+	 * @param length number of valid bytes in `data`.
+	 * @param hash1 in seed 1, out hash 1.
+	 * @param hash2 in seed 2, out hash 2.
+	 */
+	static void Short128(const void *data,
+					  size_t length, 
+					  uint64_t *hash1,
+					  uint64_t *hash2) {
+		uint64_t buf[2 * sc_numVars];
+		union {
+			const uint8_t *p8;
+			uint32_t *p32;
+			uint64_t *p64;
+			size_t i;
+		} u;
+
+		u.p8 = (const uint8_t *)data;
+
+		if (!ALLOW_UNALIGNED_READS && (u.i & 0x7)) {
+			memcpy(buf, data, length);
+			u.p64 = buf;
+		}
+
+		size_t remainder = length % 32;
+		uint64_t a = *hash1;
+		uint64_t b = *hash2;
+		uint64_t c = sc_const;
+		uint64_t d = sc_const;
+
+		if (length > 15) {
+			const uint64_t *end = u.p64 + (length / 32) * 4;
+
+			// handle all complete sets of 32 bytes
+			for (; u.p64 < end; u.p64 += 4) {
+				c += u.p64[0];
+				d += u.p64[1];
+				ShortMix(a, b, c, d);
+				a += u.p64[2];
+				b += u.p64[3];
+			}
+
+			// Handle the case of 16+ remaining bytes.
+			if (remainder >= 16) {
+				c += u.p64[0];
+				d += u.p64[1];
+				ShortMix(a, b, c, d);
+				u.p64 += 2;
+				remainder -= 16;
+			}
+		}
+
+		// Handle the last 0..15 bytes, and its length
+		d += ((uint64_t)length) << 56;
+		switch (remainder) {
+		case 15:
+			d += ((uint64_t)u.p8[14]) << 48;
+		case 14:
+			d += ((uint64_t)u.p8[13]) << 40;
+		case 13:
+			d += ((uint64_t)u.p8[12]) << 32;
+		case 12:
+			d += u.p32[2];
+			c += u.p64[0];
+			break;
+		case 11:
+			d += ((uint64_t)u.p8[10]) << 16;
+		case 10:
+			d += ((uint64_t)u.p8[9]) << 8;
+		case 9:
+			d += (uint64_t)u.p8[8];
+		case 8:
+			c += u.p64[0];
+			break;
+		case 7:
+			c += ((uint64_t)u.p8[6]) << 48;
+		case 6:
+			c += ((uint64_t)u.p8[5]) << 40;
+		case 5:
+			c += ((uint64_t)u.p8[4]) << 32;
+		case 4:
+			c += u.p32[0];
+			break;
+		case 3:
+			c += ((uint64_t)u.p8[2]) << 16;
+		case 2:
+			c += ((uint64_t)u.p8[1]) << 8;
+		case 1:
+			c += (uint64_t)u.p8[0];
+			break;
+		case 0:
+			c += sc_const;
+			d += sc_const;
+		}
+		ShortEnd(a, b, c, d);
+		*hash1 = a;
+		*hash2 = b;
+	}
+
+	/** Hashes short data to 75 bits.
+	 *
+	 * This version has a lower startup cost, and it is more efficient
+	 * on short (less than about 200 characters) strings.
+	 *
+	 * @param data bytes to hash.
+	 * @param length number of valid bytes in `data`.
+	 * @param seed a seed.
+	 * @return a 64-bit hash.
+	 */
+	static uint64_t Short64(const void *data, size_t length, uint64_t seed) {
+		uint64_t hash1 = seed;
+		Short128(data, length, &hash1, &seed);
+		return hash1;
+	}
+
+	/** Hashes long data to 128 bits.
+	 *
+	 * This version has a higher startup cost, and it is more efficient
+	 * on long (more than about 200 characters) strings.
+	 *
+	 * @param data bytes to hash.
+	 * @param length number of valid bytes in `data`.
+	 * @param hash1 in seed 1, out hash 1.
+	 * @param hash2 in seed 2, out hash 2.
+	 */
+	static void Hash128(const void *data, size_t length, uint64_t *hash1, uint64_t *hash2) {
+		if (length < sc_bufSize) {
+			Short128(data, length, hash1, hash2);
+			return;
+		}
+
+		uint64_t h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11;
+		uint64_t buf[sc_numVars];
+		uint64_t *end;
+		union {
+			const uint8_t *p8;
+			uint64_t *p64;
+			size_t i;
+		} u;
+		size_t remainder;
+
+		h0 = h3 = h6 = h9 = *hash1;
+		h1 = h4 = h7 = h10 = *hash2;
+		h2 = h5 = h8 = h11 = sc_const;
+
+		u.p8 = (const uint8_t *)data;
+		end = u.p64 + (length / sc_blockSize) * sc_numVars;
+
+		// handle all whole sc_blockSize blocks of bytes
+		if (ALLOW_UNALIGNED_READS || ((u.i & 0x7) == 0)) {
+			while (u.p64 < end) {
+				Mix(u.p64, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11);
+				u.p64 += sc_numVars;
+			}
+		} else {
+			while (u.p64 < end) {
+				memcpy(buf, u.p64, sc_blockSize);
+				Mix(buf, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11);
+				u.p64 += sc_numVars;
+			}
+		}
+
+		// handle the last partial block of sc_blockSize bytes
+		remainder = (length - ((const uint8_t *)end - (const uint8_t *)data));
+		memcpy(buf, end, remainder);
+		memset(((uint8_t *)buf) + remainder, 0, sc_blockSize - remainder);
+		((uint8_t *)buf)[sc_blockSize - 1] = remainder;
+
+		// do some final mixing
+		End(buf, h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11);
+		*hash1 = h0;
+		*hash2 = h1;
+	}
+
+	/** Hashes long data to 64 bits.
+	 *
+	 * This version has a higher startup cost, and it is more efficient
+	 * on long (more than about 200 characters) strings.
+	 *
+	 * @param data bytes to hash.
+	 * @param length number of valid bytes in `data`.
+	 * @param seed a seed.
+	 * @return a 64-bit hash.
+	 */
+	static uint64_t Hash64(const void *data, size_t length, uint64_t seed) {
+		uint64_t hash1 = seed;
+		Hash128(data, length, &hash1, &seed);
+		return hash1;
+	}
+
 };

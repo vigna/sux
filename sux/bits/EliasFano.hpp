@@ -160,7 +160,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	 *  an element of the list, and rank(const size_t pos) will return how many
 	 *  element of the list are smaller than the argument.
 	 *
-	 * @param pos a list of positions of the ones in a bit vector.
+	 * @param ones a list of positions of the ones in a bit vector.
 	 * @param num_bits the length (in bits) of the bit vector.
 	 */
 	EliasFano(const std::vector<uint64_t> ones, const uint64_t num_bits) {

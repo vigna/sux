@@ -10,7 +10,7 @@ bin/util: test/util/* sux/util/* sux/support/*
 
 bin/function: test/function/* sux/function/* sux/util/Vector.hpp sux/support/*
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) test/function/test.cpp sux/support/SpookyV2.cpp -o bin/function
+	$(CXX) $(CXXFLAGS) test/function/test.cpp -o bin/function
 
 test: bin/bits bin/util bin/function
 	./bin/bits --gtest_color=yes
@@ -22,10 +22,10 @@ ALLOC_TYPE?=MALLOC
 
 recsplit: benchmark/function/recsplit_*
 	@mkdir -p bin
-	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump_$(LEAF)
-	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_dump128_$(LEAF)
-	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load_$(LEAF)
-	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load128.cpp sux/support/SpookyV2.cpp -o bin/recsplit_load128_$(LEAF)
+	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump.cpp -o bin/recsplit_dump_$(LEAF)
+	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_dump128.cpp -o bin/recsplit_dump128_$(LEAF)
+	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load.cpp -o bin/recsplit_load_$(LEAF)
+	$(CXX) -std=c++17 -I./ -O3 -DSTATS -march=native -DLEAF=$(LEAF) -DALLOC_TYPE=$(ALLOC_TYPE) benchmark/function/recsplit_load128.cpp -o bin/recsplit_load128_$(LEAF)
 
 ranksel: benchmark/bits/ranksel.cpp
 	@mkdir -p bin

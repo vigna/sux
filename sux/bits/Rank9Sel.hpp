@@ -35,6 +35,10 @@ namespace sux::bits {
  *  A class implementing a combination of Rank9 for ranking and Select9 for selection.
  *  Select9 uses 25%-37.5% additional space (beside the 25% due to Rank9), depending on density,
  *  and provides constant-time selection.
+ *
+ *  **Warning**: if you plan an calling rank(size_t) with
+ *  argument size(), you must have at least one additional
+ *  free bit at the end of the provided bit vector.
  */
 template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public Rank9<AT>, public Select {
   private:
@@ -44,9 +48,10 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
   public:
 	/** Creates a new instance using a given util::Vector.
 	 *
-	 * @param bits a vector.
+	 * @param v a sux::util::Vector of `uint64_t`.
+	 * @param num_bits the length (in bits) of the bit vector.
 	 */
-	// template <typename T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
+	template <typename T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
 
 	/** Creates a new instance using a given bit vector.
 	 *

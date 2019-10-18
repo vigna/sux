@@ -24,16 +24,16 @@ The classes we provide fall into three categories:
 
 All classes are heavily asserted. For testing speed, remember to use `-DNDEBUG`.
 
-We do not provide libraries: you are invited to include the sources with your
-code. Note that in some cases you might need to include additional files (e.g.,
-sux::function::RecSplit is a template but it needs sux::function::DoubleEF
-and sux::function::RiceBitVector to work).
+All provided classes are templates, so you just have to copy the files in
+the `sux` directory somewhere in your include path.
 
 Examples
 --------
 
 - Assuming `v` is a bit vector (i.e., an array of `uint64_t`) and `n` the number
   of bits represented therein,
+
+        #include <sux/bits/Rank9Sel.hpp>
 
         sux::bits::Rank9Sel rs(v, n);
 
@@ -44,13 +44,19 @@ Examples
   using a fixed-size Fenwick tree in classical Fenwick layout over
   strides of sixteen words you must use
 
+        #include <sux/bits/StrideDynRankSel.hpp>
+        #include <sux/util/FenwickFixedF.hpp>
+
         sux::bits::StrideDynRankSel<sux::util::FenwickFixedF, 16> drs(v, n)
 
   Such a structure is ideal if ranking is the most common operation. If selection
   is the most common operation a structure based on a byte-compressed level-order
   tree is faster:
 
-        sux::bits::StrideDynRankSel<sux::util::FenwickByteL, 16> drs(v, n)
+        #include <sux/bits/StrideDynRankSel.hpp>
+        #include <sux/util/FenwickByteL.hpp>
+
+        sux::bits::StrideDynRankSel<sux::util::FenwickByteL, 16> drs(v, n);
 
   In general, by modifying the two template parameters you can use a
   different stride or a different Fenwick tree structure. A stride is
@@ -58,32 +64,45 @@ Examples
   appearing at the border of each stride. Structures with single-word
   strides should be allocated as follows:
 
-        sux::bits::WordDynRankSel<sux::util::FenwickFixedF> drs(v, n)
+        #include <sux/bits/WordDynRankSel.hpp>
+        #include <sux/util/FenwickFixedF.hpp>
+
+        sux::bits::WordDynRankSel<sux::util::FenwickFixedF> drs(v, n);
 
 - Similary, if `v` is a list of `n` values bounded by 10000 a fixed-size
   Fenwick tree in classical Fenwick layout can be created by
 
-        sux::util::FenwickFixedF<10000> drs(v, n)
+        #include <sux/util/FenwickFixedF.hpp>
+
+        sux::util::FenwickFixedF<10000> drs(v, n);
 
   Such a tree is ideal if prefix sums are the most common operations. If
   find is the most operation, again a byte-compressed level-order
   structure is faster:
 
-        sux::util::FenwickByteL<10000> drs(v, n)
+        #include <sux/util/FenwickByteL.hpp>
+
+        sux::util::FenwickByteL<10000> drs(v, n);
 
   For maximum compression, in particular if the bound is very small,
   you can use a bit-compressed tree, which however will be a bit slower:
 
-        sux::util::FenwickBitF<3> drs(v, n)
+        #include <sux/util/FenwickBitF.hpp>
+
+        sux::util::FenwickBitF<3> drs(v, n);
 
 - To create a minimal perfect hash function from a vector of strings `keys`, with
   leaf size 8 and bucket size 100, use
+
+        #include <sux/function/RecSplit.hpp>
 
         sux::function::RecSplit<8> rs(keys, 100)
 
   It will use abount 1.8 bits per key. Increasing the leaf and bucket
   sizes gives much more compact structures (1.56 bits per key), at the
   price of a slower construction time:
+
+        #include <sux/function/RecSplit.hpp>
 
         sux::function::RecSplit<16> rs(keys, 2000)
 
@@ -96,16 +115,41 @@ Memory allocation
 
 Almost all data structures make it possible to allocate memory in
 different ways, and in particular to use transparent large pages (usually,
-2MiB) on Linux. You can use an additional template parameter to specify
-your favorite memory-allocation policy, choosing among the types available
-in sux::util::AllocType. For example,
+2MiB) on Linux. All allocations are based on the class sux::util::Vector,
+which is a zero-cost wrapper around an array (no bound checks), and has
+a template parameter for choosing the allocation strategy depending
+on an item of sux::util::AllocType.
+
+For example,
+
+        #include <sux/util/FenwickFixedF.hpp>
 
         sux::util::FenwickFixedF<10000, MALLOC> f(v, n)
 
 creates a Fenwick tree as above, using a standard `malloc()` call, which
-is the default, and the most compatible approach, but
+is usually the default, and the most compatible approach, but
+
+        #include <sux/util/FenwickFixedF.hpp>
 
         sux::util::FenwickFixedF<10000, TRANSHUGEPAGE> f(v, n)
 
 will try to use transparent huge pages instead, if available.
 
+Analogously,
+
+        #include <sux/function/RecSplit.hpp>
+
+        sux::function::RecSplit<8, TRANSHUGEPAGE> rs(keys, 100)
+
+creates a RecSplit instance using transparent huge pages.
+
+If you want to test rank/select structure using a certain
+allocation strategy, it is usually a good idea to allocate _both_ the
+underlying bit vector _and_ the rank/select structure using the same
+method. You can use sux::util::Vector to this purpose:
+
+        #include <sux/util/Vector.hpp>
+        #include <sux/bits/Rank9Sel.hpp>
+
+        sux::util::Vector<uint64_t, SMALLPAGE> v(1000);
+        sux::bits::Rank9<SMALLPAGE> rs(v.p(), v.size() * sizeof(uint64_t));

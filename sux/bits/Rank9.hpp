@@ -51,9 +51,10 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9 : public Ran
   public:
 	/** Creates a new instance using a given util::Vector.
 	 *
-	 * @param bits a bit vector.
+	 * @param v a sux::util::Vector of `uint64_t`.
 	 * @param num_bits the length (in bits) of the bit vector.
 	 */
+	template <typename T> Rank9(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9(v.p(), num_bits) {}
 
 	// template <util::AllocType T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
 

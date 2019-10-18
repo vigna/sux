@@ -20,7 +20,12 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+
 namespace sux::util {
+
+using namespace std;
 
 /** An interface for classes implementing _searchable prefix sums_.
  *
@@ -45,6 +50,7 @@ namespace sux::util {
  * very same data with a FenwickByteL).
  */
 class SearchablePrefixSums {
+
   public:
 	virtual ~SearchablePrefixSums() = default;
 
