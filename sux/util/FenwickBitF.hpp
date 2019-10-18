@@ -182,17 +182,12 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitF : public Search
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const FenwickBitF<BOUND, AT> &ft) {
-		const uint64_t nsize = htol((uint64_t)ft.Size);
-		os.write((char *)&nsize, sizeof(uint64_t));
-
+		os.write((char *)&ft.Size, sizeof(uint64_t));
 		return os << ft.Tree;
 	}
 
 	friend std::istream &operator>>(std::istream &is, FenwickBitF<BOUND, AT> &ft) {
-		uint64_t nsize;
-		is.read((char *)(&nsize), sizeof(uint64_t));
-		ft.Size = ltoh(nsize);
-
+		is.read((char *)&ft.Size, sizeof(uint64_t));
 		return is >> ft.Tree;
 	}
 };

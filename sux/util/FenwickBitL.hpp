@@ -208,40 +208,16 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitL : public Search
 
   private:
 	friend std::ostream &operator<<(std::ostream &os, const FenwickBitL<BOUND, AT> &ft) {
-		const uint64_t nsize = htol((uint64_t)ft.Size);
-		os.write((char *)&nsize, sizeof(uint64_t));
-
-		const uint64_t nlevels = htol((uint64_t)ft.Levels);
-		os.write((char *)&nlevels, sizeof(uint64_t));
-
-		for (size_t i = 0; i < ft.Levels; ++i) {
-			const uint64_t nlevel = htol((uint64_t)ft.Level[i]);
-			os.write((char *)&nlevel, sizeof(uint64_t));
-		}
-
-		for (size_t i = 0; i < 64; i++) os << ft.Tree[i];
-
+		os.write((char *)&ft.Size, sizeof(uint64_t));
+		os.write((char *)&ft.Levels, sizeof(uint64_t));
+		for (size_t i = 0; i < ft.Levels; i++) os << ft.Tree[i];
 		return os;
 	}
 
 	friend std::istream &operator>>(std::istream &is, FenwickBitL<BOUND, AT> &ft) {
-		uint64_t nsize;
-		is.read((char *)(&nsize), sizeof(uint64_t));
-		ft.Size = ltoh(nsize);
-
-		uint64_t nlevels;
-		is.read((char *)&nlevels, sizeof(uint64_t));
-		ft.Levels = ltoh(nlevels);
-
-		ft.Level = make_unique<size_t[]>(ft.Levels);
-		for (size_t i = 0; i < ft.Levels; ++i) {
-			uint64_t nlevel;
-			is.read((char *)&nlevel, sizeof(uint64_t));
-			ft.Level[i] = ltoh(nlevel);
-		}
-
-		for (size_t i = 0; i < 64; i++) is >> ft.Tree[i];
-
+		is.read((char *)&ft.Size, sizeof(uint64_t));
+		is.read((char *)&ft.Levels, sizeof(uint64_t));
+		for (size_t i = 0; i < ft.Levels; i++) is >> ft.Tree[i];
 		return is;
 	}
 };
