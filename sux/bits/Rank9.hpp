@@ -68,7 +68,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9 : public Ran
 		const uint64_t num_counts = ((num_bits + 64 * 8 - 1) / (64 * 8)) * 2;
 
 		// Init rank structure
-		counts.size(num_counts + 1);
+		counts.size(num_counts + 2);
 
 		num_ones = 0;
 		uint64_t pos = 0;

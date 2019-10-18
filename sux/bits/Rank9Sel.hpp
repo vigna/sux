@@ -273,7 +273,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 		return word * UINT64_C(64) + select64(this->bits[word], rank_in_word);
 	}
 
-	uint64_t bitCount() { this->counts.bitCount() + inventory.bitCount() + subinventory.bitCount() + sizeof(Rank9Sel) * 8; }
+	uint64_t bitCount() { return this->counts.bitCount() + inventory.bitCount() + subinventory.bitCount() + sizeof(Rank9Sel) * 8; }
 };
 
 } // namespace sux::bits

@@ -256,7 +256,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
 	}
 
 	/** Returns an estimate of the size (in bits) of this structure. */
-	uint64_t bitCount() { inventory.bitCount() + exact_spill.bitCount() + sizeof(SimpleSelectZero) * 8; }
+	uint64_t bitCount() { return inventory.bitCount() + exact_spill.bitCount() + sizeof(SimpleSelectZero) * 8; }
 };
 
 } // namespace sux::bits
