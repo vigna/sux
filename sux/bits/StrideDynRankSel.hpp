@@ -32,17 +32,18 @@ namespace sux::bits {
  *  of a searchable prefix-sum data structure and linear
  *  searches on a sequence of words of given length.
  *
- * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
+ * @tparam SPS: Underlying sux::util::SearchablePrefixSums implementation.
  * @tparam WORDS length (in words) of the linear search stride.
- * @tparam AT a type of memory allocation out of util::AllocType.
+ * @tparam SPSAT a type of memory allocation for the underlying structure.
+ * @tparam BVAT a type of memory allocation for the bit vector.
  */
-template <template <size_t, util::AllocType AT> class T, size_t WORDS, util::AllocType AT = util::MALLOC>
+template <template <size_t, util::AllocType SPSAT> class SPS, size_t WORDS, util::AllocType SPSAT = util::MALLOC, util::AllocType BVAT = util::MALLOC>
 class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
 	size_t Size;
-	T<BOUND, AT> Fenwick;
-	util::Vector<uint64_t, AT> Vector;
+	SPS<BOUND, SPSAT> SrcPrefSum;
+	util::Vector<uint64_t, BVAT> Vector;
 
   public:
 	/** Creates a new instance using a given bit vector.
@@ -52,7 +53,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, AT>(divRoundup(size + 1, 64))) {
+	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, BVAT>(divRoundup(size + 1, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
 	}
 
@@ -63,13 +64,13 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	StrideDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.p(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
+	StrideDynRankSel(util::Vector<uint64_t, BVAT> bitvector, size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector.p(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.p(); }
 
 	virtual uint64_t rank(size_t pos) {
 		size_t idx = pos / (64 * WORDS);
-		uint64_t value = Fenwick.prefix(idx);
+		uint64_t value = SrcPrefSum.prefix(idx);
 
 		for (size_t i = idx * WORDS; i < pos / 64; i++) value += nu(Vector[i]);
 
@@ -81,7 +82,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	virtual uint64_t rank(size_t from, size_t to) { return rank(to) - rank(from); }
 
 	virtual size_t select(uint64_t rank) {
-		size_t idx = Fenwick.find(&rank);
+		size_t idx = SrcPrefSum.find(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {
 			uint64_t rank_chunk = nu(Vector[i]);
@@ -95,7 +96,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	}
 
 	virtual size_t selectZero(uint64_t rank) {
-		size_t idx = Fenwick.compFind(&rank);
+		size_t idx = SrcPrefSum.compFind(&rank);
 
 		for (size_t i = idx * WORDS; i < idx * WORDS + WORDS; i++) {
 			uint64_t rank_chunk = nu(~Vector[i]);
@@ -111,7 +112,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	virtual uint64_t update(size_t index, uint64_t word) {
 		uint64_t old = Vector[index];
 		Vector[index] = word;
-		Fenwick.add(index / WORDS + 1, nu(word) - nu(old));
+		SrcPrefSum.add(index / WORDS + 1, nu(word) - nu(old));
 
 		return old;
 	}
@@ -121,7 +122,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		Vector[index / 64] |= uint64_t(1) << (index % 64);
 
 		if (Vector[index / 64] != old) {
-			Fenwick.add(index / (WORDS * 64) + 1, 1);
+			SrcPrefSum.add(index / (WORDS * 64) + 1, 1);
 			return false;
 		}
 
@@ -133,7 +134,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		Vector[index / 64] &= ~(uint64_t(1) << (index % 64));
 
 		if (Vector[index / 64] != old) {
-			Fenwick.add(index / (WORDS * 64) + 1, -1);
+			SrcPrefSum.add(index / (WORDS * 64) + 1, -1);
 			return true;
 		}
 
@@ -144,14 +145,14 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		uint64_t old = Vector[index / 64];
 		Vector[index / 64] ^= uint64_t(1) << (index % 64);
 		bool was_set = Vector[index / 64] < old;
-		Fenwick.add(index / (WORDS * 64) + 1, was_set ? -1 : 1);
+		SrcPrefSum.add(index / (WORDS * 64) + 1, was_set ? -1 : 1);
 
 		return was_set;
 	}
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<T, WORDS, AT>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
+	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<SPS, WORDS, SPSAT, BVAT>) + Vector.bitCount() - sizeof(Vector) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {
@@ -159,28 +160,20 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		return (x / y) + ((x % y != 0) ? 1 : 0);
 	}
 
-	static T<BOUND, AT> buildFenwick(const uint64_t bitvector[], size_t size) {
-		uint64_t *sequence = new uint64_t[divRoundup(size, WORDS)]();
+	static SPS<BOUND, SPSAT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
+    unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(divRoundup(size, WORDS));
 		for (size_t i = 0; i < size; i++) sequence[i / WORDS] += nu(bitvector[i]);
-
-		T<BOUND, AT> tree(sequence, divRoundup(size, WORDS));
-		delete[] sequence;
-		return tree;
+		return SPS<BOUND, SPSAT>(sequence.get(), divRoundup(size, WORDS));
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const StrideDynRankSel<T, WORDS, AT> &bv) {
-		const uint64_t nsize = htol((uint64_t)bv.Size);
-		os.write((char *)&nsize, sizeof(uint64_t));
-
-		return os << bv.Fenwick << bv.Vector;
+	friend std::ostream &operator<<(std::ostream &os, const StrideDynRankSel<SPS, WORDS, SPSAT, BVAT> &bv) {
+		os.write((char *)&bv.Size, sizeof(uint64_t));
+		return os << bv.SrcPrefSum << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, StrideDynRankSel<T, WORDS, AT> &bv) {
-		uint64_t nsize;
-		is.read((char *)(&nsize), sizeof(uint64_t));
-		bv.Size = ltoh(nsize);
-
-		return is >> bv.Fenwick >> bv.Vector;
+	friend std::istream &operator>>(std::istream &is, StrideDynRankSel<SPS, WORDS, SPSAT, BVAT> &bv) {
+		is.read((char *)&bv.Size, sizeof(uint64_t));
+		return is >> bv.SrcPrefSum >> bv.Vector;
 	}
 };
 

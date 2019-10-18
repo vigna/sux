@@ -33,15 +33,17 @@ namespace sux::bits {
  *  operations on a single word.
  *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
- * @tparam AT a type of memory allocation out of util::AllocType.
+ * @tparam SPSAT a type of memory allocation for the underlying structure.
+ * @tparam BVAT a type of memory allocation for the bit vector.
  */
 
-template <template <size_t, util::AllocType AT> class T, util::AllocType AT = util::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t, util::AllocType SPSAT> class SPS, util::AllocType SPSAT = util::MALLOC, util::AllocType BVAT = util::MALLOC>
+class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
-	static constexpr size_t BOUNDSIZE = 64;
+	static constexpr size_t BOUND = 64;
 	size_t Size;
-	T<BOUNDSIZE, AT> Fenwick;
-	util::Vector<uint64_t, AT> Vector;
+	SPS<BOUND, SPSAT> SrcPrefSum;
+	util::Vector<uint64_t, BVAT> Vector;
 
   public:
 	/** Creates a new instance using a given bit vector.
@@ -51,7 +53,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), Fenwick(buildFenwick(bitvector, divRoundup(size, BOUNDSIZE))), Vector(util::Vector<uint64_t, AT>(divRoundup(size + 1, 64))) {
+	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, BOUND))), Vector(util::Vector<uint64_t, BVAT>(divRoundup(size + 1, 64))) {
 		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
 	}
 
@@ -62,16 +64,16 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	WordDynRankSel(util::Vector<uint64_t, AT> bitvector, size_t size) : Size(size), Fenwick(buildFenwick(bitvector.p(), divRoundup(size, BOUNDSIZE))), Vector(std::move(bitvector)) {}
+	WordDynRankSel(util::Vector<uint64_t, BVAT> bitvector, size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector.p(), divRoundup(size, BOUND))), Vector(std::move(bitvector)) {}
 
 	const uint64_t *bitvector() const { return Vector.p(); }
 
 	using Rank::rank;
 	using Rank::rankZero;
-	virtual uint64_t rank(size_t pos) { return Fenwick.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1)); }
+	virtual uint64_t rank(size_t pos) { return SrcPrefSum.prefix(pos / 64) + nu(Vector[pos / 64] & ((1ULL << (pos % 64)) - 1)); }
 
 	virtual size_t select(uint64_t rank) {
-		size_t idx = Fenwick.find(&rank);
+		size_t idx = SrcPrefSum.find(&rank);
 
 		uint64_t rank_chunk = nu(Vector[idx]);
 		if (rank < rank_chunk) return idx * 64 + select64(Vector[idx], rank);
@@ -80,7 +82,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	}
 
 	virtual size_t selectZero(uint64_t rank) {
-		const size_t idx = Fenwick.compFind(&rank);
+		const size_t idx = SrcPrefSum.compFind(&rank);
 
 		uint64_t rank_chunk = nu(~Vector[idx]);
 		if (rank < rank_chunk) return idx * 64 + select64(~Vector[idx], rank);
@@ -91,7 +93,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 	virtual uint64_t update(size_t index, uint64_t word) {
 		uint64_t old = Vector[index];
 		Vector[index] = word;
-		Fenwick.add(index + 1, nu(word) - nu(old));
+		SrcPrefSum.add(index + 1, nu(word) - nu(old));
 
 		return old;
 	}
@@ -101,7 +103,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 		Vector[index / 64] |= uint64_t(1) << (index % 64);
 
 		if (Vector[index / 64] != old) {
-			Fenwick.add(index / 64 + 1, 1);
+			SrcPrefSum.add(index / 64 + 1, 1);
 			return false;
 		}
 
@@ -113,7 +115,7 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 		Vector[index / 64] &= ~(uint64_t(1) << (index % 64));
 
 		if (Vector[index / 64] != old) {
-			Fenwick.add(index / 64 + 1, -1);
+			SrcPrefSum.add(index / 64 + 1, -1);
 			return true;
 		}
 
@@ -124,40 +126,32 @@ template <template <size_t, util::AllocType AT> class T, util::AllocType AT = ut
 		uint64_t old = Vector[index / 64];
 		Vector[index / 64] ^= uint64_t(1) << (index % 64);
 		bool was_set = Vector[index / 64] < old;
-		Fenwick.add(index / 64 + 1, was_set ? -1 : 1);
+		SrcPrefSum.add(index / 64 + 1, was_set ? -1 : 1);
 
 		return was_set;
 	}
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(WordDynRankSel<T, AT>) + Vector.bitCount() - sizeof(Vector) + Fenwick.bitCount() - sizeof(Fenwick); }
+	virtual size_t bitCount() const { return sizeof(WordDynRankSel<SPS, SPSAT, BVAT>) + Vector.bitCount() - sizeof(Vector) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) { return (x + y - 1) / y; }
 
-	T<BOUNDSIZE, AT> buildFenwick(const uint64_t bitvector[], size_t size) {
-		uint64_t *sequence = new uint64_t[size];
+	SPS<BOUND, SPSAT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
+    unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(size);
 		for (size_t i = 0; i < size; i++) sequence[i] = nu(bitvector[i]);
-
-		T<BOUNDSIZE, AT> tree(sequence, size);
-		delete[] sequence;
-		return tree;
+		return SPS<BOUND, SPSAT>(sequence.get(), size);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const WordDynRankSel<T, AT> &bv) {
-		const uint64_t nsize = htol((uint64_t)bv.Size);
-		os.write((char *)&nsize, sizeof(uint64_t));
-
-		return os << bv.Fenwick << bv.Vector;
+	friend std::ostream &operator<<(std::ostream &os, const WordDynRankSel<SPS, SPSAT, BVAT> &bv) {
+		os.write((char *)&bv.Size, sizeof(uint64_t));
+		return os << bv.SrcPrefSum << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, WordDynRankSel<T, AT> &bv) {
-		uint64_t nsize;
-		is.read((char *)(&nsize), sizeof(uint64_t));
-		bv.Size = ltoh(nsize);
-
-		return is >> bv.Fenwick >> bv.Vector;
+	friend std::istream &operator>>(std::istream &is, WordDynRankSel<SPS, SPSAT, BVAT> &bv) {
+		is.read((char *)&bv.Size, sizeof(uint64_t));
+		return is >> bv.SrcPrefSum >> bv.Vector;
 	}
 };
 
