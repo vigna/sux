@@ -136,7 +136,7 @@ static void run_rankselect(std::size_t size) {
 	}
 
 	// selectZero
-	poslim = std::min(size - 1, SimpleSelectZero.selectZero(Rank9Sel.rankZero(size) - 1));
+	poslim = std::min(size - 1, (size_t)SimpleSelectZero.selectZero(Rank9Sel.rankZero(size) - 1));
 	for (size_t pos = 0; pos < poslim; pos++) {
 		auto res = Rank9Sel.rankZero(pos);
 		EXPECT_EQ(res, EliasFano.rankZero(pos));
