@@ -2,7 +2,7 @@ CXXFLAGS = -g -std=c++17 -Wall -Wextra -O0 -march=native -l gtest -I./ -fsanitiz
 
 bin/bits: test/bits/* sux/bits/* sux/util/Vector.hpp sux/support/*
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) test/bits/test.cpp sux/bits/Rank9.cpp sux/bits/Rank9Sel.cpp sux/bits/SimpleSelect.cpp sux/bits/SimpleSelectZero.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp -o bin/bits
+	$(CXX) $(CXXFLAGS) test/bits/test.cpp -o bin/bits
 
 bin/util: test/util/* sux/util/* sux/support/*
 	@mkdir -p bin
@@ -29,13 +29,13 @@ recsplit: benchmark/function/recsplit_*
 
 ranksel: benchmark/bits/ranksel.cpp
 	@mkdir -p bin
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=0 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp benchmark/bits/ranksel.cpp -o bin/testsimplesel0
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=1 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp benchmark/bits/ranksel.cpp -o bin/testsimplesel1
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=2 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp benchmark/bits/ranksel.cpp -o bin/testsimplesel2
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=3 sux/bits/Rank9.cpp sux/bits/SimpleSelect.cpp benchmark/bits/ranksel.cpp -o bin/testsimplesel3
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelectHalf -DNORANKTEST sux/bits/Rank9.cpp sux/bits/SimpleSelectHalf.cpp benchmark/bits/ranksel.cpp -o bin/testsimplehalf
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano sux/bits/Rank9.cpp sux/bits/SimpleSelectHalf.cpp sux/bits/SimpleSelectZeroHalf.cpp sux/bits/EliasFano.cpp benchmark/bits/ranksel.cpp -o bin/testeliasfano
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel sux/bits/Rank9Sel.cpp benchmark/bits/ranksel.cpp -o bin/testrank9sel
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=0 benchmark/bits/ranksel.cpp -o bin/testsimplesel0
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=1 benchmark/bits/ranksel.cpp -o bin/testsimplesel1
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=2 benchmark/bits/ranksel.cpp -o bin/testsimplesel2
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=3 benchmark/bits/ranksel.cpp -o bin/testsimplesel3
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelectHalf -DNORANKTEST benchmark/bits/ranksel.cpp -o bin/testsimplehalf
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano benchmark/bits/ranksel.cpp -o bin/testeliasfano
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel benchmark/bits/ranksel.cpp -o bin/testrank9sel
 
 fenwick: benchmark/util/fenwick.cpp
 	@mkdir -p bin/fenwick

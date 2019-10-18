@@ -11,8 +11,8 @@
 #include <sux/util/FenwickFixedF.hpp>
 #include <sux/util/FenwickFixedL.hpp>
 
-#include <sux/bits/WordDynRankSel.hpp>
 #include <sux/bits/StrideDynRankSel.hpp>
+#include <sux/bits/WordDynRankSel.hpp>
 
 #include "../../test/xoroshiro128pp.hpp"
 
@@ -21,12 +21,11 @@ using namespace sux;
 using namespace sux::util;
 using namespace sux::bits;
 
-
 template <class RANKSEL> void runall(std::string name, size_t size, size_t queries) {
 	uint64_t u = 0;
 	const double c = 1. / queries;
 
-  uint64_t *bitvect = new uint64_t[(size + 63) / 64];
+	uint64_t *bitvect = new uint64_t[(size + 63) / 64];
 
 	uint64_t ones = 0;
 	for (size_t i = 0; i < (size + 63) / 64; i++) {
@@ -40,7 +39,7 @@ template <class RANKSEL> void runall(std::string name, size_t size, size_t queri
 	cout << name << endl;
 	RANKSEL bv(bitvect, size);
 
-  delete bitvect;
+	delete bitvect;
 
 	// fenwick.reserve(size); // pushing becomes inexpensive
 
@@ -88,18 +87,17 @@ int main(int argc, char **argv) {
 	runall<StrideDynRankSel<FenwickFixedF, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickFixedF", size, queries);
 	runall<StrideDynRankSel<FenwickFixedL, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickFixedL", size, queries);
 	runall<StrideDynRankSel<FenwickByteF, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickByteF", size, queries);
-  runall<StrideDynRankSel<FenwickByteL, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickByteL", size, queries);
-  runall<StrideDynRankSel<FenwickBitF, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickBitF", size, queries);
-  runall<StrideDynRankSel<FenwickBitL, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickBitL", size, queries);
+	runall<StrideDynRankSel<FenwickByteL, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickByteL", size, queries);
+	runall<StrideDynRankSel<FenwickBitF, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickBitF", size, queries);
+	runall<StrideDynRankSel<FenwickBitL, SET_STRIDE, AT>>(std::string("\nStrideDynRankSel of ") + STRINGIFY(SET_STRIDE) + "through FenwickBitL", size, queries);
 #else
 	runall<WordDynRankSel<FenwickFixedF, AT>>(std::string("\nWordDynRankSel through FenwickFixedF"), size, queries);
 	runall<WordDynRankSel<FenwickFixedL, AT>>(std::string("\nWordDynRankSel through FenwickFixedL"), size, queries);
 	runall<WordDynRankSel<FenwickByteF, AT>>(std::string("\nWordDynRankSel through FenwickByteF"), size, queries);
 	runall<WordDynRankSel<FenwickByteL, AT>>(std::string("\nWordDynRankSel through FenwickByteL"), size, queries);
-  runall<WordDynRankSel<FenwickBitF, AT>>(std::string("\nWordDynRankSel through FenwickBitF"), size, queries);
-  runall<WordDynRankSel<FenwickBitL, AT>>(std::string("\nWordDynRankSel through FenwickBitL"), size, queries);
+	runall<WordDynRankSel<FenwickBitF, AT>>(std::string("\nWordDynRankSel through FenwickBitF"), size, queries);
+	runall<WordDynRankSel<FenwickBitL, AT>>(std::string("\nWordDynRankSel through FenwickBitL"), size, queries);
 #endif
-
 
 	return 0;
 }

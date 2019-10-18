@@ -195,15 +195,13 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteL : public Searc
 
 	virtual void resize(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 0; i < levels; i++)
-			Tree[i].resize(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
-  }
+		for (size_t i = 0; i < levels; i++) Tree[i].resize(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
+	}
 
 	virtual void size(size_t space) {
 		size_t levels = lambda(space) + 1;
-		for (size_t i = 0; i < levels; i++)
-			Tree[i].size(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
-  }
+		for (size_t i = 0; i < levels; i++) Tree[i].size(((space + (1ULL << i)) / (1ULL << (i + 1))) * heightsize(i) + 8);
+	}
 
 	virtual size_t size() const { return Size; }
 

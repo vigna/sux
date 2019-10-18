@@ -235,7 +235,8 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 			assert(mem != NULL && "malloc failed");
 		} else {
 			space = page_aligned(size);
-			if (_capacity == 0) mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
+			if (_capacity == 0)
+				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
 			else {
 #ifndef MREMAP_MAYMOVE
 				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);

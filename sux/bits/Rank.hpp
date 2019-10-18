@@ -20,9 +20,12 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 namespace sux {
+
+using namespace std;
 
 /** An interface specifying ranking primitives.
  *

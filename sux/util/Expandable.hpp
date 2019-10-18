@@ -29,8 +29,8 @@
 namespace sux::util {
 
 /** A generic interface for classes that have size (the current
-  * number of elements) and capacity (the number of elements
-  * that can be added before a reallocation happens). */
+ * number of elements) and capacity (the number of elements
+ * that can be added before a reallocation happens). */
 
 class Expandable {
   public:
@@ -75,7 +75,7 @@ class Expandable {
 	virtual void size(size_t size) = 0;
 
 	/** Trims the data structure to the given capacity
-   *
+	 *
 	 * provided it is larger than the current size.
 	 * @param capacity the new desired capacity.
 	 */

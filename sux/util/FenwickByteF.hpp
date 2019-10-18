@@ -139,7 +139,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public Searc
 
 	virtual void resize(size_t space) { Tree.resize(pos(space) + 8); }
 
-  virtual void size(size_t space) { Tree.size(pos(space) + 8); };
+	virtual void size(size_t space) { Tree.size(pos(space) + 8); };
 
 	virtual size_t size() const { return Size; }
 
