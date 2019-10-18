@@ -25,9 +25,6 @@
 #include "Select.hpp"
 #include <cstdint>
 
-#define ONES_PER_INVENTORY (512)
-#define LOG2_ONES_PER_INVENTORY (9)
-#define INVENTORY_MASK (ONES_PER_INVENTORY - 1)
 
 namespace sux::bits {
 
@@ -42,8 +39,12 @@ namespace sux::bits {
  */
 template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public Rank9<AT>, public Select {
   private:
+	const int log2_ones_per_inventory = 9;
+	const int ones_per_inventory = 1 << log2_ones_per_inventory;
+	const uint64_t inventory_mask = ones_per_inventory - 1;
+
 	util::Vector<uint64_t, AT> inventory, subinventory;
-	uint64_t inventory_size, ones_per_inventory, log2_ones_per_inventory;
+	uint64_t inventory_size;
 
   public:
 	/** Creates a new instance using a given util::Vector.
@@ -51,7 +52,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 	 * @param v a sux::util::Vector of `uint64_t`.
 	 * @param num_bits the length (in bits) of the bit vector.
 	 */
-	template <typename T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
+	//template <T> Rank9Sel(const util::Vector<uint64_t, T> v, const uint64_t num_bits) : Rank9Sel(v.p(), num_bits) {}
 
 	/** Creates a new instance using a given bit vector.
 	 *
@@ -61,12 +62,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 
 	Rank9Sel(const uint64_t *const bits, const uint64_t num_bits) : Rank9<AT>(bits, num_bits) {
 		const uint64_t num_words = (num_bits + 63) / 64;
-		inventory_size = (this->num_ones + ONES_PER_INVENTORY - 1) / ONES_PER_INVENTORY;
+		inventory_size = (this->num_ones + ones_per_inventory - 1) / ones_per_inventory;
 
 #ifdef DEBUG
-		printf("Number of ones per inventory item: %d\n", ONES_PER_INVENTORY);
+		printf("Number of ones per inventory item: %d\n", ones_per_inventory);
 #endif
-		assert(ONES_PER_INVENTORY <= 8 * 64);
+		assert(ones_per_inventory <= 8 * 64);
 
 		inventory.size(inventory_size + 1);
 		subinventory.size((num_words + 3) / 4);
@@ -75,8 +76,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 		for (uint64_t i = 0; i < num_words; i++)
 			for (int j = 0; j < 64; j++)
 				if (bits[i] & 1ULL << j) {
-					if ((d & INVENTORY_MASK) == 0) {
-						inventory[d >> LOG2_ONES_PER_INVENTORY] = i * 64 + j;
+					if ((d & inventory_mask) == 0) {
+						inventory[d >> log2_ones_per_inventory] = i * 64 + j;
 						assert(this->counts[(i / 8) * 2] <= d);
 						assert(this->counts[(i / 8) * 2 + 2] > d);
 					}
@@ -89,7 +90,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 
 #ifdef DEBUG
 		printf("Inventory size: %" PRId64 "\n", inventory_size);
-		printf("Inventory entries filled: %" PRId64 "\n", d / ONES_PER_INVENTORY + 1);
+		printf("Inventory entries filled: %" PRId64 "\n", d / ones_per_inventory + 1);
 		// printf("First inventories: %" PRId64 " %" PRId64 " %" PRId64 " %" PRId64 "\n", inventory[0],
 		// inventory[1], inventory[2],
 		//       inventory[3]);
@@ -102,9 +103,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 		for (uint64_t i = 0; i < num_words; i++)
 			for (int j = 0; j < 64; j++)
 				if (bits[i] & 1ULL << j) {
-					if ((d & INVENTORY_MASK) == 0) {
+					if ((d & inventory_mask) == 0) {
 						first_bit = i * 64 + j;
-						index = d >> LOG2_ONES_PER_INVENTORY;
+						index = d >> log2_ones_per_inventory;
 						assert(inventory[index] == first_bit);
 						s = &subinventory[(inventory[index] / 64) / 4];
 						span = (inventory[index + 1] / 64) / 4 - (inventory[index] / 64) / 4;
@@ -162,18 +163,18 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 
 					switch (state) {
 					case 0:
-						assert(s[d & INVENTORY_MASK] == 0);
-						s[d & INVENTORY_MASK] = i * 64 + j;
+						assert(s[d & inventory_mask] == 0);
+						s[d & inventory_mask] = i * 64 + j;
 						break;
 					case 1:
-						assert(((uint32_t *)s)[d & INVENTORY_MASK] == 0);
+						assert(((uint32_t *)s)[d & inventory_mask] == 0);
 						assert(i * 64 + j - first_bit < (1ULL << 32));
-						((uint32_t *)s)[d & INVENTORY_MASK] = i * 64 + j - first_bit;
+						((uint32_t *)s)[d & inventory_mask] = i * 64 + j - first_bit;
 						break;
 					case 2:
-						assert(((uint16_t *)s)[d & INVENTORY_MASK] == 0);
+						assert(((uint16_t *)s)[d & inventory_mask] == 0);
 						assert(i * 64 + j - first_bit < (1 << 16));
-						((uint16_t *)s)[d & INVENTORY_MASK] = i * 64 + j - first_bit;
+						((uint16_t *)s)[d & inventory_mask] = i * 64 + j - first_bit;
 						break;
 					}
 
@@ -182,7 +183,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 	}
 
 	size_t select(const uint64_t rank) {
-		const uint64_t inventory_index_left = rank >> LOG2_ONES_PER_INVENTORY;
+		const uint64_t inventory_index_left = rank >> log2_ones_per_inventory;
 		assert(inventory_index_left <= inventory_size);
 
 		const uint64_t inventory_left = inventory[inventory_index_left];
@@ -247,11 +248,11 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 			printf("Found where (2): %d rank_in_block: %" PRId64 " block_left: %" PRId64 "\n", where1, rank_in_block, block_left);
 #endif
 		} else if (span < 256) {
-			return ((uint16_t *)s)[rank % ONES_PER_INVENTORY] + inventory_left;
+			return ((uint16_t *)s)[rank % ones_per_inventory] + inventory_left;
 		} else if (span < 512) {
-			return ((uint32_t *)s)[rank % ONES_PER_INVENTORY] + inventory_left;
+			return ((uint32_t *)s)[rank % ones_per_inventory] + inventory_left;
 		} else {
-			return s[rank % ONES_PER_INVENTORY];
+			return s[rank % ones_per_inventory];
 		}
 
 		const uint64_t rank_in_block_step_9 = rank_in_block * ONES_STEP_9;

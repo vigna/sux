@@ -20,7 +20,6 @@
 
 #pragma once
 
-#define MAX_ZEROS_PER_INVENTORY (8192)
 #include "../support/common.hpp"
 #include "../util/Vector.hpp"
 #include "SelectZero.hpp"
@@ -40,6 +39,8 @@ using namespace std;
 
 template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
   private:
+	const int max_zeros_per_inventory = 8192;
+
 	const uint64_t *bits;
 	util::Vector<int64_t, AT> inventory;
 	util::Vector<uint64_t, AT> exact_spill;
@@ -69,7 +70,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
 		if (num_bits % 64 != 0) c -= 64 - num_bits % 64;
 		assert(c <= num_bits);
 
-		zeros_per_inventory = num_bits == 0 ? 0 : (c * MAX_ZEROS_PER_INVENTORY + num_bits - 1) / num_bits;
+		zeros_per_inventory = num_bits == 0 ? 0 : (c * max_zeros_per_inventory + num_bits - 1) / num_bits;
 		// Make zeros_per_inventory into a power of 2
 		log2_zeros_per_inventory = max(0, lambda_safe(zeros_per_inventory));
 		zeros_per_inventory = 1ULL << log2_zeros_per_inventory;

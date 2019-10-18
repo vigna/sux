@@ -25,17 +25,17 @@
 #include "SelectZero.hpp"
 #include <cstdint>
 
-#define LOG2_ONES_PER_INVENTORY (10)
-#define ONES_PER_INVENTORY (1 << LOG2_ONES_PER_INVENTORY)
-#define ONES_PER_INVENTORY_MASK (ONES_PER_INVENTORY - 1)
+#define LOG2_ZEROS_PER_INVENTORY (10)
+#define ZEROS_PER_INVENTORY (1 << LOG2_ZEROS_PER_INVENTORY)
+#define ZEROS_PER_INVENTORY_MASK (ZEROS_PER_INVENTORY - 1)
 #define LOG2_LONGWORDS_PER_SUBINVENTORY (2)
 #define LONGWORDS_PER_SUBINVENTORY (1 << LOG2_LONGWORDS_PER_SUBINVENTORY)
-#define LOG2_ONES_PER_SUB64 (LOG2_ONES_PER_INVENTORY - LOG2_LONGWORDS_PER_SUBINVENTORY)
-#define ONES_PER_SUB64 (1 << LOG2_ONES_PER_SUB64)
-#define ONES_PER_SUB64_MASK (ONES_PER_SUB64 - 1)
-#define LOG2_ONES_PER_SUB16 (LOG2_ONES_PER_SUB64 - 2)
-#define ONES_PER_SUB16 (1 << LOG2_ONES_PER_SUB16)
-#define ONES_PER_SUB16_MASK (ONES_PER_SUB16 - 1)
+#define LOG2_ZEROS_PER_SUB64 (LOG2_ZEROS_PER_INVENTORY - LOG2_LONGWORDS_PER_SUBINVENTORY)
+#define ZEROS_PER_SUB64 (1 << LOG2_ZEROS_PER_SUB64)
+#define ZEROS_PER_SUB64_MASK (ZEROS_PER_SUB64 - 1)
+#define LOG2_ZEROS_PER_SUB16 (LOG2_ZEROS_PER_SUB64 - 2)
+#define ZEROS_PER_SUB16 (1 << LOG2_ZEROS_PER_SUB16)
+#define ZEROS_PER_SUB16_MASK (ZEROS_PER_SUB16 - 1)
 
 namespace sux::bits {
 
@@ -56,7 +56,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 	const uint64_t *bits;
 	util::Vector<int64_t, AT> inventory;
 
-	uint64_t num_words, inventory_size, num_ones;
+	uint64_t num_words, inventory_size, num_zeros;
 
   public:
 	SimpleSelectZeroHalf() {}
@@ -73,30 +73,30 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 		// Init rank/select structure
 		uint64_t c = 0;
 		for (uint64_t i = 0; i < num_words; i++) c += __builtin_popcountll(~bits[i]);
-		num_ones = c;
+		num_zeros = c;
 
 		if (num_bits % 64 != 0) c -= 64 - num_bits % 64;
 		assert(c <= num_bits);
 
-		inventory_size = (c + ONES_PER_INVENTORY - 1) / ONES_PER_INVENTORY;
+		inventory_size = (c + ZEROS_PER_INVENTORY - 1) / ZEROS_PER_INVENTORY;
 
 #ifdef DEBUG
-		printf("Number of bits: %" PRId64 " Number of ones: %" PRId64 " (%.2f%%)\n", num_bits, c, (c * 100.0) / num_bits);
+		printf("Number of bits: %" PRId64 " Number of zeros: %" PRId64 " (%.2f%%)\n", num_bits, c, (c * 100.0) / num_bits);
 
-		printf("Ones per inventory: %d Ones per sub 64: %d sub 16: %d\n", ONES_PER_INVENTORY, ONES_PER_SUB64, ONES_PER_SUB16);
+		printf("Ones per inventory: %d Ones per sub 64: %d sub 16: %d\n", ZEROS_PER_INVENTORY, ZEROS_PER_SUB64, ZEROS_PER_SUB16);
 #endif
 
 		inventory.size(inventory_size * (LONGWORDS_PER_SUBINVENTORY + 1) + 1);
 
 		uint64_t d = 0;
-		const uint64_t mask = ONES_PER_INVENTORY - 1;
+		const uint64_t mask = ZEROS_PER_INVENTORY - 1;
 
-		// First phase: we build an inventory for each one out of ONES_PER_INVENTORY.
+		// First phase: we build an inventory for each one out of ZEROS_PER_INVENTORY.
 		for (uint64_t i = 0; i < num_words; i++)
 			for (int j = 0; j < 64; j++) {
 				if (i * 64 + j >= num_bits) break;
 				if (~bits[i] & 1ULL << j) {
-					if ((d & mask) == 0) inventory[(d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1)] = i * 64 + j;
+					if ((d & mask) == 0) inventory[(d >> LOG2_ZEROS_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1)] = i * 64 + j;
 					d++;
 				}
 			}
@@ -120,7 +120,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 				if (i * 64 + j >= num_bits) break;
 				if (~bits[i] & 1ULL << j) {
 					if ((d & mask) == 0) {
-						inventory_index = (d >> LOG2_ONES_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1);
+						inventory_index = (d >> LOG2_ZEROS_PER_INVENTORY) * (LONGWORDS_PER_SUBINVENTORY + 1);
 						start = inventory[inventory_index];
 						span = inventory[inventory_index + LONGWORDS_PER_SUBINVENTORY + 1] - start;
 						if (span > (1 << 16)) inventory[inventory_index] = -inventory[inventory_index] - 1;
@@ -131,12 +131,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 
 					if (span < (1 << 16)) {
 						assert(i * 64 + j - start <= (1 << 16));
-						if ((d & ONES_PER_SUB16_MASK) == 0) {
+						if ((d & ZEROS_PER_SUB16_MASK) == 0) {
 							assert(offset < LONGWORDS_PER_SUBINVENTORY * 4);
 							p16[offset++] = i * 64 + j - start;
 						}
 					} else {
-						if ((d & ONES_PER_SUB64_MASK) == 0) {
+						if ((d & ZEROS_PER_SUB64_MASK) == 0) {
 							assert(offset < LONGWORDS_PER_SUBINVENTORY);
 							p64[offset++] = i * 64 + j - start;
 							exact++;
@@ -158,14 +158,14 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 #ifdef DEBUG
 		printf("Selecting %" PRId64 "\n...", rank);
 #endif
-		assert(rank < num_ones);
+		assert(rank < num_zeros);
 
-		const uint64_t inventory_index = rank >> LOG2_ONES_PER_INVENTORY;
+		const uint64_t inventory_index = rank >> LOG2_ZEROS_PER_INVENTORY;
 		assert(inventory_index <= inventory_size);
 		const int64_t *inventory_start = inventory.p() + (inventory_index << LOG2_LONGWORDS_PER_SUBINVENTORY) + inventory_index;
 
 		const int64_t inventory_rank = *inventory_start;
-		const int subrank = rank & ONES_PER_INVENTORY_MASK;
+		const int subrank = rank & ZEROS_PER_INVENTORY_MASK;
 #ifdef DEBUG
 		printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank, inventory_index, inventory_rank, subrank);
 #endif
@@ -174,12 +174,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 		int residual;
 
 		if (inventory_rank >= 0) {
-			start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> LOG2_ONES_PER_SUB16];
-			residual = subrank & ONES_PER_SUB16_MASK;
+			start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> LOG2_ZEROS_PER_SUB16];
+			residual = subrank & ZEROS_PER_SUB16_MASK;
 		} else {
-			assert((subrank >> LOG2_ONES_PER_SUB64) < LONGWORDS_PER_SUBINVENTORY);
-			start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> LOG2_ONES_PER_SUB64));
-			residual = subrank & ONES_PER_SUB64_MASK;
+			assert((subrank >> LOG2_ZEROS_PER_SUB64) < LONGWORDS_PER_SUBINVENTORY);
+			start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> LOG2_ZEROS_PER_SUB64));
+			residual = subrank & ZEROS_PER_SUB64_MASK;
 		}
 
 #ifdef DEBUG

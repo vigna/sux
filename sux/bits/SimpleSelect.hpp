@@ -20,7 +20,6 @@
 
 #pragma once
 
-#define MAX_ONES_PER_INVENTORY (8192)
 #include "../support/common.hpp"
 #include "../util/Vector.hpp"
 #include "Select.hpp"
@@ -41,6 +40,8 @@ using namespace std;
 
 template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelect : public Select {
   private:
+	const int max_ones_per_inventory = 8192;
+
 	const uint64_t *bits;
 	util::Vector<int64_t, AT> inventory;
 	util::Vector<uint64_t, AT> exact_spill;
@@ -69,7 +70,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelect : pub
 
 		assert(c <= num_bits);
 
-		ones_per_inventory = num_bits == 0 ? 0 : (c * MAX_ONES_PER_INVENTORY + num_bits - 1) / num_bits;
+		ones_per_inventory = num_bits == 0 ? 0 : (c * max_ones_per_inventory + num_bits - 1) / num_bits;
 		// Make ones_per_inventory into a power of 2
 		log2_ones_per_inventory = max(0, lambda_safe(ones_per_inventory));
 		ones_per_inventory = 1ULL << log2_ones_per_inventory;
