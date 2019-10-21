@@ -37,13 +37,13 @@ namespace sux::bits {
  * @tparam SPSAT a type of memory allocation for the underlying structure.
  * @tparam BVAT a type of memory allocation for the bit vector.
  */
-template <template <size_t, util::AllocType SPSAT> class SPS, size_t WORDS, util::AllocType SPSAT = util::MALLOC, util::AllocType BVAT = util::MALLOC>
+template <template <size_t, util::AllocType AT> class SPS, size_t WORDS, util::AllocType AT = util::AllocType::MALLOC>
 class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64 * WORDS;
+	uint64_t *const Vector;
 	size_t Size;
-	SPS<BOUND, SPSAT> SrcPrefSum;
-	util::Vector<uint64_t, BVAT> Vector;
+	SPS<BOUND, AT> SrcPrefSum;
 
   public:
 	/** Creates a new instance using a given bit vector.
@@ -53,20 +53,9 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	StrideDynRankSel(uint64_t bitvector[], size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, 64))), Vector(util::Vector<uint64_t, BVAT>(divRoundup(size + 1, 64))) {
-		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
-	}
+	StrideDynRankSel(uint64_t bitvector[], size_t size) : Vector(bitvector), Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, 64))) {}
 
-	/** Creates a new instance using a given bit vector.
-	 *
-	 * Note that thte argument Vector will not be copied.
-	 *
-	 * @param bitvector a bit vector of 64-bit words.
-	 * @param size the length (in bits) of the bit vector.
-	 */
-	StrideDynRankSel(util::Vector<uint64_t, BVAT> bitvector, size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector.p(), divRoundup(size, 64))), Vector(std::move(bitvector)) {}
-
-	const uint64_t *bitvector() const { return Vector.p(); }
+	uint64_t *bitvector() const { return Vector; }
 
 	virtual uint64_t rank(size_t pos) {
 		size_t idx = pos / (64 * WORDS);
@@ -152,7 +141,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<SPS, WORDS, SPSAT, BVAT>) + Vector.bitCount() - sizeof(Vector) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
+	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<SPS, WORDS, AT>) + ((Size + 63) & ~63) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {
@@ -160,18 +149,18 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 		return (x / y) + ((x % y != 0) ? 1 : 0);
 	}
 
-	static SPS<BOUND, SPSAT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
-    unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(divRoundup(size, WORDS));
+	static SPS<BOUND, AT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
+		unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(divRoundup(size, WORDS));
 		for (size_t i = 0; i < size; i++) sequence[i / WORDS] += nu(bitvector[i]);
-		return SPS<BOUND, SPSAT>(sequence.get(), divRoundup(size, WORDS));
+		return SPS<BOUND, AT>(sequence.get(), divRoundup(size, WORDS));
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const StrideDynRankSel<SPS, WORDS, SPSAT, BVAT> &bv) {
+	friend std::ostream &operator<<(std::ostream &os, const StrideDynRankSel<SPS, WORDS, AT> &bv) {
 		os.write((char *)&bv.Size, sizeof(uint64_t));
 		return os << bv.SrcPrefSum << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, StrideDynRankSel<SPS, WORDS, SPSAT, BVAT> &bv) {
+	friend std::istream &operator>>(std::istream &is, StrideDynRankSel<SPS, WORDS, AT> &bv) {
 		is.read((char *)&bv.Size, sizeof(uint64_t));
 		return is >> bv.SrcPrefSum >> bv.Vector;
 	}

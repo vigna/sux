@@ -93,7 +93,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
 #endif
 
 		inventory.size(inventory_size * longwords_per_inventory + 1);
-		const int64_t *end_of_inventory = inventory.p() + inventory_size * longwords_per_inventory + 1;
+		const int64_t *end_of_inventory = &inventory + inventory_size * longwords_per_inventory + 1;
 
 		uint64_t d = 0;
 
@@ -210,7 +210,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZero {
 #endif
 
 		const uint64_t inventory_index = rank >> log2_zeros_per_inventory;
-		const int64_t *inventory_start = inventory.p() + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
+		const int64_t *inventory_start = &inventory + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
 		assert(inventory_index <= inventory_size);
 
 		const int64_t inventory_rank = *inventory_start;

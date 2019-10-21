@@ -27,7 +27,7 @@ template <class RANKSEL, typename AT> void runall(std::string name, size_t size,
 	uint64_t u = 0;
 	const double c = 1. / queries;
 
-	Vector<uint64_t, AT>bitvect((size + 63) / 64);
+	Vector<uint64_t, AT> bitvect((size + 63) / 64);
 
 	uint64_t ones = 0;
 	for (size_t i = 0; i < (size + 63) / 64; i++) {

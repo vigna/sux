@@ -162,7 +162,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 
 		const uint64_t inventory_index = rank >> log2_ones_per_inventory;
 		assert(inventory_index <= inventory_size);
-		const int64_t *inventory_start = inventory.p() + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
+		const int64_t *inventory_start = &inventory + (inventory_index << log2_longwords_per_subinventory) + inventory_index;
 
 		const int64_t inventory_rank = *inventory_start;
 		const int subrank = rank & ones_per_inventory_mask;

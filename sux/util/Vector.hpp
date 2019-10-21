@@ -196,9 +196,6 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	}
 
 	/** Returns a pointer at the start of the backing array. */
-	inline T *p() const { return data; }
-
-	/** Returns a pointer at the start of the backing array. */
 	inline T *operator&() const { return data; }
 
 	/** Returns the given element of the vector. */
@@ -270,7 +267,7 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	friend std::ostream &operator<<(std::ostream &os, const Vector<T, AT> &vector) {
 		const uint64_t nsize = vector.size();
 		os.write((char *)&nsize, sizeof(uint64_t));
-		os.write((char *)vector.p(), vector.size() * sizeof(T));
+		os.write((char *)&vector, vector.size() * sizeof(T));
 		return os;
 	}
 
@@ -278,7 +275,7 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 		uint64_t nsize;
 		is.read((char *)&nsize, sizeof(uint64_t));
 		vector = Vector<T, AT>(nsize);
-		is.read((char *)vector.p(), vector.size() * sizeof(T));
+		is.read((char *)&vector, vector.size() * sizeof(T));
 		return is;
 	}
 };

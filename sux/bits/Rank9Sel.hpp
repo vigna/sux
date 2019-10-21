@@ -25,7 +25,6 @@
 #include "Select.hpp"
 #include <cstdint>
 
-
 namespace sux::bits {
 
 /**

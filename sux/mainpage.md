@@ -69,6 +69,9 @@ Examples
 
         sux::bits::WordDynRankSel<sux::util::FenwickFixedF> drs(v, n);
 
+  Note that after the construction you should modify the vector `v` only 
+  by means of the methods of the structure.
+
 - Similary, if `v` is a list of `n` values bounded by 10000 a fixed-size
   Fenwick tree in classical Fenwick layout can be created by
 
@@ -90,6 +93,9 @@ Examples
         #include <sux/util/FenwickBitF.hpp>
 
         sux::util::FenwickBitF<3> drs(v, n);
+
+  Note that `v` is read at construction time, but it is not referenced
+  afterwards.
 
 - To create a minimal perfect hash function from a vector of strings `keys`, with
   leaf size 8 and bucket size 100, use
@@ -143,7 +149,7 @@ Analogously,
 
 creates a RecSplit instance using transparent huge pages.
 
-If you want to test rank/select structure using a certain
+If you want to test a static rank/select structure using a certain
 allocation strategy, it is usually a good idea to allocate _both_ the
 underlying bit vector _and_ the rank/select structure using the same
 method. You can use sux::util::Vector to this purpose:
@@ -152,4 +158,6 @@ method. You can use sux::util::Vector to this purpose:
         #include <sux/bits/Rank9Sel.hpp>
 
         sux::util::Vector<uint64_t, SMALLPAGE> v(1000);
-        sux::bits::Rank9<SMALLPAGE> rs(v.p(), v.size() * sizeof(uint64_t));
+        sux::bits::Rank9<SMALLPAGE> rs(&v, num_bits);
+
+where `num_bits` is less than 64000.

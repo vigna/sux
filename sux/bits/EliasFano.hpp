@@ -56,9 +56,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	uint64_t msbs_step_l;
 	uint64_t compressor;
 
-	__inline static void set(util::Vector<uint64_t, AT>& bits, const uint64_t pos) { bits[pos / 64] |= 1ULL << pos % 64; }
+	__inline static void set(util::Vector<uint64_t, AT> &bits, const uint64_t pos) { bits[pos / 64] |= 1ULL << pos % 64; }
 
-	__inline static uint64_t get_bits(util::Vector<uint64_t, AT>& bits, const uint64_t start, const int width) {
+	__inline static uint64_t get_bits(util::Vector<uint64_t, AT> &bits, const uint64_t start, const int width) {
 		const int start_word = start / 64;
 		const int start_bit = start % 64;
 		const int total_offset = start_bit + width;
@@ -66,7 +66,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		return (total_offset <= 64 ? result : result | bits[start_word + 1] << (64 - start_bit)) & ((1ULL << width) - 1);
 	}
 
-	__inline static void set_bits(util::Vector<uint64_t, AT>& bits, const uint64_t start, const int width, const uint64_t value) {
+	__inline static void set_bits(util::Vector<uint64_t, AT> &bits, const uint64_t start, const int width, const uint64_t value) {
 		const uint64_t start_word = start / 64;
 		const uint64_t end_word = (start + width - 1) / 64;
 		const uint64_t start_bit = start % 64;

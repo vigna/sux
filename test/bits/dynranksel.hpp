@@ -12,160 +12,167 @@
 
 TEST(dynranksel, all_ones) {
 	using namespace sux;
-	constexpr size_t ELEMS = 16;
-	constexpr size_t BITELEMS = ELEMS * 64;
-	uint64_t bitvect[ELEMS] = {UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX,
-							   UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX, UINT64_MAX};
 
-	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
+	for (size_t size = 0; size <= 2049; size++) {
+		printf("size: %lu\n", size);
+		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
+		for (size_t i = 0; i < size; i++) bitvect[i / 64] |= UINT64_C(1) << i % 64;
 
-	// rank
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
-	}
+		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
+		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
+		bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, size);
+		bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
+		bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, size);
+		bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
 
-	// rankZero
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(0, fixedf.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(0, fixedl.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(0, bytef.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(0, bytel.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(0, bitf.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(0, bitl.rankZero(i)) << "at index " << i;
-	}
+		// rank
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
+		}
 
-	// select
-	for (size_t i = 0; i < BITELEMS; i++) {
-		EXPECT_EQ(i, fixedf.select(i)) << "at index " << i;
-		EXPECT_EQ(i, fixedl.select(i)) << "at index " << i;
-		EXPECT_EQ(i, bytef.select(i)) << "at index " << i;
-		EXPECT_EQ(i, bytel.select(i)) << "at index " << i;
-		EXPECT_EQ(i, bitf.select(i)) << "at index " << i;
-		EXPECT_EQ(i, bitl.select(i)) << "at index " << i;
-	}
+		// rankZero
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(0, fixedf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(0, fixedl.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(0, bytef.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(0, bytel.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(0, bitf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(0, bitl.rankZero(i)) << "at index " << i;
+		}
 
-	// update
-	for (size_t i = 0; i < ELEMS; i++) {
-		fixedf.update(i, 1);
-		fixedl.update(i, 1);
-		bytef.update(i, 1);
-		bytel.update(i, 1);
-		bitf.update(i, 1);
-		bitl.update(i, 1);
-	}
+		// select
+		for (size_t i = 0; i < size; i++) {
+			EXPECT_EQ(i, fixedf.select(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.select(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.select(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.select(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.select(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.select(i)) << "at index " << i;
+		}
 
-	// select (check update correctness)
-	for (size_t i = 0; i < ELEMS; i++) {
-		EXPECT_EQ(i * 64, fixedf.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64, fixedl.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64, bytef.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64, bytel.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64, bitf.select(i)) << "at index " << i;
-		EXPECT_EQ(i * 64, bitl.select(i)) << "at index " << i;
-	}
+		// update
+		for (size_t i = 0; i < (size + 63) / 64; i++) {
+			fixedf.update(i, 1);
+			fixedl.update(i, 1);
+			bytef.update(i, 1);
+			bytel.update(i, 1);
+			bitf.update(i, 1);
+			bitl.update(i, 1);
+		}
 
-	// update
-	for (size_t i = 0; i < ELEMS; i++) {
-		fixedf.update(i, UINT64_MAX);
-		fixedl.update(i, UINT64_MAX);
-		bytef.update(i, UINT64_MAX);
-		bytel.update(i, UINT64_MAX);
-		bitf.update(i, UINT64_MAX);
-		bitl.update(i, UINT64_MAX);
-	}
+		// select (check update correctness)
+		for (size_t i = 0; i < size; i++) {
+			EXPECT_EQ(i * 64, fixedf.select(i)) << "at index " << i;
+			EXPECT_EQ(i * 64, fixedl.select(i)) << "at index " << i;
+			EXPECT_EQ(i * 64, bytef.select(i)) << "at index " << i;
+			EXPECT_EQ(i * 64, bytel.select(i)) << "at index " << i;
+			EXPECT_EQ(i * 64, bitf.select(i)) << "at index " << i;
+			EXPECT_EQ(i * 64, bitl.select(i)) << "at index " << i;
+		}
 
-	// rank (check update correctness)
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
-		EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
+		// update
+		for (size_t i = 0; i < (size + 63) / 64; i++) {
+			fixedf.update(i, UINT64_MAX);
+			fixedl.update(i, UINT64_MAX);
+			bytef.update(i, UINT64_MAX);
+			bytel.update(i, UINT64_MAX);
+			bitf.update(i, UINT64_MAX);
+			bitl.update(i, UINT64_MAX);
+		}
+
+		// rank (check update correctness)
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
+		}
+
+		delete[] bitvect;
 	}
 }
 
 TEST(dynranksel, all_zeroes) {
 	using namespace sux;
-	constexpr size_t ELEMS = 16;
-	constexpr size_t BITELEMS = ELEMS * 64;
-	uint64_t bitvect[ELEMS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, BITELEMS);
-	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, BITELEMS);
+	for (size_t size = 0; size <= 2049; size++) {
+		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
 
-	// rank
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bytel.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bitf.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bitl.rank(i)) << "at index " << i;
-	}
+		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
+		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
+		bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, size);
+		bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
+		bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, size);
+		bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
 
-	// rankZero
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(i, fixedf.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(i, fixedl.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bytef.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bytel.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bitf.rankZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bitl.rankZero(i)) << "at index " << i;
-	}
+		// rank
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bytel.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bitf.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bitl.rank(i)) << "at index " << i;
+		}
 
-	// selectZero
-	for (size_t i = 0; i < BITELEMS; i++) {
-		EXPECT_EQ(i, fixedf.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(i, fixedl.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bytef.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bytel.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bitf.selectZero(i)) << "at index " << i;
-		EXPECT_EQ(i, bitl.selectZero(i)) << "at index " << i;
-	}
+		// rankZero
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(i, fixedf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.rankZero(i)) << "at index " << i;
+		}
 
-	// update
-	for (size_t i = 0; i < ELEMS; i++) {
-		fixedf.update(i, 0b10);
-		fixedl.update(i, 0b10);
-		bytef.update(i, 0b10);
-		bytel.update(i, 0b10);
-		bitf.update(i, 0b10);
-		bitl.update(i, 0b10);
-	}
+		// selectZero
+		for (size_t i = 0; i < size; i++) {
+			EXPECT_EQ(i, fixedf.selectZero(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.selectZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.selectZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.selectZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.selectZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.selectZero(i)) << "at index " << i;
+		}
 
-	// update
-	for (size_t i = 0; i < ELEMS; i++) {
-		fixedf.update(i, 0);
-		fixedl.update(i, 0);
-		bytef.update(i, 0);
-		bytel.update(i, 0);
-		bitf.update(i, 0);
-		bitl.update(i, 0);
-	}
+		// update
+		for (size_t i = 0; i < (size + 63) / 64; i++) {
+			fixedf.update(i, 0b10);
+			fixedl.update(i, 0b10);
+			bytef.update(i, 0b10);
+			bytel.update(i, 0b10);
+			bitf.update(i, 0b10);
+			bitl.update(i, 0b10);
+		}
 
-	// rank (check update correctness)
-	for (size_t i = 0; i <= BITELEMS; i++) {
-		EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bytel.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bitf.rank(i)) << "at index " << i;
-		EXPECT_EQ(0, bitl.rank(i)) << "at index " << i;
+		// update
+		for (size_t i = 0; i < (size + 63) / 64; i++) {
+			fixedf.update(i, 0);
+			fixedl.update(i, 0);
+			bytef.update(i, 0);
+			bytel.update(i, 0);
+			bitf.update(i, 0);
+			bitl.update(i, 0);
+		}
+
+		// rank (check update correctness)
+		for (size_t i = 0; i <= size; i++) {
+			EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bytel.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bitf.rank(i)) << "at index " << i;
+			EXPECT_EQ(0, bitl.rank(i)) << "at index " << i;
+		}
+
+		delete[] bitvect;
 	}
 }
 

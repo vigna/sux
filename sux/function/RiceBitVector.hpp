@@ -55,7 +55,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 
 			data.resize((((bit_count + log2golomb + 7) / 8) + 7 + 7) / 8);
 
-			uint64_t *append_ptr = data.p() + bit_count / 64;
+			uint64_t *append_ptr = &data + bit_count / 64;
 			uint64_t cur_word = *append_ptr;
 
 			cur_word |= lower_bits << used_bits;
@@ -78,7 +78,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 
 			for (const auto &u : unary) {
 				bit_count += u;
-				uint64_t *append_ptr = data.p() + bit_count / 64;
+				uint64_t *append_ptr = &data + bit_count / 64;
 				*append_ptr |= uint64_t(1) << (bit_count & 63);
 				++bit_count;
 			}
@@ -141,7 +141,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		result <<= log2golomb;
 
 		uint64_t fixed;
-		memcpy(&fixed, (uint8_t *)data.p() + curr_fixed_offset / 8, 8);
+		memcpy(&fixed, (uint8_t *)&data + curr_fixed_offset / 8, 8);
 		result |= (fixed >> curr_fixed_offset % 8) & ((uint64_t(1) << log2golomb) - 1);
 		curr_fixed_offset += log2golomb;
 		return result;
@@ -167,7 +167,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 		// assert(bit_pos < bit_count);
 		curr_fixed_offset = bit_pos;
 		size_t unary_pos = bit_pos + unary_offset;
-		curr_ptr_unary = data.p() + unary_pos / 64;
+		curr_ptr_unary = &data + unary_pos / 64;
 		curr_window_unary = *(curr_ptr_unary++) >> (unary_pos & 63);
 		valid_lower_bits_unary = 64 - (unary_pos & 63);
 	}

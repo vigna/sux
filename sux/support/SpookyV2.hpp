@@ -26,8 +26,8 @@
 // slower than MD5.
 //
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 #define ALLOW_UNALIGNED_READS 1
@@ -49,7 +49,8 @@ class SpookyHash {
 	//   When run forward or backwards one Mix
 	// I tried 3 pairs of each; they all differed by at least 212 bits.
 	//
-	static inline void Mix(const uint64_t *data, uint64_t &s0, uint64_t &s1, uint64_t &s2, uint64_t &s3, uint64_t &s4, uint64_t &s5, uint64_t &s6, uint64_t &s7, uint64_t &s8, uint64_t &s9, uint64_t &s10, uint64_t &s11) {
+	static inline void Mix(const uint64_t *data, uint64_t &s0, uint64_t &s1, uint64_t &s2, uint64_t &s3, uint64_t &s4, uint64_t &s5, uint64_t &s6, uint64_t &s7, uint64_t &s8, uint64_t &s9,
+						   uint64_t &s10, uint64_t &s11) {
 		s0 += data[0];
 		s2 ^= s10;
 		s11 ^= s0;
@@ -128,7 +129,8 @@ class SpookyHash {
 	// Two iterations was almost good enough for a 64-bit result, but a
 	// 128-bit result is reported, so End() does three iterations.
 	//
-	static inline void EndPartial(uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9, uint64_t &h10, uint64_t &h11) {
+	static inline void EndPartial(uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9, uint64_t &h10,
+								  uint64_t &h11) {
 		h11 += h1;
 		h2 ^= h11;
 		h1 = Rot64(h1, 44);
@@ -167,7 +169,8 @@ class SpookyHash {
 		h0 = Rot64(h0, 54);
 	}
 
-	static inline void End(const uint64_t *data, uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9, uint64_t &h10, uint64_t &h11) {
+	static inline void End(const uint64_t *data, uint64_t &h0, uint64_t &h1, uint64_t &h2, uint64_t &h3, uint64_t &h4, uint64_t &h5, uint64_t &h6, uint64_t &h7, uint64_t &h8, uint64_t &h9,
+						   uint64_t &h10, uint64_t &h11) {
 		h0 += data[0];
 		h1 += data[1];
 		h2 += data[2];
@@ -307,7 +310,6 @@ class SpookyHash {
 	static const uint64_t sc_const = 0xdeadbeefdeadbeefLL;
 
   public:
-
 	/** Hashes short data to 128 bits.
 	 *
 	 * This version has a lower startup cost, and it is more efficient
@@ -318,10 +320,7 @@ class SpookyHash {
 	 * @param hash1 in seed 1, out hash 1.
 	 * @param hash2 in seed 2, out hash 2.
 	 */
-	static void Short128(const void *data,
-					  size_t length, 
-					  uint64_t *hash1,
-					  uint64_t *hash2) {
+	static void Short128(const void *data, size_t length, uint64_t *hash1, uint64_t *hash2) {
 		uint64_t buf[2 * sc_numVars];
 		union {
 			const uint8_t *p8;
@@ -502,5 +501,4 @@ class SpookyHash {
 		Hash128(data, length, &hash1, &seed);
 		return hash1;
 	}
-
 };

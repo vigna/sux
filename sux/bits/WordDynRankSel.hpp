@@ -32,18 +32,21 @@ namespace sux::bits {
  *  of a searchable prefix-sum data structure and broadword
  *  operations on a single word.
  *
+ *  **Warning**: if you plan an calling rank(size_t) with
+ *  argument size(), you must have at least one additional
+ *  free bit at the end of the provided bit vector.
+ *
  * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
  * @tparam SPSAT a type of memory allocation for the underlying structure.
  * @tparam BVAT a type of memory allocation for the bit vector.
  */
 
-template <template <size_t, util::AllocType SPSAT> class SPS, util::AllocType SPSAT = util::MALLOC, util::AllocType BVAT = util::MALLOC>
-class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
+template <template <size_t, util::AllocType AT> class SPS, util::AllocType AT = util::AllocType::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
   private:
 	static constexpr size_t BOUND = 64;
+	uint64_t *const Vector;
 	size_t Size;
-	SPS<BOUND, SPSAT> SrcPrefSum;
-	util::Vector<uint64_t, BVAT> Vector;
+	SPS<BOUND, AT> SrcPrefSum;
 
   public:
 	/** Creates a new instance using a given bit vector.
@@ -53,20 +56,9 @@ class WordDynRankSel : public DynamicBitVector, public Rank, public Select, publ
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.
 	 */
-	WordDynRankSel(uint64_t bitvector[], size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, BOUND))), Vector(util::Vector<uint64_t, BVAT>(divRoundup(size + 1, 64))) {
-		std::copy_n(bitvector, divRoundup(size, 64), Vector.p());
-	}
+	WordDynRankSel(uint64_t bitvector[], size_t size) : Vector(bitvector), Size(size), SrcPrefSum(buildSrcPrefSum(bitvector, divRoundup(size, BOUND))) {}
 
-	/** Creates a new instance using a given bit vector.
-	 *
-	 * Note that thte argument Vector will not be copied.
-	 *
-	 * @param bitvector a bit vector of 64-bit words.
-	 * @param size the length (in bits) of the bit vector.
-	 */
-	WordDynRankSel(util::Vector<uint64_t, BVAT> bitvector, size_t size) : Size(size), SrcPrefSum(buildSrcPrefSum(bitvector.p(), divRoundup(size, BOUND))), Vector(std::move(bitvector)) {}
-
-	const uint64_t *bitvector() const { return Vector.p(); }
+	uint64_t *bitvector() const { return Vector; }
 
 	using Rank::rank;
 	using Rank::rankZero;
@@ -74,7 +66,6 @@ class WordDynRankSel : public DynamicBitVector, public Rank, public Select, publ
 
 	virtual size_t select(uint64_t rank) {
 		size_t idx = SrcPrefSum.find(&rank);
-
 		uint64_t rank_chunk = nu(Vector[idx]);
 		if (rank < rank_chunk) return idx * 64 + select64(Vector[idx], rank);
 
@@ -133,23 +124,23 @@ class WordDynRankSel : public DynamicBitVector, public Rank, public Select, publ
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(WordDynRankSel<SPS, SPSAT, BVAT>) + Vector.bitCount() - sizeof(Vector) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
+	virtual size_t bitCount() const { return sizeof(WordDynRankSel<SPS, AT>) + ((Size + 63) & ~63) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) { return (x + y - 1) / y; }
 
-	SPS<BOUND, SPSAT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
-    unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(size);
+	SPS<BOUND, AT> buildSrcPrefSum(const uint64_t bitvector[], size_t size) {
+		unique_ptr<uint64_t[]> sequence = make_unique<uint64_t[]>(size);
 		for (size_t i = 0; i < size; i++) sequence[i] = nu(bitvector[i]);
-		return SPS<BOUND, SPSAT>(sequence.get(), size);
+		return SPS<BOUND, AT>(sequence.get(), size);
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const WordDynRankSel<SPS, SPSAT, BVAT> &bv) {
+	friend std::ostream &operator<<(std::ostream &os, const WordDynRankSel<SPS, AT> &bv) {
 		os.write((char *)&bv.Size, sizeof(uint64_t));
 		return os << bv.SrcPrefSum << bv.Vector;
 	}
 
-	friend std::istream &operator>>(std::istream &is, WordDynRankSel<SPS, SPSAT, BVAT> &bv) {
+	friend std::istream &operator>>(std::istream &is, WordDynRankSel<SPS, AT> &bv) {
 		is.read((char *)&bv.Size, sizeof(uint64_t));
 		return is >> bv.SrcPrefSum >> bv.Vector;
 	}
