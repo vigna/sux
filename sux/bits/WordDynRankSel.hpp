@@ -29,16 +29,20 @@
 namespace sux::bits {
 
 /** Ranking and selection in a dynamic bit vector by means
- *  of a searchable prefix-sum data structure and broadword
- *  operations on a single word.
+ * of a searchable prefix-sum data structure and broadword
+ * operations on a single word.
  *
- *  **Warning**: if you plan an calling rank(size_t) with
- *  argument size(), you must have at least one additional
- *  free bit at the end of the provided bit vector.
+ * The constructors of this class only store a reference
+ * to a provided bit vector. The content of the bit vector
+ * should be changed only through the mutation methods of
+ * this class, or the results will be unpredictable.
  *
- * @tparam T: Underlying sux::util::SearchablePrefixSums implementation.
- * @tparam SPSAT a type of memory allocation for the underlying structure.
- * @tparam BVAT a type of memory allocation for the bit vector.
+ * **Warning**: if you plan an calling rank(size_t) with
+ * argument size(), you must have at least one additional
+ * free bit at the end of the provided bit vector.
+ *
+ * @tparam SPS underlying sux::util::SearchablePrefixSums implementation.
+ * @tparam AT a type of memory allocation for the underlying structure.
  */
 
 template <template <size_t, util::AllocType AT> class SPS, util::AllocType AT = util::AllocType::MALLOC> class WordDynRankSel : public DynamicBitVector, public Rank, public Select, public SelectZero {
@@ -51,7 +55,14 @@ template <template <size_t, util::AllocType AT> class SPS, util::AllocType AT = 
   public:
 	/** Creates a new instance using a given bit vector.
 	 *
-	 * Note that the bit vector will be copied.
+	 * Thus constructor only store a reference
+	 * to the provided bit vector. The content of the bit vector
+	 * should be changed only through the mutation methods of
+	 * this class, or the results will be unpredictable.
+	 *
+	 * **Warning**: if you plan an calling rank(size_t) with
+	 * argument size(), you must have at least one additional
+	 * free bit at the end of the provided bit vector.
 	 *
 	 * @param bitvector a bit vector of 64-bit words.
 	 * @param size the length (in bits) of the bit vector.

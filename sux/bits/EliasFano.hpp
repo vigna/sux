@@ -86,6 +86,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
   public:
 	/** Creates a new instance using a given bit vector.
 	 *
+	 * Note that the bit vector is read only at construction time.
+	 *
 	 * @param bits a bit vector of 64-bit words.
 	 * @param num_bits the length (in bits) of the bit vector.
 	 */
@@ -155,7 +157,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	/** Creates a new instance using an
 	 *  explicit list of positions for the ones in a bit vector.
 	 *
-	 *  Note that in practice this constructor builds an Elias-Fano
+	 *  Note that the list is read only at construction time.
+	 *
+	 *  In practice this constructor builds an Elias-Fano
 	 *  representation of the given list. select(const uint64_t rank) will retrieve
 	 *  an element of the list, and rank(const size_t pos) will return how many
 	 *  element of the list are smaller than the argument.

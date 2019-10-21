@@ -164,9 +164,10 @@ underlying bit vector _and_ the rank/select structure using the same
 method. You can use sux::util::Vector to this purpose:
 
         #include <sux/util/Vector.hpp>
-        #include <sux/bits/Rank9Sel.hpp>
+        #include <sux/bits/Rank9.hpp>
 
         sux::util::Vector<uint64_t, SMALLPAGE> v(1000);
+        // Modify v
         sux::bits::Rank9<SMALLPAGE> r(&v, num_bits);
 
 where `num_bits` is less than 64000. The `&` operator applied to an

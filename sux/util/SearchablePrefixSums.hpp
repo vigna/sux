@@ -38,16 +38,9 @@ using namespace std;
  * included, because the typical implementation is by a Fenwick
  * tree, for which indexing from 1 is natural.
  *
- * Each SearchablePrefixSums is serializable and deserializable with:
+ * An implementation of SearchablePrefixSums should be serializable and deserializable with:
  * - friend std::ostream &operator<<(std::ostream &os, const SearchablePrefixSums &ft);
  * - friend std::istream &operator>>(std::istream &is, SearchablePrefixSums &ft);
- *
- * The data is stored and loaded in little-endian byte order to guarantee
- * compatibility on different architectures.
- *
- * The serialized data follows the compression and node ordering of the specific Fenwick tree
- * without any compatibility layer (e.g., if you serialize a FenwickFixedF, you cannot deserialize the
- * very same data with a FenwickByteL).
  */
 class SearchablePrefixSums {
 

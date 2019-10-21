@@ -31,7 +31,11 @@ using namespace std;
 using namespace sux;
 
 /** A simple Select implementation based on a two-level inventory,
- *  and wired for approximately the same number of zeros and ones.
+ * and wired for approximately the same number of zeros and ones.
+ *
+ * The constructors of this class only store a reference
+ * to a provided bit vector. Should the content of the
+ * bit vector change, the results will be unpredictable.
  *
  * This implementation has been specifically developed to be used
  * with EliasFano.

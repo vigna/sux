@@ -46,6 +46,9 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public Sear
 
 	/** Creates a new instance with given vector of values.
 	 *
+	 * Note that the provided sequence is read at construction time but
+	 * it will not be referenced afterwards.
+	 *
 	 * @param sequence a sequence of nonnegative integers smaller than or equal to the template parameter `BOUND`.
 	 * @param size the number of elements in the sequence.
 	 */

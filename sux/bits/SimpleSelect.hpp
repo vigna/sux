@@ -35,6 +35,10 @@ using namespace std;
  * under the same conditions, provide very fast selects. For very unevenly distributed arrays
  * the space occupancy will grow significantly, and access time might vary wildly.
  *
+ * The constructors of this class only store a reference
+ * to a provided bit vector. Should the content of the
+ * bit vector change, the results will be unpredictable.
+ *
  * @tparam AT a type of memory allocation out of sux::util::AllocType.
  */
 

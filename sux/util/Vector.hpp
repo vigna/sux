@@ -51,18 +51,20 @@ enum AllocType {
 
 /** An expandable vector with settable type of memory allocation.
  *
- *  Instances of this class have a behavior similar to std::vector.
- *  However, the strategy used for allocation memory can be selected.
+ * Instances of this class have a behavior similar to std::vector.
+ * However, the strategy used for allocation memory can be selected.
+ * Moreover, the class is just a thin wrapper around a backing array:
+ * in particular, there are no bound checks.
  *
- *  Once enough capacity has been allocated through reserve(size_t),
- *  p() is a pointer to the first element and all allocated space can
- *  be used directly, if necessary.
+ * Once enough capacity has been allocated through reserve(size_t),
+ * the operator operator&() will return a pointer to the backing array
+ * and the allocated space can be used directly, if necessary.
  *
- *  Vector implements the standard `<<` and `>>` operators for simple
- *  serialization and deserialization.
+ * This class implements the standard `<<` and `>>` operators for simple
+ * serialization and deserialization.
  *
- *  @tparam T the data type.
- *  @tparam AT a type of memory allocation out of ::AllocType.
+ * @tparam T the data type of an element.
+ * @tparam AT a type of memory allocation out of ::AllocType.
  */
 
 template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {

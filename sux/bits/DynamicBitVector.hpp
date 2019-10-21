@@ -29,9 +29,6 @@ namespace sux::bits {
  * overloaded operators:
  * - friend std::ostream &operator<<(std::ostream &os, const TYPE &t);
  * - friend std::istream &operator>>(std::istream &is, TYPE &t);
- *
- * The data should be stored and loaded in little-endian byte order to guarantee
- * compatibility on different architectures.
  */
 class DynamicBitVector {
   public:
