@@ -50,11 +50,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedL : public Sear
 	 * @param size the number of elements in the sequence.
 	 */
 	FenwickFixedL(uint64_t sequence[], size_t size) : Levels(size != 0 ? lambda(size) + 1 : 1), Size(size) {
-		for (size_t i = 0; i < Levels; i++) {
-			size_t elems = (size + (1ULL << i)) / (1ULL << (i + 1));
-			Tree[i].reserve(elems);
-			Tree[i].resize(elems);
-		}
+    this->size(size ? size : 1);
 
 		for (size_t l = 0; l < Levels; l++) {
 			for (size_t node = 1ULL << l; node <= size; node += 1ULL << (l + 1)) {

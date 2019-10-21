@@ -14,16 +14,26 @@ TEST(dynranksel, all_ones) {
 	using namespace sux;
 
 	for (size_t size = 0; size <= 2049; size++) {
-		printf("size: %lu\n", size);
-		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
-		for (size_t i = 0; i < size; i++) bitvect[i / 64] |= UINT64_C(1) << i % 64;
+		uint64_t *bvfixedf = new uint64_t[size / 64 + 1]();
+		uint64_t *bvfixedl = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbytef = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbytel = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbitf = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
 
-		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
-		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
-		bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, size);
-		bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
-		bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, size);
-		bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
+		for (size_t i = 0; i < size; i++) bvfixedf[i / 64] |= UINT64_C(1) << i % 64;
+    memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+    memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+    memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+    memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+    memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+
+		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
+		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
+		bits::WordDynRankSel<util::FenwickByteF> bytef(bvbytef, size);
+		bits::WordDynRankSel<util::FenwickByteL> bytel(bvbytel, size);
+		bits::WordDynRankSel<util::FenwickBitF> bitf(bvbitf, size);
+		bits::WordDynRankSel<util::FenwickBitL> bitl(bvbitl, size);
 
 		// rank
 		for (size_t i = 0; i <= size; i++) {
@@ -56,46 +66,31 @@ TEST(dynranksel, all_ones) {
 		}
 
 		// update
-		for (size_t i = 0; i < (size + 63) / 64; i++) {
-			fixedf.update(i, 1);
-			fixedl.update(i, 1);
-			bytef.update(i, 1);
-			bytel.update(i, 1);
-			bitf.update(i, 1);
-			bitl.update(i, 1);
-		}
-
-		// select (check update correctness)
 		for (size_t i = 0; i < size; i++) {
-			EXPECT_EQ(i * 64, fixedf.select(i)) << "at index " << i;
-			EXPECT_EQ(i * 64, fixedl.select(i)) << "at index " << i;
-			EXPECT_EQ(i * 64, bytef.select(i)) << "at index " << i;
-			EXPECT_EQ(i * 64, bytel.select(i)) << "at index " << i;
-			EXPECT_EQ(i * 64, bitf.select(i)) << "at index " << i;
-			EXPECT_EQ(i * 64, bitl.select(i)) << "at index " << i;
+			fixedf.clear(i);
+			fixedl.clear(i);
+			bytef.clear(i);
+			bytel.clear(i);
+			bitf.clear(i);
+			bitl.clear(i);
 		}
 
-		// update
-		for (size_t i = 0; i < (size + 63) / 64; i++) {
-			fixedf.update(i, UINT64_MAX);
-			fixedl.update(i, UINT64_MAX);
-			bytef.update(i, UINT64_MAX);
-			bytel.update(i, UINT64_MAX);
-			bitf.update(i, UINT64_MAX);
-			bitl.update(i, UINT64_MAX);
+		// rankZero (check update correctness)
+		for (size_t i = 0; i < size; i++) {
+			EXPECT_EQ(i, fixedf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.rankZero(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.rankZero(i)) << "at index " << i;
 		}
 
-		// rank (check update correctness)
-		for (size_t i = 0; i <= size; i++) {
-			EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
-			EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
-			EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
-			EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
-			EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
-			EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
-		}
-
-		delete[] bitvect;
+    delete[] bvbitl;
+    delete[] bvbitf;
+    delete[] bvbytel;
+    delete[] bvbytef;
+    delete[] bvfixedl;
+    delete[] bvfixedf;
 	}
 }
 
@@ -103,14 +98,19 @@ TEST(dynranksel, all_zeroes) {
 	using namespace sux;
 
 	for (size_t size = 0; size <= 2049; size++) {
-		uint64_t *bitvect = new uint64_t[size / 64 + 1]();
+		uint64_t *bvfixedf = new uint64_t[size / 64 + 1]();
+		uint64_t *bvfixedl = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbytef = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbytel = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbitf = new uint64_t[size / 64 + 1]();
+		uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
 
-		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
-		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
-		bits::WordDynRankSel<util::FenwickByteF> bytef(bitvect, size);
-		bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
-		bits::WordDynRankSel<util::FenwickBitF> bitf(bitvect, size);
-		bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
+		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
+		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
+		bits::WordDynRankSel<util::FenwickByteF> bytef(bvbytef, size);
+		bits::WordDynRankSel<util::FenwickByteL> bytel(bvbytel, size);
+		bits::WordDynRankSel<util::FenwickBitF> bitf(bvbitf, size);
+		bits::WordDynRankSel<util::FenwickBitL> bitl(bvbitl, size);
 
 		// rank
 		for (size_t i = 0; i <= size; i++) {
@@ -143,36 +143,31 @@ TEST(dynranksel, all_zeroes) {
 		}
 
 		// update
-		for (size_t i = 0; i < (size + 63) / 64; i++) {
-			fixedf.update(i, 0b10);
-			fixedl.update(i, 0b10);
-			bytef.update(i, 0b10);
-			bytel.update(i, 0b10);
-			bitf.update(i, 0b10);
-			bitl.update(i, 0b10);
-		}
-
-		// update
-		for (size_t i = 0; i < (size + 63) / 64; i++) {
-			fixedf.update(i, 0);
-			fixedl.update(i, 0);
-			bytef.update(i, 0);
-			bytel.update(i, 0);
-			bitf.update(i, 0);
-			bitl.update(i, 0);
+		for (size_t i = 0; i < size; i++) {
+			fixedf.set(i);
+			fixedl.set(i);
+			bytef.set(i);
+			bytel.set(i);
+			bitf.set(i);
+			bitl.set(i);
 		}
 
 		// rank (check update correctness)
-		for (size_t i = 0; i <= size; i++) {
-			EXPECT_EQ(0, fixedf.rank(i)) << "at index " << i;
-			EXPECT_EQ(0, fixedl.rank(i)) << "at index " << i;
-			EXPECT_EQ(0, bytef.rank(i)) << "at index " << i;
-			EXPECT_EQ(0, bytel.rank(i)) << "at index " << i;
-			EXPECT_EQ(0, bitf.rank(i)) << "at index " << i;
-			EXPECT_EQ(0, bitl.rank(i)) << "at index " << i;
+		for (size_t i = 0; i < size; i++) {
+			EXPECT_EQ(i, fixedf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, fixedl.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytef.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bytel.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitf.rank(i)) << "at index " << i;
+			EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
 		}
 
-		delete[] bitvect;
+    delete[] bvbitl;
+    delete[] bvbitf;
+    delete[] bvbytel;
+    delete[] bvbytef;
+    delete[] bvfixedl;
+    delete[] bvfixedf;
 	}
 }
 
@@ -180,33 +175,57 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	using namespace sux;
 	const size_t words = size / 64 + ((size % 64 != 0) ? 1 : 0);
 
-	uint64_t *bitvect = new uint64_t[words];
-	uint64_t *updates = new uint64_t[words];
+  uint64_t *bvfixedf = new uint64_t[size / 64 + 1]();
+  uint64_t *bvfixedl = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbytef = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbytel = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbitf = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
+  uint64_t *bvfixedfS = new uint64_t[size / 64 + 1]();
+  uint64_t *bvfixedlS = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbytefS = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbytelS = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbitfS = new uint64_t[size / 64 + 1]();
+  uint64_t *bvbitlS = new uint64_t[size / 64 + 1]();
+
+	uint64_t *updates = new uint64_t[words + 1]();
 
 	uint64_t ones = 0;
 	for (size_t i = 0; i < (size + 63) / 64; i++) {
-		bitvect[i] = next();
-		if (i == (size + 63) / 64 - 1 && size % 64 != 0) bitvect[i] &= (UINT64_C(1) << size % 64) - 1;
-		ones += __builtin_popcountll(bitvect[i]);
+		bvfixedf[i] = next();
+		if (i == (size + 63) / 64 - 1 && size % 64 != 0) bvfixedf[i] &= (UINT64_C(1) << size % 64) - 1;
+		ones += __builtin_popcountll(bvfixedf[i]);
 	}
+
+  memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvfixedfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvfixedlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbytefS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbytelS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbitfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+  memcpy(bvbitlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
 
 	const size_t zeros = size - ones;
 
 	// word
-	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bitvect, size);
-	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bitvect, size);
-	bits::WordDynRankSel<util::FenwickBitF> bit(bitvect, size);
-	bits::WordDynRankSel<util::FenwickBitL> bitl(bitvect, size);
-	bits::WordDynRankSel<util::FenwickByteF> byte(bitvect, size);
-	bits::WordDynRankSel<util::FenwickByteL> bytel(bitvect, size);
+  bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
+  bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
+  bits::WordDynRankSel<util::FenwickByteF> byte(bvbytef, size);
+  bits::WordDynRankSel<util::FenwickByteL> bytel(bvbytel, size);
+  bits::WordDynRankSel<util::FenwickBitF> bit(bvbitf, size);
+  bits::WordDynRankSel<util::FenwickBitL> bitl(bvbitl, size);
 
 	// line
-	bits::StrideDynRankSel<util::FenwickFixedF, S> fixedfS(bitvect, size);
-	bits::StrideDynRankSel<util::FenwickFixedL, S> fixedlS(bitvect, size);
-	bits::StrideDynRankSel<util::FenwickBitF, S> bitS(bitvect, size);
-	bits::StrideDynRankSel<util::FenwickBitL, S> bitlS(bitvect, size);
-	bits::StrideDynRankSel<util::FenwickByteF, S> byteS(bitvect, size);
-	bits::StrideDynRankSel<util::FenwickByteL, S> bytelS(bitvect, size);
+	bits::StrideDynRankSel<util::FenwickFixedF, S> fixedfS(bvfixedfS, size);
+	bits::StrideDynRankSel<util::FenwickFixedL, S> fixedlS(bvfixedlS, size);
+	bits::StrideDynRankSel<util::FenwickBitF, S> bitS(bvbitfS, size);
+	bits::StrideDynRankSel<util::FenwickBitL, S> bitlS(bvbitlS, size);
+	bits::StrideDynRankSel<util::FenwickByteF, S> byteS(bvbytefS, size);
+	bits::StrideDynRankSel<util::FenwickByteL, S> bytelS(bvbytelS, size);
 
 	// rank
 	for (size_t i = 0; i < ones; i++) {
@@ -254,7 +273,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	for (size_t pos = 0; pos < fixedf.rank(size); pos++) {
 		auto res = fixedf.rank(pos);
 
-		if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
+		if (bvfixedf[pos / 64] & UINT64_C(1) << pos % 64) {
 			EXPECT_EQ(pos, fixedf.select(res)) << "at index " << pos << ", stride " << S;
 			EXPECT_EQ(pos, fixedl.select(res)) << "at index " << pos << ", stride " << S;
 			EXPECT_EQ(pos, bit.select(res)) << "at index " << pos << ", stride " << S;
@@ -290,7 +309,7 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 
 		auto res = fixedf.rankZero(pos);
 
-		if (bitvect[pos / 64] & UINT64_C(1) << pos % 64) {
+		if (bvfixedf[pos / 64] & UINT64_C(1) << pos % 64) {
 			EXPECT_LT(pos, fixedf.selectZero(res)) << "at index " << pos << ", stride " << S;
 			EXPECT_LT(pos, fixedl.selectZero(res)) << "at index " << pos << ", stride " << S;
 			EXPECT_LT(pos, bit.selectZero(res)) << "at index " << pos << ", stride " << S;
@@ -375,7 +394,19 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	}
 
 	delete[] updates;
-	delete[] bitvect;
+
+  delete[] bvbitlS;
+  delete[] bvbitfS;
+  delete[] bvbytelS;
+  delete[] bvbytefS;
+  delete[] bvfixedlS;
+  delete[] bvfixedfS;
+  delete[] bvbitl;
+  delete[] bvbitf;
+  delete[] bvbytel;
+  delete[] bvbytef;
+  delete[] bvfixedl;
+  delete[] bvfixedf;
 }
 
 TEST(dynranksel, small_large) {
