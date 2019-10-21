@@ -56,9 +56,9 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	uint64_t msbs_step_l;
 	uint64_t compressor;
 
-	__inline static void set(uint64_t *const bits, const uint64_t pos) { bits[pos / 64] |= 1ULL << pos % 64; }
+	__inline static void set(util::Vector<uint64_t, AT>& bits, const uint64_t pos) { bits[pos / 64] |= 1ULL << pos % 64; }
 
-	__inline static uint64_t get_bits(const uint64_t *const bits, const uint64_t start, const int width) {
+	__inline static uint64_t get_bits(util::Vector<uint64_t, AT>& bits, const uint64_t start, const int width) {
 		const int start_word = start / 64;
 		const int start_bit = start % 64;
 		const int total_offset = start_bit + width;
@@ -66,7 +66,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		return (total_offset <= 64 ? result : result | bits[start_word + 1] << (64 - start_bit)) & ((1ULL << width) - 1);
 	}
 
-	__inline static void set_bits(uint64_t *const bits, const uint64_t start, const int width, const uint64_t value) {
+	__inline static void set_bits(util::Vector<uint64_t, AT>& bits, const uint64_t start, const int width, const uint64_t value) {
 		const uint64_t start_word = start / 64;
 		const uint64_t end_word = (start + width - 1) / 64;
 		const uint64_t start_bit = start % 64;
@@ -111,8 +111,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		uint64_t pos = 0;
 		for (uint64_t i = 0; i < num_bits; i++) {
 			if (bits[i / 64] & (1ULL << i % 64)) {
-				if (l != 0) set_bits(lower_bits.p(), pos * l, l, i & lower_bits_mask);
-				set(upper_bits.p(), (i >> l) + pos);
+				if (l != 0) set_bits(lower_bits, pos * l, l, i & lower_bits_mask);
+				set(upper_bits, (i >> l) + pos);
 				pos++;
 			}
 		}
@@ -124,8 +124,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		//       upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(upper_bits.p(), num_ones + (num_bits >> l));
-		selectz_upper = SimpleSelectZeroHalf(upper_bits.p(), num_ones + (num_bits >> l));
+		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l));
+		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l));
 
 		block_size = 0;
 		do
@@ -180,8 +180,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		upper_bits = new uint64_t[((num_ones + (num_bits >> l) + 1) + 63) / 64]();
 
 		for (uint64_t i = 0; i < num_ones; i++) {
-			if (l != 0) set_bits(lower_bits.p(), i * l, l, ones[i] & lower_bits_mask);
-			set(upper_bits.p(), (ones[i] >> l) + i);
+			if (l != 0) set_bits(lower_bits, i * l, l, ones[i] & lower_bits_mask);
+			set(upper_bits, (ones[i] >> l) + i);
 		}
 
 #ifdef DEBUG
@@ -189,8 +189,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1], upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(upper_bits.p(), num_ones + (num_bits >> l));
-		selectz_upper = SimpleSelectZeroHalf(upper_bits.p(), num_ones + (num_bits >> l));
+		select_upper = SimpleSelectHalf(upper_bits, num_ones + (num_bits >> l));
+		selectz_upper = SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
 
 		block_size = 0;
 		do
@@ -238,7 +238,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 			rank--;
 			rank_times_l -= l;
 			pos--;
-		} while (pos >= 0 && (upper_bits[pos / 64] & 1ULL << pos % 64) && get_bits(lower_bits.p(), rank_times_l, l) >= k_lower_bits);
+		} while (pos >= 0 && (upper_bits[pos / 64] & 1ULL << pos % 64) && get_bits(lower_bits, rank_times_l, l) >= k_lower_bits);
 
 		return ++rank;
 #else
@@ -259,16 +259,16 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("pos: %lld rank: %lld\n", pos, rank);
 #endif
 
-		uint64_t block_upper_bits.p(), block_lower_bits;
+		uint64_t block_upper_bits, block_lower_bits;
 
 		while (rank > block_size) {
 			rank -= block_size;
 			rank_times_l -= block_length;
 			pos -= block_size;
-			block_upper_bits = get_bits(upper_bits.p(), pos, block_size);
-			block_lower_bits = get_bits(lower_bits.p(), rank_times_l, block_length);
+			block_upper_bits = get_bits(upper_bits, pos, block_size);
+			block_lower_bits = get_bits(lower_bits, rank_times_l, block_length);
 
-			// printf( "block upper bits: %llx block lower bits: %llx\n", block_upper_bits.p(), block_lower_bits
+			// printf( "block upper bits: %llx block lower bits: %llx\n", block_upper_bits, block_lower_bits
 			// );
 
 			const uint64_t cmp =
@@ -284,12 +284,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 			if (cmp_compr) return rank + 1 + lambda_safe(cmp_compr);
 		}
 
-		block_upper_bits = get_bits(upper_bits.p(), pos - rank, rank);
-		block_lower_bits = get_bits(lower_bits.p(), 0, rank_times_l);
+		block_upper_bits = get_bits(upper_bits, pos - rank, rank);
+		block_lower_bits = get_bits(lower_bits, 0, rank_times_l);
 
 		// printf( "\nTail (%lld bits)...\n", rank );
 
-		// printf( "block upper bits: %llx block lower bits: %llx\n", block_upper_bits.p(), block_lower_bits
+		// printf( "block upper bits: %llx block lower bits: %llx\n", block_upper_bits, block_lower_bits
 		// );
 
 		const uint64_t cmp =
@@ -313,10 +313,10 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("Selecting %lld...\n", rank);
 #endif
 #ifdef DEBUG
-		printf("Returning %lld = %llx << %d | %llx\n", (select_upper.select(rank) - rank) << l | get_bits(lower_bits.p(), rank * l, l), select_upper.select(rank) - rank, l,
-			   get_bits(lower_bits.p(), rank * l, l));
+		printf("Returning %lld = %llx << %d | %llx\n", (select_upper.select(rank) - rank) << l | get_bits(lower_bits, rank * l, l), select_upper.select(rank) - rank, l,
+			   get_bits(lower_bits, rank * l, l));
 #endif
-		return (select_upper.select(rank) - rank) << l | get_bits(lower_bits.p(), rank * l, l);
+		return (select_upper.select(rank) - rank) << l | get_bits(lower_bits, rank * l, l);
 	}
 
 	uint64_t select(const uint64_t rank, uint64_t *const next) {
@@ -325,8 +325,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		t -= rank + 1;
 
 		const uint64_t position = rank * l;
-		*next = t << l | get_bits(lower_bits.p(), position + l, l);
-		return s << l | get_bits(lower_bits.p(), position, l);
+		*next = t << l | get_bits(lower_bits, position + l, l);
+		return s << l | get_bits(lower_bits, position, l);
 	}
 
 	/** Returns the size in bits of the underlying bit vector. */
