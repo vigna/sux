@@ -84,7 +84,9 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
   public:
 	Vector<T, AT>() = default;
 
-	explicit Vector<T, AT>(size_t size) { resize(size); }
+	explicit Vector<T, AT>(size_t length) { size(length); }
+
+	explicit Vector<T, AT>(const T *data, size_t length) : Vector(length) { memcpy(this->data, data, length); }
 
 	~Vector<T, AT>() {
 		if (data) {
@@ -196,8 +198,14 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	/** Returns a pointer at the start of the backing array. */
 	inline T *p() const { return data; }
 
+	/** Returns a pointer at the start of the backing array. */
+	inline T *operator&() const { return data; }
+
 	/** Returns the given element of the vector. */
-	inline T &operator[](size_t i) const { return data[i]; };
+	inline const T &operator[](size_t i) const { return data[i]; };
+
+	/** Returns the given element of the vector. */
+	inline T &operator[](size_t i) { return data[i]; };
 
 	/** Returns the number of elements in this vector. */
 	inline size_t size() const { return _size; }
