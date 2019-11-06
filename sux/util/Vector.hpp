@@ -220,7 +220,7 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	/** Returns the number of bits used by this vector.
 	 * @return the number of bits used by this vector.
 	 */
-	size_t bitCount() const { return sizeof(Vector<T, AT>) * 8 + _capacity * sizeof(T) * 8; }
+	size_t bitCount() const { return sizeof(this) * 8 + _capacity * sizeof(T) * 8; }
 
   private:
 	static size_t page_aligned(size_t size) {

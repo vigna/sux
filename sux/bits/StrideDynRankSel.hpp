@@ -151,7 +151,7 @@ class StrideDynRankSel : public DynamicBitVector, public Rank, public Select, pu
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(StrideDynRankSel<SPS, WORDS, AT>) + ((Size + 63) & ~63) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
+	virtual size_t bitCount() const { return SrcPrefSum.bitCount() - sizeof(SrcPrefSum) * 8 + sizeof(this) * 8 + ((Size + 63) & ~63); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) {

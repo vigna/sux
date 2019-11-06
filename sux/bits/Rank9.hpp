@@ -97,7 +97,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9 : public Ran
 	}
 
 	/** Returns an estimate of the size in bits of this structure. */
-	uint64_t bitCount() { return counts.bitCount() + sizeof(Rank9) * 8; }
+	size_t bitCount() const { return counts.bitCount() - sizeof(counts) * 8 + sizeof(this) * 8; }
 
 	/** Returns the size in bits of the underlying bit vector. */
 	size_t size() const { return num_bits; }

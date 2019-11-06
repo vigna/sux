@@ -220,7 +220,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectZeroHa
 	}
 
 	/** Returns an estimate of the size (in bits) of this structure. */
-	uint64_t bitCount() { return inventory.bitCount() + sizeof(SimpleSelectZeroHalf) * 8; };
+	size_t bitCount() const { return inventory.bitCount() - sizeof(inventory) * 8 + sizeof(this) * 8; };
 };
 
 } // namespace sux::bits

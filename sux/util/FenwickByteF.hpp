@@ -146,7 +146,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteF : public Searc
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(FenwickByteF<BOUNDSIZE, AT>) * 8 + Tree.bitCount() - sizeof(Tree); }
+	virtual size_t bitCount() const { return Tree.bitCount() - sizeof(Tree) * 8 - sizeof(this) * 8; }
 
   private:
 	static inline size_t bytesize(size_t idx) { return ((rho(idx) + BOUNDSIZE - 1) >> 3) + 1; }

@@ -135,7 +135,7 @@ template <template <size_t, util::AllocType AT> class SPS, util::AllocType AT = 
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return sizeof(WordDynRankSel<SPS, AT>) + ((Size + 63) & ~63) + SrcPrefSum.bitCount() - sizeof(SrcPrefSum); }
+	virtual size_t bitCount() const { return SrcPrefSum.bitCount() - sizeof(SrcPrefSum) * 8 + sizeof(this) * 8 + ((Size + 63) & ~63); }
 
   private:
 	static size_t divRoundup(size_t x, size_t y) { return (x + y - 1) / y; }
