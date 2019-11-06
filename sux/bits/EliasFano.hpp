@@ -337,7 +337,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	size_t size() const { return num_bits; }
 
 	/** Returns an estimate of the size in bits of this structure. */
-	uint64_t bitCount() { return upper_bits.bitCount() + lower_bits.bitCount() + select_upper.bitCount() + selectz_upper.bitCount() + sizeof(EliasFano); }
+	uint64_t bitCount() { return upper_bits.bitCount() + lower_bits.bitCount() + select_upper.bitCount() + selectz_upper.bitCount() + sizeof(EliasFano)*8; }
 };
 
 } // namespace sux::bits
