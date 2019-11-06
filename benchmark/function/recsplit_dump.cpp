@@ -13,24 +13,27 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	FILE *keys_fp = fopen(argv[1], "r");
-	if (keys_fp == NULL) {
-		fprintf(stderr, "Keys file %s not found\n", argv[1]);
+	ifstream ifs;
+	ifs.open(argv[1]);
+	if (!ifs) {
+		cerr << "Can't open file \"" << argv[1] << "\"" << endl;
 		return 1;
 	}
 	const size_t bucket_size = strtoll(argv[2], NULL, 0);
 
 	printf("Building...\n");
 	auto begin = chrono::high_resolution_clock::now();
-	RecSplit<LEAF, ALLOC_TYPE> rs(keys_fp, bucket_size);
+	RecSplit<LEAF, ALLOC_TYPE> rs(ifs, bucket_size);
+	ifs.close();
+
 	auto elapsed = chrono::duration_cast<std::chrono::nanoseconds>(chrono::high_resolution_clock::now() - begin).count();
 	printf("Construction time: %.3f s, %.0f ns/key\n", elapsed * 1E-9, elapsed / (double)rs.size());
 
-	fstream fs;
-	fs.exceptions(fstream::failbit | fstream::badbit);
-	fs.open(argv[3], fstream::out | fstream::binary | fstream::trunc);
-	fs << rs;
-	fs.close();
+	ofstream ofs;
+	ofs.exceptions(fstream::failbit | fstream::badbit);
+	ofs.open(argv[3], fstream::out | fstream::binary | fstream::trunc);
+	ofs << rs;
+	ofs.close();
 
 	return 0;
 }

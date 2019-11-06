@@ -345,22 +345,17 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		hash_gen(&keys[0]);
 	}
 
-	/** Builds a RecSplit instance using a list of keys returned by a file and bucket size.
+	/** Builds a RecSplit instance using a list of keys returned by a stream and bucket size.
 	 *
 	 * **Warning**: duplicate keys will cause this method to never return.
 	 *
-	 * @param keys_fp an open file returning a list of keys, one per line.
+	 * @param input an open input stream returning a list of keys, one per line.
 	 * @param bucket_size the desired bucket size.
 	 */
-	RecSplit(FILE *keys_fp, const size_t bucket_size) {
+	RecSplit(ifstream& input, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		vector<hash128_t> h;
-		char *key = NULL;
-		size_t bsize = 0;
-		for (ssize_t key_len; (key_len = getline(&key, &bsize, keys_fp)) != -1;) {
-			h.push_back(first_hash(key, key_len));
-		}
-		if (key) free(key);
+		for(string key; getline(input, key);) h.push_back(first_hash(key.c_str(), key.size()));
 		this->keys_count = h.size();
 		hash_gen(&h[0]);
 	}

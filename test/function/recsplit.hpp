@@ -9,6 +9,7 @@
 
 using namespace std;
 using namespace sux;
+using namespace sux::function;
 
 using RecSplit2 = RecSplit<LEAF>;
 
@@ -79,7 +80,58 @@ TEST(recsplit_test, dump_and_load) {
 	fs >> rs_load;
 	fs.close();
 
-	for (size_t i = 0; i < rs_load.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
+	for (size_t i = 0; i < rs_dump.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
+	recsplit_unit_test(rs_load, keys);
+	remove(filename);
+}
+
+TEST(recsplit_test, small_hash_dump_and_load) {
+	vector<hash128_t> keys;
+	keys.push_back(hash128_t(0, 0));
+	keys.push_back(hash128_t(1, 1));
+	const char *filename = "test/test_dump";
+
+	RecSplit2 rs_dump(keys, BUCKET_SIZE_TEST);
+
+	fstream fs;
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(filename, fstream::out | fstream::binary | fstream::trunc);
+	fs << rs_dump;
+	fs.close();
+
+	RecSplit2 rs_load;
+	fs.open(filename, std::fstream::in | std::fstream::binary);
+	fs >> rs_load;
+	fs.close();
+
+	for (size_t i = 0; i < rs_dump.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
+	recsplit_unit_test(rs_load, keys);
+	remove(filename);
+}
+
+TEST(recsplit_test, small_text_dump_and_load) {
+	vector<string> keys;
+	keys.push_back("a");
+	keys.push_back("b");
+	keys.push_back("c");
+	keys.push_back("d");
+	const char *filename = "test/test_dump";
+
+	RecSplit<8> rs_dump(keys, 2);
+
+	fstream fs;
+	fs.exceptions(fstream::failbit | fstream::badbit);
+	fs.open(filename, fstream::out | fstream::binary | fstream::trunc);
+	fs << rs_dump;
+	fs.close();
+
+	RecSplit<8> rs_load;
+	fs.open(filename, std::fstream::in | std::fstream::binary);
+	fs >> rs_load;
+	fs.close();
+
+	for (size_t i = 0; i < rs_dump.size(); i++) ASSERT_EQ(rs_dump(keys[i]), rs_load(keys[i]));
+
 	recsplit_unit_test(rs_load, keys);
 	remove(filename);
 }

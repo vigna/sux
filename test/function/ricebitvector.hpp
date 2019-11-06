@@ -5,6 +5,7 @@
 #include <vector>
 
 using namespace std;
+using namespace sux;
 using namespace sux::function;
 
 static const size_t rice_test_nkeys = 256;
