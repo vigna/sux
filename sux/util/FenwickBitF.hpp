@@ -142,7 +142,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickBitF : public Search
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return Tree.bitCount() - sizeof(Tree) * 8 + sizeof(this) * 8; }
+	virtual size_t bitCount() const { return Tree.bitCount() - sizeof(Tree) * 8 + sizeof(*this) * 8; }
 
   private:
 	inline static size_t holes(size_t idx) { return STARTING_OFFSET + (idx >> 14) * 64; }

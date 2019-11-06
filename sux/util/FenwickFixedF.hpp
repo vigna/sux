@@ -142,7 +142,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickFixedF : public Sear
 
 	virtual size_t size() const { return Size; }
 
-	virtual size_t bitCount() const { return Tree.bitCount() - sizeof(Tree) * 8 + sizeof(this) * 8; }
+	virtual size_t bitCount() const { return Tree.bitCount() - sizeof(Tree) * 8 + sizeof(*this) * 8; }
 
   private:
 	static inline size_t holes(size_t idx) { return idx >> 14; }

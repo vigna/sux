@@ -339,7 +339,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 	/** Returns an estimate of the size in bits of this structure. */
 	uint64_t bitCount() {
 		return upper_bits.bitCount() - sizeof(upper_bits) * 8 + lower_bits.bitCount() - sizeof(lower_bits) * 8 + select_upper.bitCount() - sizeof(select_upper) * 8 + selectz_upper.bitCount() -
-			   sizeof(selectz_upper) * 8 + sizeof(this) * 8;
+			   sizeof(selectz_upper) * 8 + sizeof(*this) * 8;
 	}
 };
 

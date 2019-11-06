@@ -205,7 +205,7 @@ template <size_t BOUND, AllocType AT = MALLOC> class FenwickByteL : public Searc
 	virtual size_t size() const { return Size; }
 
 	virtual size_t bitCount() const {
-		size_t ret = sizeof(this) * 8;
+		size_t ret = sizeof(*this) * 8;
 		for (size_t i = 0; i < 64; i++) ret += Tree[i].bitCount() - sizeof(Tree[i]) * 8;
 		return ret;
 	}

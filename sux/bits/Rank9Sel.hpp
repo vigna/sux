@@ -283,7 +283,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class Rank9Sel : public 
 	}
 
 	size_t bitCount() const {
-		return this->counts.bitCount() - sizeof(this->counts) * 8 + inventory.bitCount() - sizeof(inventory) * 8 + subinventory.bitCount() - sizeof(subinventory) * 8 + sizeof(this) * 8;
+		return this->counts.bitCount() - sizeof(this->counts) * 8 + inventory.bitCount() - sizeof(inventory) * 8 + subinventory.bitCount() - sizeof(subinventory) * 8 + sizeof(*this) * 8;
 	}
 };
 

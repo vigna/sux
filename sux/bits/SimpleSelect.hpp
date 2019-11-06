@@ -268,7 +268,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelect : pub
 	}
 
 	/** Returns an estimate of the size (in bits) of this structure. */
-	size_t bitCount() const { return inventory.bitCount() - sizeof(inventory) * 8 + exact_spill.bitCount() - sizeof(exact_spill) * 8 + sizeof(this) * 8; }
+	size_t bitCount() const { return inventory.bitCount() - sizeof(inventory) * 8 + exact_spill.bitCount() - sizeof(exact_spill) * 8 + sizeof(*this) * 8; }
 };
 
 } // namespace sux::bits
