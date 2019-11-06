@@ -22,11 +22,11 @@ TEST(dynranksel, all_ones) {
 		uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
 
 		for (size_t i = 0; i < size; i++) bvfixedf[i / 64] |= UINT64_C(1) << i % 64;
-    memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-    memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-    memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-    memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-    memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+		memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+		memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+		memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+		memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+		memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
 
 		bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
 		bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
@@ -85,12 +85,12 @@ TEST(dynranksel, all_ones) {
 			EXPECT_EQ(i, bitl.rankZero(i)) << "at index " << i;
 		}
 
-    delete[] bvbitl;
-    delete[] bvbitf;
-    delete[] bvbytel;
-    delete[] bvbytef;
-    delete[] bvfixedl;
-    delete[] bvfixedf;
+		delete[] bvbitl;
+		delete[] bvbitf;
+		delete[] bvbytel;
+		delete[] bvbytef;
+		delete[] bvfixedl;
+		delete[] bvfixedf;
 	}
 }
 
@@ -162,12 +162,12 @@ TEST(dynranksel, all_zeroes) {
 			EXPECT_EQ(i, bitl.rank(i)) << "at index " << i;
 		}
 
-    delete[] bvbitl;
-    delete[] bvbitf;
-    delete[] bvbytel;
-    delete[] bvbytef;
-    delete[] bvfixedl;
-    delete[] bvfixedf;
+		delete[] bvbitl;
+		delete[] bvbitf;
+		delete[] bvbytel;
+		delete[] bvbytef;
+		delete[] bvfixedl;
+		delete[] bvfixedf;
 	}
 }
 
@@ -175,18 +175,18 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 	using namespace sux;
 	const size_t words = size / 64 + ((size % 64 != 0) ? 1 : 0);
 
-  uint64_t *bvfixedf = new uint64_t[size / 64 + 1]();
-  uint64_t *bvfixedl = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbytef = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbytel = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbitf = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
-  uint64_t *bvfixedfS = new uint64_t[size / 64 + 1]();
-  uint64_t *bvfixedlS = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbytefS = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbytelS = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbitfS = new uint64_t[size / 64 + 1]();
-  uint64_t *bvbitlS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvfixedf = new uint64_t[size / 64 + 1]();
+	uint64_t *bvfixedl = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbytef = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbytel = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbitf = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbitl = new uint64_t[size / 64 + 1]();
+	uint64_t *bvfixedfS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvfixedlS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbytefS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbytelS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbitfS = new uint64_t[size / 64 + 1]();
+	uint64_t *bvbitlS = new uint64_t[size / 64 + 1]();
 
 	uint64_t *updates = new uint64_t[words + 1]();
 
@@ -197,27 +197,27 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 		ones += __builtin_popcountll(bvfixedf[i]);
 	}
 
-  memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvfixedfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvfixedlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbytefS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbytelS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbitfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
-  memcpy(bvbitlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvfixedl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbytef, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbytel, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbitf, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbitl, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvfixedfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvfixedlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbytefS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbytelS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbitfS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
+	memcpy(bvbitlS, bvfixedf, (size / 64 + 1) * sizeof(uint64_t));
 
 	const size_t zeros = size - ones;
 
 	// word
-  bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
-  bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
-  bits::WordDynRankSel<util::FenwickByteF> byte(bvbytef, size);
-  bits::WordDynRankSel<util::FenwickByteL> bytel(bvbytel, size);
-  bits::WordDynRankSel<util::FenwickBitF> bit(bvbitf, size);
-  bits::WordDynRankSel<util::FenwickBitL> bitl(bvbitl, size);
+	bits::WordDynRankSel<util::FenwickFixedF> fixedf(bvfixedf, size);
+	bits::WordDynRankSel<util::FenwickFixedL> fixedl(bvfixedl, size);
+	bits::WordDynRankSel<util::FenwickByteF> byte(bvbytef, size);
+	bits::WordDynRankSel<util::FenwickByteL> bytel(bvbytel, size);
+	bits::WordDynRankSel<util::FenwickBitF> bit(bvbitf, size);
+	bits::WordDynRankSel<util::FenwickBitL> bitl(bvbitl, size);
 
 	// line
 	bits::StrideDynRankSel<util::FenwickFixedF, S> fixedfS(bvfixedfS, size);
@@ -395,18 +395,18 @@ template <std::size_t S> void run_dynranksel(std::size_t size) {
 
 	delete[] updates;
 
-  delete[] bvbitlS;
-  delete[] bvbitfS;
-  delete[] bvbytelS;
-  delete[] bvbytefS;
-  delete[] bvfixedlS;
-  delete[] bvfixedfS;
-  delete[] bvbitl;
-  delete[] bvbitf;
-  delete[] bvbytel;
-  delete[] bvbytef;
-  delete[] bvfixedl;
-  delete[] bvfixedf;
+	delete[] bvbitlS;
+	delete[] bvbitfS;
+	delete[] bvbytelS;
+	delete[] bvbytefS;
+	delete[] bvfixedlS;
+	delete[] bvfixedfS;
+	delete[] bvbitl;
+	delete[] bvbitf;
+	delete[] bvbytel;
+	delete[] bvbytef;
+	delete[] bvfixedl;
+	delete[] bvfixedf;
 }
 
 TEST(dynranksel, small_large) {
