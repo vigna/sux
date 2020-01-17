@@ -59,4 +59,11 @@ the keys, whereas the “128” version uses 128-bit random keys. We suggest the
 latter for benchmarking as in any case the first step in RecSplit construction
 is mapping to 128-bit hashes.
 
+Licensing
+---------
+
+Sux is licensed exactly like `libstdc++` (GPLv3 + GCC Runtime Library
+Exception), which essentially means you can use it everywhere, exactly
+like `libstdc++`.
+
 seba (<mailto:sebastiano.vigna@unimi.it>)
