@@ -381,47 +381,47 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 
 		// Number of keys in this bucket
 		size_t m = cum_keys_next - cum_keys;
-
-		descriptors.readReset(bit_pos, skip_bits(m));
+		auto reader = descriptors.reader();
+		reader.readReset(bit_pos, skip_bits(m));
 		int level = 0;
 
 		while (m > upper_aggr) { // fanout = 2
-			const auto d = descriptors.readNext(golomb_param(m));
+			const auto d = reader.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const uint32_t split = ((uint16_t(m / 2 + upper_aggr - 1) / upper_aggr)) * upper_aggr;
 			if (hmod < split) {
 				m = split;
 			} else {
-				descriptors.skipSubtree(skip_nodes(split), skip_bits(split));
+				reader.skipSubtree(skip_nodes(split), skip_bits(split));
 				m -= split;
 				cum_keys += split;
 			}
 			level++;
 		}
 		if (m > lower_aggr) {
-			const auto d = descriptors.readNext(golomb_param(m));
+			const auto d = reader.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const int part = uint16_t(hmod) / lower_aggr;
 			m = min(lower_aggr, m - part * lower_aggr);
 			cum_keys += lower_aggr * part;
-			if (part) descriptors.skipSubtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
+			if (part) reader.skipSubtree(skip_nodes(lower_aggr) * part, skip_bits(lower_aggr) * part);
 			level++;
 		}
 
 		if (m > _leaf) {
-			const auto d = descriptors.readNext(golomb_param(m));
+			const auto d = reader.readNext(golomb_param(m));
 			const size_t hmod = remap16(remix(hash.second + d + start_seed[level]), m);
 
 			const int part = uint16_t(hmod) / _leaf;
 			m = min(_leaf, m - part * _leaf);
 			cum_keys += _leaf * part;
-			if (part) descriptors.skipSubtree(part, skip_bits(_leaf) * part);
+			if (part) reader.skipSubtree(part, skip_bits(_leaf) * part);
 			level++;
 		}
 
-		const auto b = descriptors.readNext(golomb_param(m));
+		const auto b = reader.readNext(golomb_param(m));
 		return cum_keys + remap16(remix(hash.second + b + start_seed[level]), m);
 	}
 

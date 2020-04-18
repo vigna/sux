@@ -38,10 +38,11 @@ template <sux::util::AllocType AT = sux::util::AllocType::MALLOC> static RiceBit
 }
 
 template <sux::util::AllocType AT = sux::util::AllocType::MALLOC> static void test_rice_trees(RiceBitVector<AT> &r, const vector<uint64_t> &keys, const int golomb_param, const size_t tree_offset) {
+	auto reader = r.reader();
 	for (size_t t = 0; t < rice_test_ntrees; ++t) {
-		r.readReset(t * tree_offset, golomb_param * keys.size());
+		reader.readReset(t * tree_offset, golomb_param * keys.size());
 		for (size_t i = 0; i < keys.size(); ++i) {
-			auto k = r.readNext(golomb_param);
+			auto k = reader.readNext(golomb_param);
 			ASSERT_EQ(k, keys[i]) << "ERROR: " << k << " != " << keys[i] << endl;
 		}
 	}
