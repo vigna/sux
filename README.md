@@ -1,4 +1,4 @@
-Sux 1.0.2
+Sux 1.0.3
 =========
 
 Welcome to the C++ part of the [Sux](http://sux.di.unimi.it/) project.

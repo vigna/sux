@@ -1,0 +1,9 @@
+(This file, NEWS, lists new features and enhancements. See CHANGES for fixes.)
+
+1.0.1 2019-05-18
+
+  * RecSplit is now thread-safe.
+
+1.0.0 2019-05-26
+
+  * First release.
