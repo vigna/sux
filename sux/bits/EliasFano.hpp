@@ -188,8 +188,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 
 		const uint64_t lower_bits_mask = (1ULL << l) - 1;
 
-		lower_bits = new uint64_t[(num_ones * l + 63) / 64 + 2 * (l == 0)];
-		upper_bits = new uint64_t[((num_ones + (num_bits >> l) + 1) + 63) / 64]();
+		lower_bits.size((num_ones * l + 63) / 64 + 2 * (l == 0));
+		upper_bits.size(((num_ones + (num_bits >> l) + 1) + 63) / 64);
 
 		for (uint64_t i = 0; i < num_ones; i++) {
 			if (l != 0) set_bits(lower_bits, i * l, l, ones[i] & lower_bits_mask);
@@ -201,8 +201,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1], upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(upper_bits, num_ones + (num_bits >> l));
-		selectz_upper = SimpleSelectZeroHalf(upper_bits, num_ones + (num_bits >> l));
+		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l));
+		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l));
 
 		block_size = 0;
 		do
