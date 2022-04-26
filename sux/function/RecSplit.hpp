@@ -436,6 +436,11 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 	/** Returns the number of keys used to build this RecSplit instance. */
 	inline size_t size() { return this->keys_count; }
 
+	/** Returns an estimate of the size in bits of this structure. */
+	size_t getBits() {
+		return ef.bitCountCumKeys() + ef.bitCountPosition() + descriptors.getBits() + 8 * sizeof(RecSplit);
+	}
+
   private:
 	// Maps a 128-bit to a bucket using the first 64-bit half.
 	inline uint64_t hash128_to_bucket(const hash128_t &hash) const { return remap128(hash.first, nbuckets); }
