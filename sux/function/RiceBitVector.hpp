@@ -117,7 +117,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class RiceBitVector {
 	RiceBitVector() {}
 	RiceBitVector(util::Vector<uint64_t, AT> data) : data(std::move(data)) {}
 
-	size_t getBits() const { return data.size() * sizeof(uint64_t); }
+	size_t getBits() const { return data.size() * sizeof(uint64_t) * 8; }
 
 	class Reader {
 		size_t curr_fixed_offset = 0;
