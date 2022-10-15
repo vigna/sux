@@ -195,7 +195,7 @@ inline int lambda_safe(uint64_t word) { return word == 0 ? -1 : 63 ^ __builtin_c
  *
  */
 inline uint64_t clear_rho(uint64_t word) {
-#ifdef __haswell__
+#ifdef __BMI__
 	return _blsr_u64(word);
 #else
 	return word & (word - 1);
@@ -373,7 +373,7 @@ inline size_t updroot(size_t j, size_t n) { return n & (SIZE_MAX << lambda((j ^ 
  *
  */
 inline uint64_t select64(uint64_t x, uint64_t k) {
-#ifndef __haswell__
+#ifndef __BMI2__
 	constexpr uint64_t kOnesStep4 = 0x1111111111111111ULL;
 	constexpr uint64_t kOnesStep8 = 0x0101010101010101ULL;
 	constexpr uint64_t kLAMBDAsStep8 = 0x80ULL * kOnesStep8;
