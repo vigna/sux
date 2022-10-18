@@ -26,6 +26,8 @@
 // slower than MD5.
 //
 
+#pragma once
+
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
