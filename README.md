@@ -59,6 +59,25 @@ the keys, whereas the “128” version uses 128-bit random keys. We suggest the
 latter for benchmarking as in any case the first step in RecSplit construction
 is mapping to 128-bit hashes.
 
+Testing
+-------
+Requirements: CMake >= 3.16.2
+
+### Build
+```
+mkdir bin
+cd bin
+cmake -DSUX_TESTING=1 ..
+cmake --build .
+```
+
+### Unit Tests
+```
+./test/bits_unittest --gtest_color=yes
+./test/function_unittest --gtest_color=yes
+./test/util_unittest --gtest_color=yes
+```
+
 Licensing
 ---------
 

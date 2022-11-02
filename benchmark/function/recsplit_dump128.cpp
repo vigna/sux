@@ -4,7 +4,11 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <utility>
 #include <sux/function/RecSplit.hpp>
+
+#define LEAF 4
+#define ALLOC_TYPE sux::util::AllocType::MALLOC
 
 using namespace std;
 using namespace sux::function;

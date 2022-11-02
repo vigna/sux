@@ -5,8 +5,11 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <utility>
 #include <sux/function/RecSplit.hpp>
 
+#define LEAF 4
+#define ALLOC_TYPE sux::util::AllocType::MALLOC
 #define SAMPLES (11)
 
 using namespace std;
