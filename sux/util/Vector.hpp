@@ -33,6 +33,7 @@
 #include <assert.h>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <sys/mman.h>
 
 namespace sux::util {
