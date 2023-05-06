@@ -371,6 +371,8 @@ inline size_t updroot(size_t j, size_t n) { return n & (SIZE_MAX << lambda((j ^ 
  *
  * [4] Facebook Folly library: https://github.com/facebook/folly
  *
+ * Long.trailingZeros(geqKStep8) has been replaced with nu(geqKStep8)
+ * following a suggestion by Giuseppe Ottaviano.
  */
 inline uint64_t select64(uint64_t x, uint64_t k) {
 #ifndef __BMI2__
