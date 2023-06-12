@@ -134,12 +134,11 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		//       upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l));
-		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l));
+		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
+		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
 
 		block_size = 0;
-		do
-			++block_size;
+		do ++block_size;
 		while (block_size * l + block_size <= 64 && block_size <= l);
 		block_size--;
 
@@ -201,12 +200,11 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1], upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l));
-		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l));
+		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
+		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
 
 		block_size = 0;
-		do
-			++block_size;
+		do ++block_size;
 		while (block_size * l + block_size <= 64 && block_size <= l);
 		block_size--;
 
