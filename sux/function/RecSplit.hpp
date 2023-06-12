@@ -36,9 +36,9 @@
 #include <cassert>
 #include <chrono>
 #include <cmath>
+#include <fstream>
 #include <string>
 #include <vector>
-#include <fstream>
 
 namespace sux::function {
 
@@ -361,10 +361,10 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 	 * @param input an open input stream returning a list of keys, one per line.
 	 * @param bucket_size the desired bucket size.
 	 */
-	RecSplit(ifstream& input, const size_t bucket_size) {
+	RecSplit(ifstream &input, const size_t bucket_size) {
 		this->bucket_size = bucket_size;
 		vector<hash128_t> h;
-		for(string key; getline(input, key);) h.push_back(first_hash(key.c_str(), key.size()));
+		for (string key; getline(input, key);) h.push_back(first_hash(key.c_str(), key.size()));
 		this->keys_count = h.size();
 		hash_gen(&h[0]);
 	}
@@ -435,6 +435,8 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 
 	/** Returns the number of keys used to build this RecSplit instance. */
 	inline size_t size() { return this->keys_count; }
+
+	size_t bitCount() { return ef.bitCountCumKeys() + ef.bitCountPosition() + descriptors.getBits() + 8 * sizeof(*this) - 8 * sizeof(descriptors); }
 
   private:
 	// Maps a 128-bit to a bucket using the first 64-bit half.
@@ -724,12 +726,14 @@ template <size_t LEAF_SIZE, util::AllocType AT = util::AllocType::MALLOC> class 
 		double ef_sizes = (double)ef.bitCountCumKeys() / keys_count;
 		double ef_bits = (double)ef.bitCountPosition() / keys_count;
 		double rice_desc = (double)builder.getBits() / keys_count;
+		double structure = sizeof(RecSplit) * 8. / keys_count;
 		printf("Elias-Fano cumul sizes:  %f bits/bucket\n", (double)ef.bitCountCumKeys() / nbuckets);
 		printf("Elias-Fano cumul bits:   %f bits/bucket\n", (double)ef.bitCountPosition() / nbuckets);
 		printf("Elias-Fano cumul sizes:  %f bits/key\n", ef_sizes);
 		printf("Elias-Fano cumul bits:   %f bits/key\n", ef_bits);
 		printf("Rice-Golomb descriptors: %f bits/key\n", rice_desc);
-		printf("Total bits:              %f bits/key\n", ef_sizes + ef_bits + rice_desc);
+		printf("Data structure:          %f bits/key\n", structure);
+		printf("Total bits:              %f bits/key\n", ef_sizes + ef_bits + rice_desc + structure);
 #endif
 #ifdef MORESTATS
 
