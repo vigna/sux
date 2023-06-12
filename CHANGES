@@ -1,6 +1,6 @@
 (This file, CHANGES, lists fixes. See NEWS for new features and enhancements.)
 
-1.0.3 2023-06-11
+1.0.4 2023-06-11
 
   * Fixed off-by-one sizing of selection structures in Elias-Fano lists.
     Thanks to Thomas D. Wu for reporting this bug.

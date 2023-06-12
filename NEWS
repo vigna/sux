@@ -1,6 +1,6 @@
 (This file, NEWS, lists new features and enhancements. See CHANGES for fixes.)
 
-1.0.3 2023-06-11
+1.0.4 2023-06-11
 
   * RecSplit has now a bitCount() function reporting the space used,
     including the structure itself. Also the printed information has been
