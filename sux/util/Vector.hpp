@@ -93,18 +93,18 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 	T *data = nullptr;
 
   public:
-	Vector<T, AT>() = default;
+	Vector() = default;
 
-	explicit Vector<T, AT>(size_t length) { size(length); }
+	explicit Vector(size_t length) { size(length); }
 
-	explicit Vector<T, AT>(const T *data, size_t length) : Vector(length) { memcpy(this->data, data, length); }
+	explicit Vector(const T *data, size_t length) : Vector(length) { memcpy(this->data, data, length); }
 
-	~Vector<T, AT>() {
+	~Vector() {
 		if (data) {
 			if (AT == MALLOC) {
 				free(data);
 			} else {
-				int result = munmap(data, _capacity);
+				int result = munmap(data, page_aligned(_capacity * sizeof(T)));
 				assert(result == 0 && "mmunmap failed");
 			}
 		}
@@ -250,15 +250,17 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
 			mem = _capacity == 0 ? malloc(space) : realloc(data, space);
 			assert(mem != NULL && "malloc failed");
 		} else {
-			space = page_aligned(size);
+			space = page_aligned(size * sizeof(T));
 			if (_capacity == 0)
 				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
 			else {
 #ifndef MREMAP_MAYMOVE
 				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
-				memcpy(mem, data, page_aligned(_capacity));
+				memcpy(mem, data, page_aligned(_capacity * sizeof(T)));
+				int resunmap = munmap(data, page_aligned(_capacity * sizeof(T)));
+				assert(resunmap == 0 && "mmunmap (remapping) failed");
 #else
-				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
+				mem = mremap(data, page_aligned(_capacity * sizeof(T)), space, MREMAP_MAYMOVE); //, -1, 0);
 #endif
 			}
 			assert(mem != MAP_FAILED && "mmap failed");
