@@ -13,8 +13,6 @@
 
 using namespace std;
 
-#define REPEATS 7
-
 using namespace sux;
 using namespace sux::bits;
 
@@ -32,7 +30,7 @@ void cpu_affinity() {
 	}
 }
 
-void bench_rank(uint64_t num_bits, uint64_t num_pos, double density0, double density1) {
+void bench_rank(uint64_t num_bits, uint64_t repeats, uint64_t num_pos, double density0, double density1) {
 	uint64_t u = 0;
 	uint64_t *const bits = (uint64_t *)calloc(num_bits / 64 + 1, sizeof *bits);
 	const uint64_t threshold0 = (uint64_t)((UINT64_MAX)*density0), threshold1 = (uint64_t)((UINT64_MAX)*density1);
@@ -60,7 +58,7 @@ void bench_rank(uint64_t num_bits, uint64_t num_pos, double density0, double den
 
 #ifndef NORANKTEST
 	auto begin = chrono::high_resolution_clock::now();
-	for (int k = REPEATS; k-- != 0;) {
+	for (int k = repeats; k-- != 0;) {
 		s[0] = 0x333e2c3815b27604;
 		s[1] = 0x47ed6e7691d8f09f;
 		for (int i = 0; i < num_pos; i++) u ^= rs.rank(remap128(next() ^ u, num_bits));
@@ -70,8 +68,8 @@ void bench_rank(uint64_t num_bits, uint64_t num_pos, double density0, double den
 	const uint64_t elapsed = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
 	const double secs = elapsed / 1E9;
 	const auto volatile unused = u;
-	printf("%f\n", 1E9 * secs / (REPEATS * num_pos));
-	// printf("%f s, %f ranks/s, %f ns/rank\n", secs, (REPEATS * num_pos) / secs, 1E9 * secs / (REPEATS * num_pos));
+	printf("%f\n", 1E9 * secs / (repeats * num_pos));
+	// printf("%f s, %f ranks/s, %f ns/rank\n", secs, (repeats * num_pos) / secs, 1E9 * secs / (repeats * num_pos));
 #endif
 }
 
@@ -126,20 +124,20 @@ double bench_select(uint64_t num_bits, uint64_t num_pos, double density0, double
 #endif
 }
 
-void bench_select_batch(uint64_t num_bits, uint64_t num_pos, double density0, double density1) {
+void bench_select_batch(uint64_t num_bits, uint64_t repeats, uint64_t num_pos, double density0, double density1) {
 	double time = 0;
-	for (int k = 0; k < REPEATS; k++) {
+	for (int k = 0; k < repeats; k++) {
 		time += bench_select(num_bits, num_pos, density0, density1);
 	}
-	time /= REPEATS;
+	time /= repeats;
 	printf("%f\n", time);
 }
 
 int main(int argc, char *argv[]) {
 	cpu_affinity();
 
-	if (argc < 4) {
-		fprintf(stderr, "Usage: %s NUMBITS NUMPOS DENSITY0 [DENSITY1]\n", argv[0]);
+	if (argc < 5) {
+		fprintf(stderr, "Usage: %s NUMBITS REPEATS NUMPOS DENSITY0 [DENSITY1]\n", argv[0]);
 		return 0;
 	}
 
@@ -152,9 +150,10 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 #endif
-	const uint64_t num_pos = strtoll(argv[2], NULL, 0);
+	const uint64_t repeats = strtoll(argv[2], NULL, 0);
+	const uint64_t num_pos = strtoll(argv[3], NULL, 0);
 
-	double density0 = atof(argv[3]), density1 = argc > 4 ? atof(argv[4]) : density0;
+	double density0 = atof(argv[4]), density1 = argc > 5 ? atof(argv[5]) : density0;
 	assert(density0 >= 0);
 	assert(density0 <= 1);
 	assert(density1 >= 0);
@@ -162,13 +161,13 @@ int main(int argc, char *argv[]) {
 
 #ifndef NORANKTEST
 
-	bench_rank(num_bits, num_pos, density0, density1);
+	bench_rank(num_bits, repeats, num_pos, density0, density1);
 
 #endif
 
 #ifndef NOSELECTTEST
 
-	bench_select_batch(num_bits, num_pos, density0, density1);
+	bench_select_batch(num_bits, repeats, num_pos, density0, density1);
 
 #endif
 	return 0;
