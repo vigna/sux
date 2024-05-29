@@ -35,7 +35,8 @@ ranksel: benchmark/bits/ranksel.cpp
 	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelect -DNORANKTEST -DMAX_LOG2_LONGWORDS_PER_SUBINVENTORY=3 benchmark/bits/ranksel.cpp -o bin/testsimplesel3
 	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=SimpleSelectHalf -DNORANKTEST benchmark/bits/ranksel.cpp -o bin/testsimplehalf
 	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=EliasFano benchmark/bits/ranksel.cpp -o bin/testeliasfano
-	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel benchmark/bits/ranksel.cpp -o bin/testrank9sel
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9Sel -DNORANKTEST benchmark/bits/ranksel.cpp -o bin/testrank9sel
+	$(CXX) -std=c++17 -I./ -O3 -march=native -DCLASS=Rank9 -DNOSELECTTEST benchmark/bits/ranksel.cpp -o bin/testrank9
 
 fenwick: benchmark/util/fenwick.cpp
 	@mkdir -p bin/fenwick
