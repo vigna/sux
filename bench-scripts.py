@@ -2,6 +2,7 @@ import subprocess
 import sys
 from tqdm import tqdm
 from itertools import product
+import os
 
 lens = [1_000_000,
         4_000_000,
@@ -18,7 +19,7 @@ num_pos = 70_000_000
 if __name__ == '__main__':
     choices = ["rank", "select"]
 
-    if sys.argv < 2:
+    if len(sys.argv) < 2:
         print("Usage: python3 bench-scripts.py <choice>")
         print("Choices: rank, select")
         sys.exit(1)
@@ -28,6 +29,9 @@ if __name__ == '__main__':
     if choice not in choices:
         print("Invalid choice")
         sys.exit(1)
+
+    if not os.path.exists("./bench-results"):
+        os.makedirs("./bench-results")
 
     if choice == "rank":
         print("rank9...")
