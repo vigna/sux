@@ -9,13 +9,28 @@
 #include <sux/bits/Rank9Sel.hpp>
 #include <sux/bits/SimpleSelect.hpp>
 #include <sux/bits/SimpleSelectHalf.hpp>
+#include <thread>
 
 using namespace std;
 
-#define REPEATS 10
+#define REPEATS 7
 
 using namespace sux;
 using namespace sux::bits;
+
+void cpu_affinity() {
+	int pinCore = 1;
+	pthread_t self = pthread_self();
+	cpu_set_t cpuset;
+	CPU_ZERO(&cpuset);
+	CPU_SET(pinCore, &cpuset);
+
+	int rc = pthread_setaffinity_np(self, sizeof(cpu_set_t), &cpuset);
+	if (rc != 0) {
+		printf("Failed to pin core: %s\n", strerror(errno));
+		exit(1);
+	}
+}
 
 void bench_rank(uint64_t num_bits, uint64_t num_pos, double density0, double density1) {
 	uint64_t u = 0;
@@ -121,6 +136,8 @@ void bench_select_batch(uint64_t num_bits, uint64_t num_pos, double density0, do
 }
 
 int main(int argc, char *argv[]) {
+	cpu_affinity();
+
 	if (argc < 4) {
 		fprintf(stderr, "Usage: %s NUMBITS NUMPOS DENSITY0 [DENSITY1]\n", argv[0]);
 		return 0;
