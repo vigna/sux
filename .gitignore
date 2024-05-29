@@ -3,3 +3,5 @@ html/
 include/
 latex/
 README.html
+.vscode/
+bench-results/*
