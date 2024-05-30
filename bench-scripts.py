@@ -52,13 +52,13 @@ if __name__ == '__main__':
         run_bench("testrank9", "rank9", uniform=True)
     elif choice == "select":
         print("rank9sel...")
-        run_bench("testrank9sel", "rank9sel", uniform=True)
+        run_bench("testrank9sel", "select9", uniform=True)
 
         print("simple_select...")
         run_bench("testsimplesel3", "simple_select", uniform=True)
     elif choice == "select_non_uniform":
         print("rank9sel_non_uniform...")
-        run_bench("testrank9sel", "rank9sel_non_uniform", uniform=False)
+        run_bench("testrank9sel", "select9_non_uniform", uniform=False)
 
         print("simple_select_non_uniform...")
         run_bench("testsimplesel3", "simple_select_non_uniform", uniform=False)
