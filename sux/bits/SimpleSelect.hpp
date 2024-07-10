@@ -129,6 +129,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelect : pub
 		printf("Inventory entries filled: %" PRId64 "\n", inventory_size + 1);
 #endif
 
+		// If ones_per_inventory = 1 we don't need to build subinventories;
+		// this case is managed in the selection code by a test.
 		if (ones_per_inventory > 1) {
 			d = 0;
 			int ones;
