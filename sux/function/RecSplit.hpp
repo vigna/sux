@@ -39,6 +39,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <span>
 
 namespace sux::function {
 
