@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+
 import subprocess
 import sys
 from tqdm import tqdm
 from itertools import product
 import os
+
+# Bit lengths to try
 
 lens = [1_000_000,
         4_000_000,
@@ -12,9 +16,15 @@ lens = [1_000_000,
         1_024_000_000,
         ]
 
+# Densities
+
 densities = [0.1, 0.5, 0.9]
 
+# Number of experiments 
+
 repeats = 7
+
+# Number of tested positions
 
 num_pos = 70_000_000
 
@@ -33,8 +43,10 @@ if __name__ == '__main__':
     choices = ["rank", "select", "select_non_uniform"]
 
     if len(sys.argv) < 2:
-        print("Usage: python3 bench-scripts.py <choice>")
-        print("Choices: rank, select, select_non_uniform")
+        print("Usage: bench.py [rank|select|select_non_uniform]")
+        print()
+        print("Run the specified benchmarks and saves CSV files in bench-results")
+        print("Please compile the benchmarks with \"make ranksel\" first")
         sys.exit(1)
 
     choice = sys.argv[1]
