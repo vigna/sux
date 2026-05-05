@@ -51,12 +51,12 @@ using namespace sux;
  * @tparam AT a type of memory allocation out of sux::util::AllocType.
  */
 
-template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
+template <util::AllocType AT = util::AllocType::MALLOC, int LOG2_ONES_PER_INVENTORY = 10, int LOG2_LONGWORDS_PER_SUBINVENTORY = 2> class SimpleSelectHalf {
   private:
-	static const int log2_ones_per_inventory = 10;
+	static const int log2_ones_per_inventory = LOG2_ONES_PER_INVENTORY;
 	static const int ones_per_inventory = 1 << log2_ones_per_inventory;
 	static const int ones_per_inventory_mask = ones_per_inventory - 1;
-	static const uint64_t log2_longwords_per_subinventory = 2;
+	static const uint64_t log2_longwords_per_subinventory = LOG2_LONGWORDS_PER_SUBINVENTORY;
 	static const int longwords_per_subinventory = 1 << log2_longwords_per_subinventory;
 	static const int log2_ones_per_sub64 = log2_ones_per_inventory - log2_longwords_per_subinventory;
 	static const int ones_per_sub64 = 1 << log2_ones_per_sub64;
@@ -166,6 +166,28 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 #endif
 	}
 
+  private:
+	__attribute__((noinline)) uint64_t select_cold(const int64_t *inventory_start, const int64_t inventory_rank, const int subrank) const {
+		assert((subrank >> log2_ones_per_sub64) < longwords_per_subinventory);
+		uint64_t start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> log2_ones_per_sub64));
+		int residual = subrank & ones_per_sub64_mask;
+
+		if (residual == 0) return start;
+
+		uint64_t word_index = start / 64;
+		uint64_t word = bits[word_index] & -1ULL << start % 64;
+
+		for (;;) {
+			const int bit_count = __builtin_popcountll(word);
+			if (residual < bit_count) break;
+			word = bits[++word_index];
+			residual -= bit_count;
+		}
+
+		return word_index * 64 + select64(word, residual);
+	}
+
+  public:
 	uint64_t select(const uint64_t rank) {
 #ifdef DEBUG
 		printf("Selecting %" PRId64 "\n...", rank);
@@ -182,17 +204,11 @@ template <util::AllocType AT = util::AllocType::MALLOC> class SimpleSelectHalf {
 		printf("Rank: %" PRId64 " inventory index: %" PRId64 " inventory rank: %" PRId64 " subrank: %d\n", rank, inventory_index, inventory_rank, subrank);
 #endif
 
-		uint64_t start;
-		int residual;
+		if (__builtin_expect(inventory_rank < 0, 0))
+			return select_cold(inventory_start, inventory_rank, subrank);
 
-		if (inventory_rank >= 0) {
-			start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> log2_ones_per_sub16];
-			residual = subrank & ones_per_sub16_mask;
-		} else {
-			assert((subrank >> log2_ones_per_sub64) < longwords_per_subinventory);
-			start = -inventory_rank - 1 + *(inventory_start + 1 + (subrank >> log2_ones_per_sub64));
-			residual = subrank & ones_per_sub64_mask;
-		}
+		uint64_t start = inventory_rank + ((uint16_t *)(inventory_start + 1))[subrank >> log2_ones_per_sub16];
+		int residual = subrank & ones_per_sub16_mask;
 
 #ifdef DEBUG
 		printf("Differential; start: %" PRId64 " residual: %d\n", start, residual);

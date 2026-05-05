@@ -49,11 +49,11 @@ using namespace sux;
  * @tparam AT a type of memory allocation out of sux::util::AllocType.
  */
 
-template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public Rank, public Select {
+template <util::AllocType AT = util::AllocType::MALLOC, int LOG2_ONES_PER_INVENTORY = 10, int LOG2_LONGWORDS_PER_SUBINVENTORY = 2> class EliasFano : public Rank, public Select {
   private:
 	util::Vector<uint64_t, AT> lower_bits, upper_bits;
-	SimpleSelectHalf<AT> select_upper;
-	SimpleSelectZeroHalf<AT> selectz_upper;
+	SimpleSelectHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY> select_upper;
+	SimpleSelectZeroHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY> selectz_upper;
 	uint64_t num_bits, num_ones;
 	int l;
 	int block_size;
@@ -72,6 +72,12 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		const int total_offset = start_bit + width;
 		const uint64_t result = bits[start_word] >> start_bit;
 		return (total_offset <= 64 ? result : result | bits[start_word + 1] << (64 - start_bit)) & ((1ULL << width) - 1);
+	}
+
+	__inline static uint64_t get_bits_unaligned(util::Vector<uint64_t, AT> &bits, const uint64_t start, const int width) {
+		uint64_t word;
+		memcpy(&word, reinterpret_cast<const char *>(&bits[0]) + start / 8, sizeof(word));
+		return (word >> (start % 8)) & ((1ULL << width) - 1);
 	}
 
 	__inline static void set_bits(util::Vector<uint64_t, AT> &bits, const uint64_t start, const int width, const uint64_t value) {
@@ -134,8 +140,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		//       upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
-		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
+		select_upper = SimpleSelectHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY>(&upper_bits, num_ones + (num_bits >> l) + 1);
+		selectz_upper = SimpleSelectZeroHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY>(&upper_bits, num_ones + (num_bits >> l) + 1);
 
 		block_size = 0;
 		do ++block_size;
@@ -200,8 +206,8 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("First upper: %016llx %016llx %016llx %016llx\n", upper_bits[0], upper_bits[1], upper_bits[2], upper_bits[3]);
 #endif
 
-		select_upper = SimpleSelectHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
-		selectz_upper = SimpleSelectZeroHalf(&upper_bits, num_ones + (num_bits >> l) + 1);
+		select_upper = SimpleSelectHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY>(&upper_bits, num_ones + (num_bits >> l) + 1);
+		selectz_upper = SimpleSelectZeroHalf<AT, LOG2_ONES_PER_INVENTORY, LOG2_LONGWORDS_PER_SUBINVENTORY>(&upper_bits, num_ones + (num_bits >> l) + 1);
 
 		block_size = 0;
 		do ++block_size;
@@ -326,7 +332,7 @@ template <util::AllocType AT = util::AllocType::MALLOC> class EliasFano : public
 		printf("Returning %lld = %llx << %d | %llx\n", (select_upper.select(rank) - rank) << l | get_bits(lower_bits, rank * l, l), select_upper.select(rank) - rank, l,
 			   get_bits(lower_bits, rank * l, l));
 #endif
-		return (select_upper.select(rank) - rank) << l | get_bits(lower_bits, rank * l, l);
+		return (select_upper.select(rank) - rank) << l | get_bits_unaligned(lower_bits, rank * l, l);
 	}
 
 	uint64_t select(const uint64_t rank, uint64_t *const next) {
